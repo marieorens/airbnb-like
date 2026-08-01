@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 import ListingReservation from "./ListingReservation";
-import { createPaymentSession, createReservation } from "@/services/reservation";
+import { createPaymentSession } from "@/services/reservation-actions";
 import type { CurrentUser } from "@/types/listing";
 
 const initialDateRange = {

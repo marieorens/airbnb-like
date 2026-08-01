@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
 
 import { cn } from "@/utils/helper";
-import { updateFavorite } from "@/services/favorite";
+import { updateFavorite } from "@/services/favorite-actions";
 
 interface HeartButtonProps {
   listingId: string;

@@ -18,7 +18,7 @@ import CountrySelect from "../inputs/CountrySelect";
 import ImageUpload from "../ImageUpload";
 
 import { categories } from "@/utils/constants";
-import { createListing } from "@/services/listing";
+import { createListing } from "@/services/listing-actions";
 
 const steps = {
   "0": "category",

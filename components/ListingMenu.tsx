@@ -9,8 +9,8 @@ import Menu from "./Menu";
 import Modal from "./modals/Modal";
 import ConfirmDelete from "./ConfirmDelete";
 
-import { deleteProperty } from "@/services/properties";
-import { deleteReservation } from "@/services/reservation";
+import { deleteProperty } from "@/services/properties-actions";
+import { deleteReservation } from "@/services/reservation-actions";
 
 const pathNameDict: { [x: string]: string } = {
   "/properties": "Delete property",
