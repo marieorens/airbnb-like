@@ -57,7 +57,7 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
         title={title}
       >
         <ListingInfo
-          user={owner}
+          user={owner ?? { name: null, image: null }}
           category={category}
           description={description}
           roomCount={roomCount}

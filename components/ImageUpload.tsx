@@ -1,9 +1,10 @@
 import React, { ChangeEvent, FC, useState, useTransition } from "react";
 import Image from "next/image";
 import { TbPhotoPlus } from "react-icons/tb";
+import toast from "react-hot-toast";
 
 import SpinnerMini from "./Loader";
-import { useEdgeStore } from "@/lib/edgestore";
+import { createClient } from "@/lib/supabase/browser";
 import { cn } from "@/utils/helper";
 
 interface ImageUploadProps {
@@ -15,20 +16,42 @@ const ImageUpload: FC<ImageUploadProps> = ({ onChange, initialImage = "" }) => {
   const [image, setImage] = useState(initialImage);
   const [isLoading, startTransition] = useTransition();
   const [isDragging, setIsDragging] = useState(false);
-  const { edgestore } = useEdgeStore();
 
   const uploadImage = (e: any, file: File) => {
-    if(!file.type.startsWith("image")) return;
+    if (!file.type.startsWith("image")) return;
     setImage(URL.createObjectURL(file));
     startTransition(async () => {
-      const res = await edgestore.publicFiles.upload({
-        file,
-        options: {
-          replaceTargetUrl: initialImage,
-        },
-      });
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      onChange("image", res.url);
+      if (!user) {
+        toast.error("Please sign in to upload images.");
+        setImage(initialImage);
+        return;
+      }
+
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-");
+      const storagePath = `${user.id}/${Date.now()}-${safeFileName}`;
+      const { error } = await supabase.storage
+        .from("listing-photos")
+        .upload(storagePath, file, {
+          cacheControl: "3600",
+          upsert: true,
+        });
+
+      if (error) {
+        toast.error(error.message);
+        setImage(initialImage);
+        return;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("listing-photos").getPublicUrl(storagePath);
+
+      onChange("image", publicUrl);
       setTimeout(() => {
         e.target.form?.requestSubmit();
       }, 1000);

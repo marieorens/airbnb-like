@@ -1,10 +1,10 @@
 "use client";
 import React, { FC } from "react";
-import { Listing } from "@prisma/client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import ListingCard, { ListingSkeleton } from "./ListingCard";
 import { useLoadMore } from "@/hooks/useLoadMore";
+import type { Listing } from "@/types/listing";
 
 interface LoadMoreProps {
   nextCursor: string;

@@ -2,8 +2,6 @@
 import React from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { User } from "next-auth";
 
 import Avatar from "../Avatar";
 import MenuItem from "./MenuItem";
@@ -12,9 +10,11 @@ import RentModal from "../modals/RentModal";
 import Modal from "../modals/Modal";
 import AuthModal from "../modals/AuthModal";
 import { menuItems } from "@/utils/constants";
+import { createClient } from "@/lib/supabase/browser";
+import type { CurrentUser } from "@/types/listing";
 
 interface UserMenuProps {
-  user?: User;
+  user?: CurrentUser;
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
@@ -22,6 +22,13 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
 
   const redirect = (url: string) => {
     router.push(url);
+  };
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.refresh();
+    router.push("/");
   };
 
   return (
@@ -63,7 +70,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                     <MenuItem label="Share your home" />
                   </Modal.Trigger>
                   <hr />
-                  <MenuItem label="Log out" onClick={signOut} />
+                  <MenuItem label="Log out" onClick={handleSignOut} />
                 </>
               ) : (
                 <>

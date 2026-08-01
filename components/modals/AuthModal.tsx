@@ -3,7 +3,6 @@ import React, { useTransition, useState, useEffect } from "react";
 import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +11,7 @@ import Input from "../inputs/Input";
 import Button from "../Button";
 import Modal from "./Modal";
 import SpinnerMini from "../Loader";
-import { registerUser } from "@/services/auth";
+import { createClient } from "@/lib/supabase/browser";
 
 const AuthModal = ({
   name,
@@ -61,26 +60,35 @@ const AuthModal = ({
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     const { email, password, name } = data;
+    const supabase = createClient();
 
     startTransition(async () => {
       try {
         if (isLoginModal) {
-          const callback = await signIn("credentials", {
+          const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
-            redirect: false,
           });
 
-          if (callback?.error) {
-            throw new Error(callback.error);
-          }
-          if (callback?.ok) {
-            toast.success("You've successfully logged in.");
-            onCloseModal?.();
-            router.refresh();
-          }
+          if (error) throw error;
+
+          toast.success("You've successfully logged in.");
+          onCloseModal?.();
+          router.refresh();
         } else {
-          await registerUser({ email, password, name });
+          const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                full_name: name,
+              },
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
+
+          if (error) throw error;
+
           setTitle("Login");
           toast.success("You've successfully registered.");
           reset();
@@ -97,6 +105,18 @@ const AuthModal = ({
         }
       }
     });
+  };
+
+  const signInWithOAuth = async (provider: "google" | "github") => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) toast.error(error.message);
   };
 
   return (
@@ -160,7 +180,7 @@ const AuthModal = ({
         <hr />
         <Button
           outline
-          onClick={() => signIn("google")}
+          onClick={() => signInWithOAuth("google")}
           className="flex flex-row justify-center gap-2 items-center px-3 py-2"
         >
           <FcGoogle className="w-6 h-6" />
@@ -168,7 +188,7 @@ const AuthModal = ({
         </Button>
         <Button
           outline
-          onClick={() => signIn("github")}
+          onClick={() => signInWithOAuth("github")}
           className="flex flex-row justify-center gap-2 items-center px-3 py-2"
         >
           <AiFillGithub className="w-6 h-6" />

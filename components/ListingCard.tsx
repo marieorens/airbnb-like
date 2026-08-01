@@ -1,13 +1,13 @@
 import React from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Listing } from "@prisma/client";
 import Skeleton from "react-loading-skeleton";
 
 import HeartButton from "./HeartButton";
 import Image from "./Image";
 import { formatPrice } from "@/utils/helper";
 import ListingMenu from "./ListingMenu";
+import type { Listing } from "@/types/listing";
 
 interface ListingCardProps {
   data: Listing;

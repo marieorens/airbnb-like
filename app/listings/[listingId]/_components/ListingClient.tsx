@@ -8,12 +8,12 @@ import React, {
 } from "react";
 import { differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import { Range } from "react-date-range";
-import { User } from "next-auth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 import ListingReservation from "./ListingReservation";
 import { createPaymentSession, createReservation } from "@/services/reservation";
+import type { CurrentUser } from "@/types/listing";
 
 const initialDateRange = {
   startDate: new Date(),
@@ -31,9 +31,7 @@ interface ListingClientProps {
   title: string;
   price: number;
   user:
-    | (User & {
-        id: string;
-      })
+    | CurrentUser
     | undefined;
 }
 

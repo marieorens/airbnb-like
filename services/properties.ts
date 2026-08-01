@@ -1,78 +1,52 @@
 "use server";
-import { db } from "@/lib/db";
-import { LISTINGS_BATCH } from "@/utils/constants";
-import { getCurrentUser } from "./user";
+
 import { revalidatePath } from "next/cache";
 
-export const getProperties = async (args?: Record<string, string>) => {
-  try {
-    const { userId, cursor } = args || {};
+import { createClient } from "@/lib/supabase/server";
+import { getListings } from "./listing";
+import { getCurrentUser } from "./user";
 
-    if (!userId) {
-      throw new Error("Unauthorized");
-    }
-    const filterQuery: any = {
-      where: {
-        userId,
-      },
-      take: LISTINGS_BATCH,
-      orderBy: { createdAt: "desc" },
-    };
-
-    if (cursor) {
-      filterQuery.cursor = { id: cursor };
-      filterQuery.skip = 1;
-    }
-
-    const properties = await db.listing.findMany({
-      ...filterQuery,
-    });
-
-    const nextCursor =
-      properties.length === LISTINGS_BATCH
-        ? properties[LISTINGS_BATCH - 1].id
-        : null;
-
-    return {
-      listings: properties,
-      nextCursor,
-    };
-  } catch (error: any) {
+export const getProperties = async (args?: Record<string, string | undefined>) => {
+  const user = await getCurrentUser();
+  if (!user) {
     return {
       listings: [],
       nextCursor: null,
     };
   }
+
+  return getListings({
+    userId: args?.userId ?? user.id,
+    cursor: args?.cursor,
+  });
 };
 
 export const deleteProperty = async (listingId: string) => {
-  try {
-    const currentUser = await getCurrentUser();
+  const currentUser = await getCurrentUser();
 
-    if (!currentUser) {
-      throw new Error("Unauthorized");
-    }
-
-    if (!listingId || typeof listingId !== "string") {
-      throw new Error("Invalid ID");
-    }
-
-    await db.listing.deleteMany({
-      where: {
-        id: listingId,
-        userId: currentUser.id,
-      },
-    });
-
-    revalidatePath("/");
-    revalidatePath("/reservation");
-    revalidatePath("/trips");
-    revalidatePath("/favorites");
-    revalidatePath("/properties");
-    revalidatePath(`/listings/${listingId}`);
-
-    return "success";
-  } catch (error) {
-    throw new Error("Failed to delete the property!");
+  if (!currentUser) {
+    throw new Error("Unauthorized");
   }
+
+  if (!listingId || typeof listingId !== "string") {
+    throw new Error("Invalid ID");
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("listings")
+    .delete()
+    .eq("id", listingId)
+    .eq("host_id", currentUser.id);
+
+  if (error) throw new Error("Failed to delete the property!");
+
+  revalidatePath("/");
+  revalidatePath("/reservations");
+  revalidatePath("/trips");
+  revalidatePath("/favorites");
+  revalidatePath("/properties");
+  revalidatePath(`/listings/${listingId}`);
+
+  return "success";
 };

@@ -4,7 +4,6 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
-import { useSession } from "next-auth/react";
 
 import { cn } from "@/utils/helper";
 import { updateFavorite } from "@/services/favorite";
@@ -18,15 +17,14 @@ const HeartButton: React.FC<HeartButtonProps> = ({
   listingId,
   hasFavorited: initialValue,
 }) => {
-  const { status } = useSession();
   const [hasFavorited, setHasFavorited] = useState(initialValue);
   const hasFavoritedRef = useRef(initialValue);
   const { mutate } = useMutation({
     mutationFn: updateFavorite,
-    onError: () => {
+    onError: (error) => {
       hasFavoritedRef.current = !hasFavoritedRef.current;
       setHasFavorited(hasFavoritedRef.current);
-      toast.error("Failed to favorite");
+      toast.error(error instanceof Error ? error.message : "Failed to favorite");
     }
   });
 
@@ -45,11 +43,6 @@ const HeartButton: React.FC<HeartButtonProps> = ({
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-
-    if (status !== "authenticated") {
-      toast.error("Please sign in to favorite the listing!");
-      return;
-    }
 
     handleUpdate();
     setHasFavorited((prev) => !prev);
