@@ -7,10 +7,10 @@ import HeartButton from "./HeartButton";
 import Image from "./Image";
 import { formatPrice } from "@/utils/helper";
 import ListingMenu from "./ListingMenu";
-import type { Listing } from "@/types/listing";
+import type { ListingLike } from "@/types/listing";
 
 interface ListingCardProps {
-  data: Listing;
+  data: ListingLike;
   reservation?: {
     id: string;
     startDate: Date;
@@ -25,7 +25,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
   reservation,
   hasFavorited,
 }) => {
-  const price = reservation ? reservation.totalPrice : data?.price;
+  const sortedPhotos = [...(data.listing_photos ?? [])].sort(
+    (a, b) => (a.position ?? 0) - (b.position ?? 0)
+  );
+  const imageSrc =
+    data.imageSrc ||
+    data.image_src ||
+    sortedPhotos[0]?.public_url ||
+    sortedPhotos[0]?.storage_path ||
+    "/images/placeholder.jpg";
+  const price = reservation
+    ? reservation.totalPrice
+    : data?.price ?? data?.price_per_night ?? 0;
+  const region = data.region || "";
+  const country = data.country || "";
+  const location = [region, country].filter(Boolean).join(", ") || data.title;
 
   let reservationDate;
   if (reservation) {
@@ -54,7 +68,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <div className=" overflow-hidden md:rounded-xl rounded-md">
             <div className="aspect-[1/0.95] relative bg-gray-100">
               <Image
-                imageSrc={data.imageSrc}
+                imageSrc={imageSrc.replace(/\.supabase\.co\/rest\/v1\//, ".supabase.co/")}
                 fill
                 alt={data.title}
                 effect="zoom"
@@ -64,7 +78,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </div>
           </div>
           <span className="font-semibold text-[16px] mt-[4px]">
-            {data?.region}, {data?.country}
+            {location}
           </span>
           <span className="font-light text-neutral-500 text-sm">
             {reservationDate || data.category}

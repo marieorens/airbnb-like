@@ -37,3 +37,20 @@ export interface Listing {
   }[];
   reservation?: ReservationSummary;
 }
+
+export type ListingLike = Listing & {
+  image_src?: string | null;
+  imageSrc?: string;
+  price_per_night?: number | null;
+  room_count?: number | null;
+  bathroom_count?: number | null;
+  guest_count?: number | null;
+  host_id?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  listing_photos?: {
+    public_url?: string | null;
+    storage_path?: string | null;
+    position?: number | null;
+  }[];
+};

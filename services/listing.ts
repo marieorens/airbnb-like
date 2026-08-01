@@ -34,6 +34,8 @@ const listingSelect = `
 `;
 
 const toDate = (value: string) => new Date(`${value}T00:00:00`);
+const normalizeSupabaseUrl = (url: string) =>
+  url.replace(/\.supabase\.co\/rest\/v1\//, ".supabase.co/");
 
 const hasDateConflict = (
   bookings: ListingBookingRow[] | null | undefined,
@@ -65,7 +67,11 @@ export const mapListing = (row: ListingQueryRow): Listing => {
     id: row.id,
     title: row.title,
     description: row.description,
-    imageSrc: photo?.public_url || photo?.storage_path || "/images/placeholder.jpg",
+    imageSrc: normalizeSupabaseUrl(
+      photo?.public_url ||
+        photo?.storage_path ||
+        "/images/placeholder.jpg"
+    ),
     createdAt: new Date(row.created_at),
     category: row.category,
     roomCount: row.room_count,
