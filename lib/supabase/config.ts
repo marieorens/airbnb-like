@@ -5,7 +5,7 @@ export function getSupabaseUrl() {
     throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL");
   }
 
-  return url;
+  return url.replace(/\/rest\/v1\/?$/, "").replace(/\/auth\/v1\/?$/, "").replace(/\/$/, "");
 }
 
 export function getSupabasePublicKey() {
