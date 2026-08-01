@@ -1,6 +1,5 @@
 "use client";
 import React, { useTransition, useState, useEffect } from "react";
-import { AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -107,12 +106,12 @@ const AuthModal = ({
     });
   };
 
-  const signInWithOAuth = async (provider: "google" | "github") => {
+  const signInWithGoogle = async () => {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
-      provider,
+      provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -180,19 +179,12 @@ const AuthModal = ({
         <hr />
         <Button
           outline
-          onClick={() => signInWithOAuth("google")}
+          type="button"
+          onClick={signInWithGoogle}
           className="flex flex-row justify-center gap-2 items-center px-3 py-2"
         >
           <FcGoogle className="w-6 h-6" />
           <span className="text-[14px]">Continue with Google</span>
-        </Button>
-        <Button
-          outline
-          onClick={() => signInWithOAuth("github")}
-          className="flex flex-row justify-center gap-2 items-center px-3 py-2"
-        >
-          <AiFillGithub className="w-6 h-6" />
-          <span className="text-[14px]">Continue with Github</span>
         </Button>
         <div
           className="
