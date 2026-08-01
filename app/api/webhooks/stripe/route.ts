@@ -6,6 +6,8 @@ import { stripe } from "@/lib/stripe";
 import { createReservation } from "@/services/reservation";
 
 export async function POST(req: Request) {
+  let eventType = "unknown";
+
   try {
     const body = await req.text();
     const signature = headers().get("stripe-signature");
@@ -19,6 +21,7 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
+    eventType = event.type;
 
     if (event.type === "checkout.session.completed") {
       if (!event.data.object.customer_details?.email) {
@@ -42,14 +45,28 @@ export async function POST(req: Request) {
         userId,
         stripeSession: session,
       });
+
+      return NextResponse.json({
+        ok: true,
+        eventType,
+        reservationCreated: true,
+      });
     }
 
-    return NextResponse.json({ result: event, ok: true });
+    return NextResponse.json({
+      ok: true,
+      eventType,
+      ignored: true,
+    });
   } catch (err) {
     console.error(err);
 
     return NextResponse.json(
-      { message: "Something went wrong", ok: false },
+      {
+        message: err instanceof Error ? err.message : "Something went wrong",
+        eventType,
+        ok: false,
+      },
       { status: 500 }
     );
   }
