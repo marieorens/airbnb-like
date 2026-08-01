@@ -10,8 +10,8 @@ export function getSupabaseUrl() {
 
 export function getSupabasePublicKey() {
   const key =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!key) {
     throw new Error(
@@ -20,6 +20,18 @@ export function getSupabasePublicKey() {
   }
 
   return key;
+}
+
+export function getSupabasePublicKeySource() {
+  if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return "NEXT_PUBLIC_SUPABASE_ANON_KEY";
+  }
+
+  if (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    return "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY";
+  }
+
+  return null;
 }
 
 export function getSupabaseServiceRoleKey() {

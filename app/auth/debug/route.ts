@@ -1,8 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  getSupabasePublicKey,
+  getSupabasePublicKeySource,
+  getSupabaseUrl,
+} from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
+  const supabaseUrl = getSupabaseUrl();
+  const publicKey = getSupabasePublicKey();
   const supabase = createClient();
   const {
     data: { user },
@@ -19,6 +26,10 @@ export async function GET(request: NextRequest) {
     userId: user?.id ?? null,
     email: user?.email ?? null,
     error: error?.message ?? null,
+    supabaseUrlHost: new URL(supabaseUrl).host,
+    publicKeySource: getSupabasePublicKeySource(),
+    publicKeyPrefix: publicKey.slice(0, 18),
+    publicKeyLength: publicKey.length,
     supabaseCookieNames: cookieNames,
   });
 }

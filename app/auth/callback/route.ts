@@ -1,15 +1,21 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
 import type { Database } from "@/types/supabase";
+
+type CookieToSet = {
+  name: string;
+  value: string;
+  options: CookieOptions;
+};
 
 export async function GET(request: NextRequest) {
   const requestUrl = request.nextUrl.clone();
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") ?? "/";
   const debug = requestUrl.searchParams.get("debug") === "1";
-  let response = NextResponse.redirect(new URL(next, requestUrl.origin));
+  const cookiesToSet: CookieToSet[] = [];
 
   if (!code) {
     if (debug) {
@@ -20,10 +26,9 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return response;
+    return NextResponse.redirect(new URL(next, requestUrl.origin));
   }
 
-  const cookiesToSet: { name: string; value: string }[] = [];
   const supabase = createServerClient<Database>(
     getSupabaseUrl(),
     getSupabasePublicKey(),
@@ -33,10 +38,7 @@ export async function GET(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(nextCookiesToSet) {
-          nextCookiesToSet.forEach(({ name, value, options }) => {
-            cookiesToSet.push({ name, value });
-            response.cookies.set(name, value, options);
-          });
+          cookiesToSet.push(...nextCookiesToSet);
         },
       },
     }
@@ -44,25 +46,25 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (debug) {
-    return NextResponse.json({
-      ok: !error,
-      hasSession: Boolean(data.session),
-      hasUser: Boolean(data.user),
-      error: error?.message ?? null,
-      incomingSupabaseCookieNames: request.cookies
-        .getAll()
-        .map((cookie) => cookie.name)
-        .filter((name) => name.startsWith("sb-")),
-      outgoingSupabaseCookieNames: cookiesToSet
-        .map((cookie) => cookie.name)
-        .filter((name) => name.startsWith("sb-")),
-    });
-  }
+  const response = debug
+    ? NextResponse.json({
+        ok: !error,
+        hasSession: Boolean(data.session),
+        hasUser: Boolean(data.user),
+        error: error?.message ?? null,
+        incomingSupabaseCookieNames: request.cookies
+          .getAll()
+          .map((cookie) => cookie.name)
+          .filter((name) => name.startsWith("sb-")),
+        outgoingSupabaseCookieNames: cookiesToSet
+          .map((cookie) => cookie.name)
+          .filter((name) => name.startsWith("sb-")),
+      })
+    : NextResponse.redirect(new URL(error ? "/" : next, requestUrl.origin));
 
-  if (error) {
-    return NextResponse.redirect(new URL("/", requestUrl.origin));
-  }
+  cookiesToSet.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
+  });
 
   return response;
 }
