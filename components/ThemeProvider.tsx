@@ -28,9 +28,7 @@ const getInitialTheme = (): Theme => {
   const savedTheme = window.localStorage.getItem(STORAGE_KEY);
   if (savedTheme === "dark" || savedTheme === "light") return savedTheme;
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return "light";
 };
 
 const applyTheme = (theme: Theme) => {

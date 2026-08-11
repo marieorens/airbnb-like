@@ -62,7 +62,7 @@ const NavbarShell: React.FC<NavbarShellProps> = ({
               aria-pressed={isDark}
               onClick={toggleTheme}
               className={cn(
-                "hidden h-11 w-11 items-center justify-center rounded-full transition md:flex",
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition sm:h-11 sm:w-11",
                 isDark
                   ? "bg-neutral-950 text-white hover:bg-neutral-800"
                   : "bg-neutral-100 text-neutral-950 hover:bg-neutral-200"

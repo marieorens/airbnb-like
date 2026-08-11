@@ -15,7 +15,7 @@ const themeScript = `
       var savedTheme = window.localStorage.getItem('vacationhub-theme');
       var theme = savedTheme === 'dark' || savedTheme === 'light'
         ? savedTheme
-        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        : 'light';
       document.documentElement.dataset.theme = theme;
       document.documentElement.style.colorScheme = theme;
     } catch (error) {
