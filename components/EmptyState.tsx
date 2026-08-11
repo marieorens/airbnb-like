@@ -9,8 +9,8 @@ interface EmptyProps {
 }
 
 const EmptyState: React.FC<EmptyProps> = ({
-  title = "No exact matches",
-  subtitle = "Try changing or removing some of your filters.",
+  title = "Aucun resultat exact",
+  subtitle = "Essayez de modifier ou de retirer certains filtres.",
   showReset,
 }) => {
   return (
@@ -22,7 +22,7 @@ const EmptyState: React.FC<EmptyProps> = ({
             href="/"
             className="bg-white border-[1px] border-gray-500 text-[#4e4e4e] rounded hover:opacity-80 transition "
           >
-            Remove all filters
+            Retirer tous les filtres
           </Link>
         )}
       </div>

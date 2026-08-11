@@ -50,7 +50,7 @@ const Counter: React.FC<CounterProps> = ({
         <button type="button"
           onClick={onAdd}
           className=" w-8 h-8 rounded-full border-[1px] border-neutral-400 flex items-center justify-center  text-neutral-600 cursor-pointer hover:opacity-80 transition"
-          autoFocus={title === "Guests"}
+          autoFocus={name === "guestCount"}
         >
           <AiOutlinePlus />
         </button>

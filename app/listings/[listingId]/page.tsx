@@ -22,11 +22,26 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
   const {
     title,
     imageSrc,
+    photos,
     country,
     region,
     id,
     user: owner,
     price,
+    assetType,
+    transactionType,
+    currency,
+    salePrice,
+    monthlyRent,
+    areaSqm,
+    landTitleStatus,
+    propertyCondition,
+    availableFrom,
+    addressDetails,
+    contactName,
+    contactPhone,
+    contactWhatsapp,
+    contactEmail,
     description,
     roomCount,
     guestCount,
@@ -43,6 +58,7 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
         <ListingHead
           title={title}
           image={imageSrc}
+          images={photos.map((photo) => photo.publicUrl)}
           country={country}
           region={region}
           id={id}
@@ -55,11 +71,27 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
         reservations={reservations}
         user={currentUser}
         title={title}
+        transactionType={transactionType}
+        currency={currency}
+        contactName={contactName}
+        contactPhone={contactPhone}
+        contactWhatsapp={contactWhatsapp}
+        contactEmail={contactEmail}
       >
         <ListingInfo
           user={owner ?? { name: null, image: null }}
           category={category}
           description={description}
+          assetType={assetType}
+          transactionType={transactionType}
+          currency={currency}
+          salePrice={salePrice}
+          monthlyRent={monthlyRent}
+          areaSqm={areaSqm}
+          landTitleStatus={landTitleStatus}
+          propertyCondition={propertyCondition}
+          availableFrom={availableFrom}
+          addressDetails={addressDetails}
           roomCount={roomCount}
           guestCount={guestCount}
           bathroomCount={bathroomCount}

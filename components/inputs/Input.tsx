@@ -28,6 +28,7 @@ const Input: React.FC<InputProps> = ({
   autoFocus = false,
   type = "text",
   disabled,
+  required,
   ...props
 }) => {
   const value = watch(id);
@@ -39,7 +40,7 @@ const Input: React.FC<InputProps> = ({
         id={id}
         type={type}
         disabled={disabled}
-        {...register(id, { required: true })}
+        {...register(id, { required: Boolean(required) })}
         className={cn(
           `text-[15px] peer w-full px-2 py-3 font-light bg-white border-[1px] border-gray-400 rounded outline-none transition disabled:opacity-70 disabled:cursor-not-allowed`,
           errors[id]
@@ -48,6 +49,7 @@ const Input: React.FC<InputProps> = ({
           Icon ? "pl-9" : "pl-4"
         )}
         autoFocus={autoFocus}
+        required={required}
         {...props}
       />
       <label

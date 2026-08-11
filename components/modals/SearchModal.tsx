@@ -48,6 +48,8 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
   const location = watch("location");
   const dateRange = watch("dateRange");
   const country = location?.label;
+  const stepItems = ["Destination", "Dates", "Capacite"];
+  const progress = Math.round(((step + 1) / stepItems.length) * 100);
 
   const Map = useMemo(
     () =>
@@ -102,7 +104,7 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
 
     const url = queryString.stringifyUrl(
       {
-        url: "/",
+        url: "/annonces",
         query: updatedQuery,
       },
       { skipNull: true }
@@ -116,11 +118,8 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
       case STEPS.DATE:
         return (
           <div className="flex flex-col gap-3">
-            <Heading
-              title="When do you plan to go?"
-              subtitle="Make sure everyone is free!"
-            />
-            <div className="h-[348px] w-full">
+            <Heading title="Quand partez-vous ?" subtitle="Choisissez vos dates." />
+            <div className="h-[348px] w-full overflow-hidden rounded-2xl border border-neutral-200">
               <Calendar onChange={setCustomValue} value={dateRange} />
             </div>
           </div>
@@ -130,12 +129,12 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="More information"
-              subtitle="Find your perfect place!"
+              title="Combien de personnes ?"
+              subtitle="Affinez votre recherche en quelques secondes."
             />
             <Counter
-              title="Guests"
-              subtitle="How many guests do you allow?"
+              title="Voyageurs"
+              subtitle="Combien de personnes voyagent ?"
               watch={watch}
               onChange={setCustomValue}
               name="guestCount"
@@ -144,16 +143,16 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
             <Counter
               onChange={setCustomValue}
               watch={watch}
-              title="Rooms"
-              subtitle="How many rooms do you have?"
+              title="Pieces"
+              subtitle="Nombre minimum de pieces souhaite."
               name="roomCount"
             />
             <hr />
             <Counter
               onChange={setCustomValue}
               watch={watch}
-              title="Bathrooms"
-              subtitle="How many bathrooms do you have?"
+              title="Salles de bain"
+              subtitle="Nombre minimum de salles de bain."
               name="bathroomCount"
             />
           </div>
@@ -163,11 +162,11 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-4">
             <Heading
-              title="Where is your place located?"
-              subtitle="Help guests find you!"
+              title="Ou cherchez-vous ?"
+              subtitle="Trouvez un sejour, une location ou une opportunite immobiliere."
             />
             <CountrySelect value={location} onChange={setCustomValue} />
-            <div className="h-[240px]">
+            <div className="h-[240px] overflow-hidden rounded-2xl border border-neutral-200">
               <Map center={location?.latlng} />
             </div>
           </div>
@@ -178,32 +177,73 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
   const isFieldFilled = !!getValues(steps[step]);
 
   return (
-    <div className="h-full w-full bg-white flex flex-col">
-      <Modal.WindowHeader title="Filter" />
+    <div className="flex h-full w-full flex-col bg-white">
+      <Modal.WindowHeader
+        title="Recherche avancee"
+        subtitle="Affinez destination, dates et capacite"
+      />
       <form
-        className="h-auto flex-1 border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none "
+        className="grid min-h-0 flex-1 bg-white outline-none focus:outline-none md:grid-cols-[280px_1fr]"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="relative p-6">{body()}</div>
-        <div className="flex flex-col gap-2 px-6 pb-6 pt-3">
-          <div className="flex flex-row items-center gap-4 w-full">
-            {step !== STEPS.LOCATION ? (
-              <Button
-                type="button"
-                className="flex items-center gap-2 justify-center"
-                onClick={onBack}
-                outline
+        <aside className="hidden border-r border-neutral-200 bg-neutral-950 p-6 text-white md:block">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-rose-300">
+            Explorer
+          </p>
+          <h2 className="mt-4 text-2xl font-black leading-tight">
+            Cherchez plus vite, choisissez mieux.
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-neutral-300">
+            Vacances, location ou repérage immobilier: les filtres gardent le
+            parcours simple.
+          </p>
+          <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-rose-400 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="mt-6 grid gap-2">
+            {stepItems.map((item, index) => (
+              <div
+                key={item}
+                className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
+                  index === step
+                    ? "bg-white text-neutral-950"
+                    : index < step
+                    ? "bg-white/10 text-white"
+                    : "text-neutral-400"
+                }`}
               >
-                Back
+                {index + 1}. {item}
+              </div>
+            ))}
+          </div>
+        </aside>
+        <div className="flex min-h-0 flex-col">
+          <div className="flex-1 overflow-y-auto p-5 md:p-8">
+            <div className="mx-auto max-w-[620px]">{body()}</div>
+          </div>
+          <div className="sticky bottom-0 border-t border-neutral-200 bg-white/95 px-5 py-4 backdrop-blur md:px-8">
+            <div className="mx-auto flex max-w-[620px] flex-row items-center gap-3">
+              {step !== STEPS.LOCATION ? (
+                <Button
+                  type="button"
+                  className="flex h-11 items-center justify-center rounded-xl"
+                  onClick={onBack}
+                  outline
+                >
+                  Retour
+                </Button>
+              ) : null}
+              <Button
+                type="submit"
+                className="flex h-11 items-center justify-center rounded-xl bg-neutral-950 text-sm font-black hover:bg-neutral-800"
+                disabled={!isFieldFilled}
+              >
+                {step === STEPS.INFO ? "Rechercher" : "Continuer"}
               </Button>
-            ) : null}
-            <Button
-              type="submit"
-              className="flex items-center gap-2 justify-center"
-              disabled={!isFieldFilled}
-            >
-              {step === STEPS.INFO ? "Search" : "Next"}
-            </Button>
+            </div>
           </div>
         </div>
       </form>

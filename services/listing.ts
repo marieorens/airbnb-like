@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { LISTINGS_BATCH } from "@/utils/constants";
+import { assetTypes, LISTINGS_BATCH } from "@/utils/constants";
 import type { Listing } from "@/types/listing";
 import type { Tables } from "@/types/supabase";
 
@@ -20,6 +20,18 @@ type ListingQueryRow = Tables<"listings"> & {
   bookings?: ListingBookingRow[] | null;
   profiles?: ListingProfileRow | null;
 };
+
+const transactionTypes = ["booking", "rent", "sale", "lead"] as const;
+
+const isAssetType = (
+  value: string
+): value is Tables<"listings">["asset_type"] =>
+  assetTypes.some((asset) => asset.value === value);
+
+const isTransactionType = (
+  value: string
+): value is Tables<"listings">["transaction_type"] =>
+  transactionTypes.some((transaction) => transaction === value);
 
 const listingSelect = `
   *,
@@ -54,19 +66,24 @@ const hasDateConflict = (
 };
 
 export const mapListing = (row: ListingQueryRow): Listing => {
-  const photo = [...(row.listing_photos ?? [])].sort(
-    (a, b) => a.position - b.position
-  )[0];
+  const photos = [...(row.listing_photos ?? [])]
+    .sort((a, b) => a.position - b.position)
+    .map((photo) => ({
+      publicUrl: normalizeSupabaseUrl(
+        photo.public_url || photo.storage_path || "/images/placeholder.jpg"
+      ),
+      position: photo.position,
+    }));
+  const photo = photos[0];
 
   return {
     id: row.id,
     title: row.title,
     description: row.description,
-    imageSrc: normalizeSupabaseUrl(
-      photo?.public_url ||
-        photo?.storage_path ||
-        "/images/placeholder.jpg"
-    ),
+    imageSrc: photo?.publicUrl || "/images/placeholder.jpg",
+    photos: photos.length
+      ? photos
+      : [{ publicUrl: "/images/placeholder.jpg", position: 0 }],
     createdAt: new Date(row.created_at),
     category: row.category,
     roomCount: row.room_count,
@@ -74,6 +91,20 @@ export const mapListing = (row: ListingQueryRow): Listing => {
     guestCount: row.guest_count,
     userId: row.host_id,
     price: row.price_per_night,
+    assetType: row.asset_type,
+    transactionType: row.transaction_type,
+    currency: row.currency,
+    salePrice: row.sale_price,
+    monthlyRent: row.monthly_rent,
+    areaSqm: row.area_sqm,
+    landTitleStatus: row.land_title_status,
+    propertyCondition: row.property_condition,
+    availableFrom: row.available_from,
+    addressDetails: row.address_details,
+    contactName: row.contact_name,
+    contactPhone: row.contact_phone,
+    contactWhatsapp: row.contact_whatsapp,
+    contactEmail: row.contact_email,
     country: row.country,
     latlng: [row.latitude ?? 0, row.longitude ?? 0],
     region: row.region,
@@ -118,6 +149,10 @@ export const getListings = async (query?: {
       startDate,
       endDate,
       category,
+      assetType,
+      transactionType,
+      minPrice,
+      maxPrice,
       cursor,
     } = query || {};
 
@@ -131,6 +166,22 @@ export const getListings = async (query?: {
 
     if (userId && !Array.isArray(userId)) request = request.eq("host_id", userId);
     if (category && !Array.isArray(category)) request = request.eq("category", category);
+    if (assetType && !Array.isArray(assetType) && isAssetType(assetType)) {
+      request = request.eq("asset_type", assetType);
+    }
+    if (
+      transactionType &&
+      !Array.isArray(transactionType) &&
+      isTransactionType(transactionType)
+    ) {
+      request = request.eq("transaction_type", transactionType);
+    }
+    if (minPrice && !Array.isArray(minPrice)) {
+      request = request.gte("price_per_night", Number(minPrice));
+    }
+    if (maxPrice && !Array.isArray(maxPrice)) {
+      request = request.lte("price_per_night", Number(maxPrice));
+    }
     if (roomCount && !Array.isArray(roomCount)) request = request.gte("room_count", Number(roomCount));
     if (guestCount && !Array.isArray(guestCount)) request = request.gte("guest_count", Number(guestCount));
     if (bathroomCount && !Array.isArray(bathroomCount)) request = request.gte("bathroom_count", Number(bathroomCount));

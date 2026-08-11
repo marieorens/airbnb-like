@@ -11,7 +11,7 @@ const FavoritesPage = async () => {
   const user = await getCurrentUser();
 
   if (!user) {
-    return <EmptyState title="Unauthorized" subtitle="Please login" />;
+    return <EmptyState title="Connexion requise" subtitle="Veuillez vous connecter." />;
   }
 
   const favorites = await getFavoriteListings();
@@ -19,15 +19,15 @@ const FavoritesPage = async () => {
   if (favorites.length === 0) {
     return (
       <EmptyState
-        title="No Favorites found"
-        subtitle="Looks like you have no favorite listings."
+        title="Aucun favori trouve"
+        subtitle="Vous n'avez encore ajoute aucune annonce en favori."
       />
     );
   }
 
   return (
     <section className="main-container">
-      <Heading title="Favorites" subtitle="List of places you favorited!" />
+      <Heading title="Favoris" subtitle="Les biens que vous avez sauvegardes." />
       <div className=" mt-8 md:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
         {favorites.map((listing) => {
           return <ListingCard key={listing.id} data={listing} hasFavorited/>;

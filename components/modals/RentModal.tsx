@@ -17,29 +17,30 @@ import CategoryButton from "../inputs/CategoryButton";
 import CountrySelect from "../inputs/CountrySelect";
 import ImageUpload from "../ImageUpload";
 
-import { categories } from "@/utils/constants";
+import { assetTypes, categories, currencies } from "@/utils/constants";
 import { createListing } from "@/services/listing-actions";
 
 const steps = {
-  "0": "category",
-  "1": "location",
-  "2": "guestCount",
-  "3": "image",
-  "4": "title",
-  "5": "price",
+  "0": "assetType",
+  "1": "category",
+  "2": "location",
+  "3": "guestCount",
+  "4": "images",
+  "5": "title",
 };
 
 enum STEPS {
-  CATEGORY = 0,
-  LOCATION = 1,
-  INFO = 2,
-  IMAGES = 3,
-  DESCRIPTION = 4,
-  PRICE = 5,
+  ASSET = 0,
+  CATEGORY = 1,
+  LOCATION = 2,
+  INFO = 3,
+  IMAGES = 4,
+  DESCRIPTION = 5,
+  PRICE = 6,
 }
 
 const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
-  const [step, setStep] = useState(STEPS.CATEGORY);
+  const [step, setStep] = useState(STEPS.ASSET);
   const [isLoading, startTransition] = useTransition();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -53,13 +54,23 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     getValues,
   } = useForm<FieldValues>({
     defaultValues: {
-      category: "Beach",
+      assetType: "short_stay",
+      category: "Plage",
       location: null,
       guestCount: 1,
       bathroomCount: 1,
       roomCount: 1,
       image: "",
+      images: [],
       price: "",
+      salePrice: "",
+      monthlyRent: "",
+      currency: "USD",
+      areaSqm: "",
+      landTitleStatus: "",
+      propertyCondition: "",
+      availableFrom: "",
+      addressDetails: "",
       title: "",
       description: "",
     },
@@ -67,6 +78,28 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
 
   const location = watch("location");
   const country = location?.label;
+  const assetType = watch("assetType") || "short_stay";
+  const selectedAsset = assetTypes.find((asset) => asset.value === assetType);
+  const transactionType = selectedAsset?.transactionType ?? "booking";
+  const usesLifestyleCategory = ["short_stay", "house_rent", "house_sale"].includes(
+    assetType
+  );
+  const stepItems = [
+    { step: STEPS.ASSET, label: "Type" },
+    ...(usesLifestyleCategory
+      ? [{ step: STEPS.CATEGORY, label: "Categorie" }]
+      : []),
+    { step: STEPS.LOCATION, label: "Adresse" },
+    { step: STEPS.INFO, label: assetType === "land_sale" ? "Terrain" : "Details" },
+    { step: STEPS.IMAGES, label: "Photos" },
+    { step: STEPS.DESCRIPTION, label: "Description" },
+    { step: STEPS.PRICE, label: "Prix" },
+  ];
+  const currentStepIndex = Math.max(
+    stepItems.findIndex((item) => item.step === step),
+    0
+  );
+  const progress = Math.round(((currentStepIndex + 1) / stepItems.length) * 100);
 
   const Map = useMemo(
     () =>
@@ -85,12 +118,26 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     });
   };
 
+  const selectAssetType = (value: string) => {
+    const asset = assetTypes.find((item) => item.value === value);
+    setCustomValue("assetType", value);
+    if (asset && !["short_stay", "house_rent", "house_sale"].includes(value)) {
+      setCustomValue("category", asset.label);
+    }
+  };
+
+  const goToRelativeStep = (direction: 1 | -1) => {
+    const nextIndex = currentStepIndex + direction;
+    const nextStep = stepItems[nextIndex]?.step;
+    if (typeof nextStep === "number") setStep(nextStep);
+  };
+
   const onBack = () => {
-    setStep((value) => value - 1);
+    goToRelativeStep(-1);
   };
 
   const onNext = () => {
-    setStep((value) => value + 1);
+    goToRelativeStep(1);
   };
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
@@ -99,17 +146,17 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     startTransition(async () => {
       try {
         const newListing = await createListing(data);
-        toast.success(`${data.title} added successfully!`);
+        toast.success(`${data.title} a ete envoye en verification.`);
         queryClient.invalidateQueries({
           queryKey: ["listings"],
         });
         reset();
-        setStep(STEPS.CATEGORY);
+        setStep(STEPS.ASSET);
         onCloseModal?.();
         router.refresh();
         router.push(`/listings/${newListing.id}`);
       } catch (error: any) {
-        toast.error("Failed to create listing!");
+        toast.error("Impossible de creer l'annonce.");
         console.log(error?.message)
       }
     });
@@ -117,12 +164,57 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
 
   const body = () => {
     switch (step) {
+      case STEPS.ASSET:
+        return (
+          <div className="flex flex-col gap-4">
+            <Heading
+              title="Que voulez-vous publier ?"
+              subtitle="Locations courtes, ventes, parcelles et biens pros sont acceptes."
+            />
+            <div className="grid grid-cols-1 gap-3">
+              {assetTypes.map((item) => (
+                <button
+                  type="button"
+                  key={item.value}
+                  onClick={() => selectAssetType(item.value)}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    assetType === item.value
+                      ? "border-neutral-950 bg-neutral-950 text-white shadow-[0_18px_38px_rgba(15,23,42,0.18)]"
+                      : "border-neutral-200 bg-white hover:border-neutral-500"
+                  }`}
+                >
+                  <span
+                    className={`block text-[15px] font-bold ${
+                      assetType === item.value ? "text-white" : "text-neutral-900"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    className={`mt-1 block text-xs font-medium uppercase tracking-wide ${
+                      assetType === item.value ? "text-white/65" : "text-neutral-500"
+                    }`}
+                  >
+                    {item.transactionType === "booking"
+                      ? "Reservation en ligne"
+                      : item.transactionType === "rent"
+                      ? "Location longue duree"
+                      : item.transactionType === "sale"
+                      ? "Vente immobiliere"
+                      : "Demande de contact"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
       case STEPS.LOCATION:
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Where is your place located?"
-              subtitle="Help guests find you!"
+              title="Ou se trouve le bien ?"
+              subtitle="Aidez les acheteurs et voyageurs a le situer."
             />
             <CountrySelect value={location} onChange={setCustomValue} />
             <div className="h-[240px]">
@@ -135,32 +227,66 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Share some basics about your place"
-              subtitle="What amenitis do you have?"
+              title="Quelques infos utiles"
+              subtitle={
+                assetType === "land_sale"
+                  ? "Pour une parcelle, la surface et les documents comptent plus que les pieces."
+                  : "Ces infos restent utiles pour qualifier le bien."
+              }
             />
-            <Counter
-              title="Guests"
-              subtitle="How many guests do you allow?"
-              watch={watch}
-              onChange={setCustomValue}
-              name="guestCount"
-            />
-            <hr />
-            <Counter
-              onChange={setCustomValue}
-              watch={watch}
-              title="Rooms"
-              subtitle="How many rooms do you have?"
-              name="roomCount"
-            />
-            <hr />
-            <Counter
-              onChange={setCustomValue}
-              watch={watch}
-              title="Bathrooms"
-              subtitle="How many bathrooms do you have?"
-              name="bathroomCount"
-            />
+            {assetType !== "land_sale" && transactionType === "booking" && (
+              <>
+                <Counter
+                  title="Voyageurs"
+                  subtitle="Combien de personnes peuvent etre accueillies ?"
+                  watch={watch}
+                  onChange={setCustomValue}
+                  name="guestCount"
+                />
+                <hr />
+              </>
+            )}
+            {assetType === "land_sale" ? (
+              <>
+                <Input
+                  id="areaSqm"
+                  label="Surface du terrain en m2"
+                  type="number"
+                  disabled={isLoading}
+                  register={register}
+                  errors={errors}
+                  required
+                  watch={watch}
+                />
+                <Input
+                  id="landTitleStatus"
+                  label="Statut des documents fonciers"
+                  disabled={isLoading}
+                  register={register}
+                  errors={errors}
+                  required
+                  watch={watch}
+                />
+              </>
+            ) : (
+              <>
+                <Counter
+                  onChange={setCustomValue}
+                  watch={watch}
+                  title="Pieces"
+                  subtitle="Combien de pieces comporte le bien ?"
+                  name="roomCount"
+                />
+                <hr />
+                <Counter
+                  onChange={setCustomValue}
+                  watch={watch}
+                  title="Salles de bain"
+                  subtitle="Combien de salles de bain sont disponibles ?"
+                  name="bathroomCount"
+                />
+              </>
+            )}
           </div>
         );
 
@@ -168,12 +294,13 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Add a photo of your place"
-              subtitle="Show guests what your place looks like!"
+              title="Ajoutez au moins 3 photos"
+              subtitle="Montrez la facade, l'interieur ou les limites du terrain."
             />
             <ImageUpload
               onChange={setCustomValue}
-              initialImage={getValues("image")}
+              initialImages={getValues("images")}
+              minImages={3}
             />
           </div>
         );
@@ -182,12 +309,12 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="How would you describe your place?"
-              subtitle="Short and sweet works best!"
+              title="Decrivez le bien"
+              subtitle="Soyez clair: localisation, etat, documents, atouts."
             />
             <Input
               id="title"
-              label="Title"
+              label="Titre"
               disabled={isLoading}
               register={register}
               errors={errors}
@@ -212,13 +339,45 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Now, set your price"
-              subtitle="How much do you charge per night?"
+              title="Prix et details"
+              subtitle={
+                transactionType === "booking"
+                  ? "Combien facturez-vous par nuit ?"
+                  : transactionType === "rent"
+                  ? "Indiquez le loyer mensuel attendu."
+                  : "Indiquez le prix de vente attendu."
+              }
             />
+            <label className="flex flex-col gap-2 text-sm font-medium text-neutral-700">
+              Devise
+              <select
+                {...register("currency", { required: true })}
+                disabled={isLoading}
+                className="h-[46px] rounded border border-neutral-300 bg-white px-4 text-[15px] outline-none transition focus:border-black"
+              >
+                {currencies.map((currency) => (
+                  <option value={currency} key={currency}>
+                    {currency}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Input
-              key="price"
-              id="price"
-              label="Price"
+              key={transactionType === "booking" ? "price" : transactionType === "rent" ? "monthlyRent" : "salePrice"}
+              id={
+                transactionType === "booking"
+                  ? "price"
+                  : transactionType === "rent"
+                  ? "monthlyRent"
+                  : "salePrice"
+              }
+              label={
+                transactionType === "booking"
+                  ? "Prix par nuit"
+                  : transactionType === "rent"
+                  ? "Loyer mensuel"
+                  : "Prix de vente"
+              }
               icon={BiDollar}
               type="number"
               disabled={isLoading}
@@ -228,6 +387,33 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
               watch={watch}
               autoFocus
             />
+            {assetType !== "land_sale" && (
+              <Input
+                id="areaSqm"
+                label="Surface en m2"
+                type="number"
+                disabled={isLoading}
+                register={register}
+                errors={errors}
+                watch={watch}
+              />
+            )}
+            <Input
+              id="propertyCondition"
+              label="Etat du bien"
+              disabled={isLoading}
+              register={register}
+              errors={errors}
+              watch={watch}
+            />
+            <Input
+              id="addressDetails"
+              label="Details de l'adresse"
+              disabled={isLoading}
+              register={register}
+              errors={errors}
+              watch={watch}
+            />
           </div>
         );
 
@@ -235,10 +421,10 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-2">
             <Heading
-              title="Which of these best describes your place?"
-              subtitle="Pick a category"
+              title="Quelle categorie de bien ?"
+              subtitle="Cette etape sert uniquement aux logements et maisons."
             />
-            <div className="flex-1 grid grid-cols-2  gap-3 max-h-[60vh] lg:max-h-[260px] overflow-y-scroll scroll-smooth">
+            <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-y-auto pr-1 scroll-smooth md:max-h-[46vh]">
               {categories.map((item) => (
                   <CategoryButton
                     onClick={setCustomValue}
@@ -254,41 +440,116 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     }
   };
 
-  const isFieldFilled = !!getValues(steps[step]);
+  const priceField =
+    transactionType === "booking"
+      ? "price"
+      : transactionType === "rent"
+      ? "monthlyRent"
+      : "salePrice";
+  const uploadedImages = (getValues("images") ?? []) as string[];
+  const isFieldFilled =
+    step === STEPS.PRICE
+      ? !!getValues(priceField)
+      : step === STEPS.IMAGES
+      ? uploadedImages.length >= 3
+      : step === STEPS.CATEGORY && !usesLifestyleCategory
+      ? true
+      : !!getValues(steps[step]);
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <Modal.WindowHeader title="Share your home!" />
+    <div className="flex h-full w-full flex-col bg-white">
+      <Modal.WindowHeader
+        title="Publier un bien"
+        subtitle="Votre annonce partira en verification admin avant publication"
+      />
       <form
-        className="flex-1  md:h-auto border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none "
+        className="grid min-h-0 flex-1 bg-white outline-none focus:outline-none md:grid-cols-[300px_1fr]"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="relative p-6">{body()}</div>
-        <div className="flex flex-col gap-2 px-6 pb-6 pt-3">
-          <div className="flex flex-row items-center gap-4 w-full">
-            {step !== STEPS.CATEGORY ? (
+        <aside className="hidden border-r border-neutral-200 bg-neutral-950 p-6 text-white md:block">
+          <div className="sticky top-24">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-rose-300">
+              Nouvelle annonce
+            </p>
+            <h2 className="mt-4 text-2xl font-black leading-tight">
+              Un parcours clair, puis moderation.
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-300">
+              {selectedAsset?.label ?? "Selectionnez un type de bien"} ·{" "}
+              {transactionType === "booking"
+                ? "reservation"
+                : transactionType === "rent"
+                ? "location"
+                : transactionType === "sale"
+                ? "vente"
+                : "contact"}
+            </p>
+            <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-rose-400 transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="mt-6 grid gap-2">
+              {stepItems.map((item, index) => (
+                <div
+                  key={item.label}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
+                    index === currentStepIndex
+                      ? "bg-white text-neutral-950"
+                      : index < currentStepIndex
+                      ? "bg-white/10 text-white"
+                      : "text-neutral-400"
+                  }`}
+                >
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-black ${
+                      index === currentStepIndex
+                        ? "bg-neutral-950 text-white"
+                        : "bg-white/10 text-white"
+                    }`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="font-bold">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <div className="flex min-h-0 flex-col">
+          <div className="flex-1 overflow-y-auto p-5 md:p-8">
+            <div className="mx-auto max-w-[620px] rounded-[24px] bg-white">
+              {body()}
+            </div>
+          </div>
+          <div className="sticky bottom-0 border-t border-neutral-200 bg-white/95 px-5 py-4 backdrop-blur md:px-8">
+            <div className="mx-auto flex max-w-[620px] flex-row items-center gap-3">
+              {currentStepIndex > 0 ? (
+                <Button
+                  type="button"
+                  className="flex h-11 items-center justify-center rounded-xl"
+                  onClick={onBack}
+                  outline
+                >
+                  Retour
+                </Button>
+              ) : null}
               <Button
-                type="button"
-                className="flex items-center gap-2 justify-center"
-                onClick={onBack}
-                outline
+                type="submit"
+                className="flex h-11 items-center justify-center rounded-xl bg-neutral-950 text-sm font-black hover:bg-neutral-800"
+                disabled={isLoading || !isFieldFilled}
               >
-                Back
+                {isLoading ? (
+                  <SpinnerMini />
+                ) : step === STEPS.PRICE ? (
+                  "Envoyer en verification"
+                ) : (
+                  "Continuer"
+                )}
               </Button>
-            ) : null}
-            <Button
-              type="submit"
-              className="flex items-center gap-2 justify-center"
-              disabled={isLoading || !isFieldFilled}
-            >
-              {isLoading ? (
-                <SpinnerMini />
-              ) : step === STEPS.PRICE ? (
-                "Create"
-              ) : (
-                "Next"
-              )}
-            </Button>
+            </div>
           </div>
         </div>
       </form>

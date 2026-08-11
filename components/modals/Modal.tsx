@@ -32,6 +32,7 @@ interface WindowProps extends TriggerProps { }
 
 interface WindowHeaderProps {
   title: string;
+  subtitle?: string;
 }
 
 const ModalContext = createContext({
@@ -118,15 +119,15 @@ const Window: FC<WindowProps> = ({ children, name }) => {
           animate="show"
           initial="hidden"
           exit="hidden"
-          className="justify-center items-center flex w-full h-full overflow-hidden  fixed inset-0 z-50 outline-none focus:outline-none bg-neutral-800/70"
+          className="fixed inset-0 z-50 flex h-full w-full items-end justify-center overflow-hidden bg-neutral-950/75 px-0 outline-none backdrop-blur-md focus:outline-none md:items-center md:px-5"
         >
-          <div className="relative ">
+          <div className="relative w-full md:max-w-[920px]">
             <motion.div
               variants={slideIn("up", "tween", 0.3)}
               initial="hidden"
               animate="show"
               exit="hidden"
-              className="md:h-auto h-screen md:max-h-screen overflow-y-auto rounded-lg shadow-lg w-screen bg-white md:w-[420px]"
+              className="h-[100dvh] w-full overflow-hidden rounded-t-[28px] border border-white/20 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.35)] md:h-[92dvh] md:rounded-[28px]"
               ref={ref}
             >
               {cloneElement(children, { onCloseModal: close })}
@@ -139,18 +140,29 @@ const Window: FC<WindowProps> = ({ children, name }) => {
   );
 };
 
-const WindowHeader: FC<WindowHeaderProps> = ({ title }) => {
+const WindowHeader: FC<WindowHeaderProps> = ({ title, subtitle }) => {
   const { close } = useContext(ModalContext);
   return (
-    <header className=" flex items-center  px-6 py-3  rounded-t justify-center relative border-b-[1px]">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-neutral-200/80 bg-white/95 px-5 py-4 backdrop-blur md:px-7">
+      <div className="min-w-0">
+        
+        <h4 className="truncate text-[18px] font-black leading-tight text-neutral-950 md:text-[20px]">
+          {title}
+        </h4>
+        {subtitle ? (
+          <p className="mt-1 line-clamp-1 text-xs font-medium text-neutral-500">
+            {subtitle}
+          </p>
+        ) : null}
+      </div>
       <button
         type="button"
-        className=" p-1 border-0  hover:opacity-70 transition absolute left-6"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 transition hover:bg-neutral-950 hover:text-white"
         onClick={close}
+        aria-label="Fermer"
       >
         <IoMdClose size={18} />
       </button>
-      <h4 className="text-[18px] font-semibold">{title}</h4>
     </header>
   );
 };

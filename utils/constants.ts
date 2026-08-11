@@ -16,99 +16,139 @@ import { MdOutlineVilla } from "react-icons/md";
 
 export const categories = [
   {
-    label: "Beach",
+    label: "Plage",
     icon: TbBeach,
-    description: "This property is close to the beach!",
+    description: "Ce bien est proche de la plage.",
   },
   {
-    label: "Windmills",
+    label: "Moulins",
     icon: GiWindmill,
-    description: "This property has a windmills!",
+    description: "Ce bien se trouve dans un environnement atypique.",
   },
   {
-    label: "Modern",
+    label: "Moderne",
     icon: MdOutlineVilla,
-    description: "This property is modern!",
+    description: "Ce bien a un style moderne.",
   },
   {
-    label: "Countryside",
+    label: "Campagne",
     icon: TbMountain,
-    description: "This property is in the countryside!",
+    description: "Ce bien est situe en campagne.",
   },
   {
-    label: "Pools",
+    label: "Piscines",
     icon: TbPool,
-    description: "This is property has a beautiful pool!",
+    description: "Ce bien dispose d'une piscine.",
   },
   {
-    label: "Islands",
+    label: "Iles",
     icon: GiIsland,
-    description: "This property is on an island!",
+    description: "Ce bien est situe sur une ile.",
   },
   {
-    label: "Lake",
+    label: "Lac",
     icon: GiBoatFishing,
-    description: "This property is near a lake!",
+    description: "Ce bien est proche d'un lac.",
   },
   {
-    label: "Skiing",
+    label: "Ski",
     icon: FaSkiing,
-    description: "This property has skiing activies!",
+    description: "Ce bien est adapte aux sejours au ski.",
   },
   {
-    label: "Castles",
+    label: "Chateaux",
     icon: GiCastle,
-    description: "This property is an ancient castle!",
+    description: "Ce bien a un charme historique.",
   },
   {
-    label: "Caves",
+    label: "Grottes",
     icon: GiCaveEntrance,
-    description: "This property is in a spooky cave!",
+    description: "Ce bien propose une experience troglodyte.",
   },
   {
     label: "Camping",
     icon: GiForestCamp,
-    description: "This property offers camping activities!",
+    description: "Ce bien propose une experience camping.",
   },
   {
-    label: "Arctic",
+    label: "Neige",
     icon: BsSnow,
-    description: "This property is in arctic environment!",
+    description: "Ce bien est adapte aux sejours enneiges.",
   },
   {
     label: "Desert",
     icon: GiCactus,
-    description: "This property is in the desert!",
+    description: "Ce bien est situe dans un environnement desertique.",
   },
   {
-    label: "Barns",
+    label: "Granges",
     icon: GiBarn,
-    description: "This property is in a barn!",
+    description: "Ce bien a un style grange ou rural.",
   },
   {
     label: "Lux",
     icon: IoDiamond,
-    description: "This property is brand new and luxurious!",
+    description: "Ce bien est recent et haut de gamme.",
   },
 ];
 
 export const LISTINGS_BATCH = 16;
 
+export const assetTypes = [
+  {
+    value: "short_stay",
+    label: "Logement court sejour",
+    transactionType: "booking",
+  },
+  {
+    value: "house_rent",
+    label: "Maison / appartement a louer",
+    transactionType: "rent",
+  },
+  {
+    value: "house_sale",
+    label: "Maison / appartement a vendre",
+    transactionType: "sale",
+  },
+  {
+    value: "land_sale",
+    label: "Parcelle / terrain a vendre",
+    transactionType: "sale",
+  },
+  {
+    value: "commercial_rent",
+    label: "Local commercial a louer",
+    transactionType: "rent",
+  },
+  {
+    value: "commercial_sale",
+    label: "Local commercial a vendre",
+    transactionType: "sale",
+  },
+  {
+    value: "other",
+    label: "Autre bien immobilier",
+    transactionType: "lead",
+  },
+] as const;
+
+export const currencies = ["USD", "EUR", "XOF"] as const;
+
 export const menuItems = [
   {
-    label: "My trips",
+    label: "Mes voyages",
     path: "/trips",
   },
   {
-    label: "My favorites",
+    label: "Mes favoris",
     path: "/favorites",
   },
   {
-    label: "My reservations",
+    label: "Mes reservations",
     path: "/reservations",
   },
   {
-    label: "My properties",
+    label: "Mes biens",
     path: "/properties",
   },
 ];

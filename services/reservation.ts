@@ -127,7 +127,7 @@ export const createReservation = async ({
     .eq("id", listingId)
     .single();
 
-  if (listingError || !listing) throw new Error("Listing not found!");
+  if (listingError || !listing) throw new Error("Annonce introuvable.");
 
   const nightCount = Math.max(differenceInCalendarDays(endDate, startDate) + 1, 1);
 

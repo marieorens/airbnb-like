@@ -3,6 +3,8 @@ import React, { PropsWithChildren } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 
+import { ThemeProvider } from "./ThemeProvider";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,8 +16,10 @@ const queryClient = new QueryClient({
 const Providers = ({ children }: PropsWithChildren) => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster position="bottom-right" />
-      {children}
+      <ThemeProvider>
+        <Toaster position="bottom-right" />
+        {children}
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

@@ -9,6 +9,21 @@ import Providers from "@/components/Provider";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
+const themeScript = `
+  (function() {
+    try {
+      var savedTheme = window.localStorage.getItem('vacationhub-theme');
+      var theme = savedTheme === 'dark' || savedTheme === 'light'
+        ? savedTheme
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    } catch (error) {
+      document.documentElement.dataset.theme = 'light';
+    }
+  })();
+`;
+
 export const metadata: Metadata = {
   title: "VacationHub",
   description:
@@ -21,8 +36,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="fr" suppressHydrationWarning>
       <body className={nunito.className}>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <Providers>
           <Navbar />
           <main className="pb-16 md:pt-28 pt-24">{children}</main>

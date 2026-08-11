@@ -13,9 +13,9 @@ import { deleteProperty } from "@/services/properties-actions";
 import { deleteReservation } from "@/services/reservation-actions";
 
 const pathNameDict: { [x: string]: string } = {
-  "/properties": "Delete property",
-  "/trips": "Cancel reservation",
-  "/reservations": "Cancel guest reservation",
+  "/properties": "Supprimer le bien",
+  "/trips": "Annuler la reservation",
+  "/reservations": "Annuler la reservation du client",
 };
 
 interface ListingMenuProps {
@@ -41,19 +41,19 @@ const ListingMenu: FC<ListingMenuProps> = ({ id }) => {
           deleteListing(id, {
             onSuccess: () => {
               onModalClose?.();
-              toast.success("Listing successfully deleted!");
+              toast.success("Annonce supprimee avec succes.");
             },
           });
         } else if (pathname === "/trips" || pathname === "/reservations") {
           cancelReservation(id, {
             onSuccess: () => {
               onModalClose?.();
-              toast.success("Reservation successfully cancelled!");
+              toast.success("Reservation annulee avec succes.");
             },
           });
         }
       } catch (error) {
-        toast.error("Oops! Something went wrong. Please try again later.");
+        toast.error("Une erreur est survenue. Veuillez reessayer plus tard.");
         onModalClose?.()
       }
     });

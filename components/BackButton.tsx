@@ -12,9 +12,7 @@ const BackButton = () => {
       onClick={back}
     >
     <MdKeyboardBackspace size={18}/>
-      <span>
-        Back
-      </span>
+      <span>Retour</span>
     </button>
   );
 };

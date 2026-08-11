@@ -14,7 +14,7 @@ const PropertiesPage = async () => {
   const favorites = await getFavorites();
 
   if (!user) {
-    return <EmptyState title="Unauthorized" subtitle="Please login" />;
+    return <EmptyState title="Connexion requise" subtitle="Veuillez vous connecter." />;
   }
 
   const { listings, nextCursor } = await getProperties({ userId: user.id });
@@ -22,15 +22,15 @@ const PropertiesPage = async () => {
   if (!listings || listings.length === 0) {
     return (
       <EmptyState
-        title="No properties found"
-        subtitle="Looks like you have no properties."
+        title="Aucun bien trouve"
+        subtitle="Vous n'avez encore publie aucun bien."
       />
     );
   }
 
   return (
     <section className="main-container">
-      <Heading title="Properties" subtitle="List of your properties" backBtn/>
+      <Heading title="Mes biens" subtitle="Liste de vos annonces" backBtn/>
       <div className=" mt-8 md:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-8">
         {listings.map((listing) => {
           const hasFavorited = favorites.includes(listing.id);

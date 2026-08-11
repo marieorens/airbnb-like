@@ -15,6 +15,9 @@ const Categories = () => {
   const params = useSearchParams();
   const pathname = usePathname();
   const category = params?.get("category");
+  const assetType = params?.get("assetType");
+  const canUseLifestyleCategories =
+    !assetType || ["short_stay", "house_rent", "house_sale"].includes(assetType);
 
   const isMainPage = pathname === "/";
 
@@ -33,13 +36,13 @@ const Categories = () => {
     return () => window.removeEventListener("scroll", throttledHandleScroll);
   }, []);
 
-  if (!isMainPage) {
+  if (!isMainPage || !canUseLifestyleCategories) {
     return null;
   }
 
   return (
     <div
-      className={` ${
+      className={`bg-white ${
         isActive ? "shadow-md shadow-[rgba(0,0,0,.045)]" : ""
       } transition-all duration-150`}
     >
@@ -48,7 +51,7 @@ const Categories = () => {
         pagination={{
           clickable: true,
         }}
-        className="main-container mt-2 lg:!px-3 !px-2"
+        className="mt-2 w-full !px-3 sm:!px-5 lg:!px-8 2xl:!px-12"
       >
         {categories.map((item: Category) => (
           <SwiperSlide className="max-w-fit" key={item.label}>

@@ -9,7 +9,7 @@ export const deleteProperty = async (listingId: string) => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    throw new Error("Unauthorized");
+    throw new Error("Connexion requise.");
   }
 
   if (!listingId || typeof listingId !== "string") {

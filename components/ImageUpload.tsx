@@ -8,18 +8,43 @@ import { createClient } from "@/lib/supabase/browser";
 import { cn } from "@/utils/helper";
 
 interface ImageUploadProps {
-  onChange: (fieldName: string, imgSrc: string) => void;
+  onChange: (fieldName: string, value: string | string[]) => void;
   initialImage?: string;
+  initialImages?: string[];
+  minImages?: number;
 }
 
-const ImageUpload: FC<ImageUploadProps> = ({ onChange, initialImage = "" }) => {
-  const [image, setImage] = useState(initialImage);
+const ImageUpload: FC<ImageUploadProps> = ({
+  onChange,
+  initialImage = "",
+  initialImages,
+  minImages = 3,
+}) => {
+  const [images, setImages] = useState<string[]>(
+    initialImages?.length ? initialImages : initialImage ? [initialImage] : []
+  );
   const [isLoading, startTransition] = useTransition();
   const [isDragging, setIsDragging] = useState(false);
 
-  const uploadImage = (e: any, file: File) => {
-    if (!file.type.startsWith("image")) return;
-    setImage(URL.createObjectURL(file));
+  const syncImages = (nextImages: string[]) => {
+    setImages(nextImages);
+    onChange("images", nextImages);
+    onChange("image", nextImages[0] ?? "");
+  };
+
+  const uploadImages = (files: FileList | File[]) => {
+    const imageFiles = Array.from(files).filter((file) =>
+      file.type.startsWith("image")
+    );
+
+    if (imageFiles.length === 0) return;
+
+    const optimisticImages = [
+      ...images,
+      ...imageFiles.map((file) => URL.createObjectURL(file)),
+    ];
+    setImages(optimisticImages);
+
     startTransition(async () => {
       const supabase = createClient();
       const {
@@ -28,41 +53,45 @@ const ImageUpload: FC<ImageUploadProps> = ({ onChange, initialImage = "" }) => {
 
       if (!user) {
         toast.error("Please sign in to upload images.");
-        setImage(initialImage);
+        setImages(images);
         return;
       }
 
-      const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-");
-      const storagePath = `${user.id}/${Date.now()}-${safeFileName}`;
-      const { error } = await supabase.storage
-        .from("listing-photos")
-        .upload(storagePath, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
+      const uploadedUrls: string[] = [];
 
-      if (error) {
-        toast.error(error.message);
-        setImage(initialImage);
-        return;
+      for (const file of imageFiles) {
+        const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-");
+        const storagePath = `${user.id}/${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2)}-${safeFileName}`;
+        const { error } = await supabase.storage
+          .from("listing-photos")
+          .upload(storagePath, file, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (error) {
+          toast.error(error.message);
+          setImages(images);
+          return;
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("listing-photos").getPublicUrl(storagePath);
+
+        uploadedUrls.push(publicUrl);
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("listing-photos").getPublicUrl(storagePath);
-
-      onChange("image", publicUrl);
-      setTimeout(() => {
-        e.target.form?.requestSubmit();
-      }, 1000);
+      syncImages([...images, ...uploadedUrls]);
     });
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-
-    const file = e.target.files[0];
-    uploadImage(e, file);
+    uploadImages(e.target.files);
+    e.target.value = "";
   };
 
   const onDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -77,54 +106,91 @@ const ImageUpload: FC<ImageUploadProps> = ({ onChange, initialImage = "" }) => {
   const onDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault()
     setIsDragging(false)
-    uploadImage(e, e.dataTransfer.files[0])
+    uploadImages(e.dataTransfer.files)
   }
 
+  const removeImage = (image: string) => {
+    syncImages(images.filter((item) => item !== image));
+  };
+
+  const remaining = Math.max(minImages - images.length, 0);
+
   return (
-    <label
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-      htmlFor="hotel"
-      className={cn(
-        " relative cursor-pointer hover:opacity-70 transition border-dashed  border-2 p-20 border-neutral-300 w-full h-[240px] flex flex-col justify-center items-center   text-neutral-600 ",
-        isLoading && "opacity-70",
-        isDragging && "border-red-500"
-      )}
-    >
-      {isLoading && (
-        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center z-20">
-          {" "}
-          <SpinnerMini className="w-[32px] h-[32px] text-red-600" />
+    <div className="space-y-4">
+      <label
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        htmlFor="hotel"
+        className={cn(
+          "relative flex h-[220px] w-full cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed border-neutral-300 bg-neutral-50 p-8 text-center text-neutral-600 transition hover:border-neutral-950 hover:bg-white",
+          isLoading && "opacity-70",
+          isDragging && "border-rose-500 bg-rose-50"
+        )}
+      >
+        {isLoading && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-white/70">
+            <SpinnerMini className="h-8 w-8 text-rose-600" />
+          </div>
+        )}
+        <TbPhotoPlus className="mb-4 h-14 w-14" />
+        <span className="text-lg font-black text-neutral-900">
+          Ajouter des photos
+        </span>
+        <span className="mt-2 max-w-[320px] text-sm font-medium text-neutral-500">
+          Minimum {minImages} photos. Vous pouvez en selectionner plusieurs a
+          la fois.
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          id="hotel"
+          className="h-0 w-0 opacity-0"
+          onChange={handleChange}
+          multiple
+          autoFocus
+        />
+      </label>
+
+      <div className="flex items-center justify-between rounded-2xl bg-neutral-950 px-4 py-3 text-sm font-bold text-white">
+        <span>{images.length} photo{images.length > 1 ? "s" : ""} ajoutée{images.length > 1 ? "s" : ""}</span>
+        <span className={remaining ? "text-rose-200" : "text-emerald-200"}>
+          {remaining ? `${remaining} encore requise${remaining > 1 ? "s" : ""}` :""}
+        </span>
+      </div>
+
+      {images.length > 0 && (
+        <div className="grid max-h-[320px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
+          {images.map((image, index) => (
+            <div
+              key={`${image}-${index}`}
+              className="group relative aspect-square overflow-hidden rounded-2xl bg-neutral-100"
+            >
+              <Image
+                fill
+                style={{ objectFit: "cover" }}
+                src={image}
+                alt={`Photo ${index + 1}`}
+                sizes="160px"
+                unoptimized
+              />
+              <button
+                type="button"
+                onClick={() => removeImage(image)}
+                className="absolute right-2 top-2 rounded-full bg-neutral-950/80 px-2 py-1 text-xs font-bold text-white opacity-0 transition group-hover:opacity-100"
+              >
+                Retirer
+              </button>
+              {index === 0 && (
+                <span className="absolute bottom-2 left-2 rounded-full bg-white px-2 py-1 text-[10px] font-black uppercase text-neutral-950">
+                  Couverture
+                </span>
+              )}
+            </div>
+          ))}
         </div>
       )}
-      {image ? (
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            fill
-            style={{ objectFit: "cover" }}
-            src={image}
-            alt="hotel"
-            sizes="100vw"
-            className="z-10"
-            unoptimized
-          />
-        </div>
-      ) : (
-        <>
-          <TbPhotoPlus className="!w-[64px] !h-[64px] mb-4" />
-          <span className="font-semibold text-lg">Upload image</span>
-        </>
-      )}
-      <input
-        type="file"
-        accept="image/*"
-        id="hotel"
-        className="w-0 h-0 opacity-0"
-        onChange={handleChange}
-        autoFocus
-      />
-    </label>
+    </div>
   );
 };
 

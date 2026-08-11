@@ -1,8 +1,9 @@
 "use client";
 import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { differenceInDays } from "date-fns";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { FaSearch } from "react-icons/fa";
 
 import Modal from "../modals/Modal";
@@ -13,6 +14,7 @@ const SearchModal = dynamic(() => import("@/components/modals/SearchModal"), {
 
 const Search = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const country = searchParams?.get("country");
 
@@ -30,13 +32,26 @@ const Search = () => {
         diff = 1;
       }
 
-      return `${diff} Days`;
+      return `${diff} jour${diff > 1 ? "s" : ""}`;
     }
 
-    return "Any week";
+    return "Quand ?";
   }, [endDate, startDate]);
 
-  const guestLabel = guestCount ? `${guestCount} Guests` : "Add Guests";
+  const guestLabel = guestCount
+    ? `${guestCount} voyageur${Number(guestCount) > 1 ? "s" : ""}`
+    : "Voyageurs";
+
+  if (pathname === "/") {
+    return (
+      <Link
+        href="/annonces"
+        className="hidden rounded-full border border-neutral-200 px-5 py-3 text-sm font-black text-[#585858] transition hover:shadow-md md:inline-flex"
+      >
+        Explorer les annonces
+      </Link>
+    );
+  }
 
   return (
     <Modal>
@@ -47,7 +62,7 @@ const Search = () => {
         >
           <div className="flex flex-row justify-between items-center">
             <small className="text-sm font-bold px-6 text-[#585858]">
-              {country ? country : "Anywhere"}
+              {country ? country : "Ou ?"}
             </small>
 
             <small className="hidden sm:block text-sm font-bold px-6 border-x-[1px] flex-1 text-center text-[#585858]">

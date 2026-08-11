@@ -5,8 +5,12 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
 import { mapListing } from "./listing";
+import { assetTypes } from "@/utils/constants";
 
 export const createListing = async (data: { [x: string]: unknown }) => {
+  const requestedAssetType = String(data.assetType || "short_stay");
+  const asset = assetTypes.find((item) => item.value === requestedAssetType);
+  const transactionType = asset?.transactionType ?? "booking";
   const category = String(data.category || "");
   const location = data.location as
     | { region?: string; label?: string; latlng?: number[] }
@@ -15,17 +19,48 @@ export const createListing = async (data: { [x: string]: unknown }) => {
   const guestCount = Number(data.guestCount || 1);
   const bathroomCount = Number(data.bathroomCount || 1);
   const roomCount = Number(data.roomCount || 1);
-  const image = String(data.image || "");
+  const images = Array.isArray(data.images)
+    ? data.images.map((item) => String(item)).filter(Boolean)
+    : String(data.image || "")
+    ? [String(data.image)]
+    : [];
+  const image = images[0] ?? "";
   const price = Number(data.price || 0);
+  const salePrice = Number(data.salePrice || 0);
+  const monthlyRent = Number(data.monthlyRent || 0);
+  const areaSqm = Number(data.areaSqm || 0);
+  const currency = String(data.currency || "USD");
+  const landTitleStatus = String(data.landTitleStatus || "");
+  const propertyCondition = String(data.propertyCondition || "");
+  const availableFrom = String(data.availableFrom || "");
+  const addressDetails = String(data.addressDetails || "");
   const title = String(data.title || "");
   const description = String(data.description || "");
+  const displayPrice =
+    transactionType === "sale"
+      ? salePrice
+      : transactionType === "rent"
+      ? monthlyRent
+      : price;
 
-  if (!category || !location || !image || !price || !title || !description) {
+  if (
+    !asset ||
+    !location ||
+    images.length < 3 ||
+    !displayPrice ||
+    !title ||
+    !description
+  ) {
     throw new Error("Invalid data");
   }
 
+  const listingCategory = category || asset.label;
+
   const user = await getCurrentUser();
-  if (!user) throw new Error("Unauthorized!");
+  if (!user) throw new Error("Connexion requise.");
+  if (!user.isProfileComplete) {
+    throw new Error("Completez votre profil avant de publier un bien.");
+  }
 
   const supabase = createClient();
   const { data: listing, error } = await supabase
@@ -33,7 +68,7 @@ export const createListing = async (data: { [x: string]: unknown }) => {
     .insert({
       title,
       description,
-      category,
+      category: listingCategory,
       room_count: roomCount,
       bathroom_count: bathroomCount,
       guest_count: guestCount,
@@ -41,15 +76,29 @@ export const createListing = async (data: { [x: string]: unknown }) => {
       region: location.region ?? null,
       latitude: location.latlng?.[0] ?? null,
       longitude: location.latlng?.[1] ?? null,
-      price_per_night: price,
+      price_per_night: displayPrice,
+      asset_type: asset.value,
+      transaction_type: transactionType,
+      currency,
+      sale_price: transactionType === "sale" ? salePrice : null,
+      monthly_rent: transactionType === "rent" ? monthlyRent : null,
+      area_sqm: areaSqm > 0 ? areaSqm : null,
+      land_title_status: landTitleStatus || null,
+      property_condition: propertyCondition || null,
+      available_from: availableFrom || null,
+      address_details: addressDetails || null,
+      contact_name: user.name,
+      contact_phone: user.phone,
+      contact_whatsapp: user.whatsapp,
+      contact_email: user.email,
       host_id: user.id,
-      status: "published",
+      status: "pending_review",
     })
     .select()
     .single();
 
   if (error || !listing) {
-    throw new Error(error?.message || "Failed to create listing");
+    throw new Error(error?.message || "Impossible de creer l'annonce.");
   }
 
   const { error: profileError } = await supabase
@@ -59,13 +108,15 @@ export const createListing = async (data: { [x: string]: unknown }) => {
 
   if (profileError) throw new Error(profileError.message);
 
-  const { error: photoError } = await supabase.from("listing_photos").insert({
-    listing_id: listing.id,
-    storage_path: image,
-    public_url: image,
-    alt_text: title,
-    position: 0,
-  });
+  const { error: photoError } = await supabase.from("listing_photos").insert(
+    images.map((photo, index) => ({
+      listing_id: listing.id,
+      storage_path: photo,
+      public_url: photo,
+      alt_text: `${title} ${index + 1}`,
+      position: index,
+    }))
+  );
 
   if (photoError) throw new Error(photoError.message);
 
@@ -74,7 +125,11 @@ export const createListing = async (data: { [x: string]: unknown }) => {
 
   return mapListing({
     ...listing,
-    listing_photos: [{ storage_path: image, public_url: image, position: 0 }],
+    listing_photos: images.map((photo, index) => ({
+      storage_path: photo,
+      public_url: photo,
+      position: index,
+    })),
     bookings: [],
     profiles: { full_name: user.name, avatar_url: user.image },
   });

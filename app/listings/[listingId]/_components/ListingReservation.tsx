@@ -33,7 +33,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
       <div className="flex flex-row items-center gap-1 p-4">
         <span className="text-lg font-semibold">$ {formatPrice(price)}</span>
-        <span className="font-light text-neutral-600">night</span>
+        <span className="font-light text-neutral-600">nuit</span>
       </div>
       <hr />
       <Calendar
@@ -49,7 +49,7 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
           className="flex flex-row items-center justify-center h-[42px] "
           size="large"
         >
-          {isLoading ? <SpinnerMini /> : <span>Reserve</span>}
+          {isLoading ? <SpinnerMini /> : <span>Reserver</span>}
         </Button>
       </div>
       <hr />

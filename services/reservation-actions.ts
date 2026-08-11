@@ -7,7 +7,10 @@ import { stripe } from "@/lib/stripe";
 import { getCurrentUser } from "./user";
 import type { Tables } from "@/types/supabase";
 
-type PaymentListingRow = Pick<Tables<"listings">, "id" | "title" | "price_per_night"> & {
+type PaymentListingRow = Pick<
+  Tables<"listings">,
+  "id" | "title" | "price_per_night" | "transaction_type"
+> & {
   listing_photos?:
     | Pick<Tables<"listing_photos">, "public_url" | "storage_path" | "position">[]
     | null;
@@ -17,7 +20,7 @@ export const deleteReservation = async (reservationId: string) => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    throw new Error("Unauthorized");
+    throw new Error("Connexion requise.");
   }
 
   if (!reservationId || typeof reservationId !== "string") {
@@ -32,7 +35,7 @@ export const deleteReservation = async (reservationId: string) => {
     .single();
 
   if (reservationError || !reservation) {
-    throw new Error("Reservation not found!");
+    throw new Error("Reservation introuvable.");
   }
 
   const status =
@@ -70,18 +73,24 @@ export const createPaymentSession = async ({
   const supabase = createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, price_per_night, listing_photos(public_url, storage_path, position)")
+    .select("id, title, price_per_night, transaction_type, listing_photos(public_url, storage_path, position)")
     .eq("id", listingId)
     .single();
 
   const listing = data as unknown as PaymentListingRow | null;
 
-  if (error || !listing) throw new Error("Listing not found!");
+  if (error || !listing) throw new Error("Annonce introuvable.");
+  if (listing.transaction_type !== "booking") {
+    throw new Error("Cette annonce n'est pas disponible en reservation en ligne.");
+  }
 
   const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("Please log in to reserve!");
+    throw new Error("Veuillez vous connecter pour reserver.");
+  }
+  if (!user.isProfileComplete) {
+    throw new Error("Veuillez completer votre profil avant de reserver.");
   }
 
   const sortedPhotos = [...(listing.listing_photos ?? [])].sort(

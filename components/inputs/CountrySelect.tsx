@@ -35,7 +35,7 @@ const CountrySelect = ({
   return (
     <Select
       ref={ref}
-      placeholder="Anywhere"
+      placeholder="Choisir un pays"
       isClearable
       options={countries}
       value={value}
