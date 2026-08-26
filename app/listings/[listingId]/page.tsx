@@ -48,6 +48,7 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
     bathroomCount,
     latlng,
     reservations,
+    virtualTours,
   } = listing;
 
   const category = categories.find((cate) => cate.label === listing.category);
@@ -77,6 +78,7 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
         contactPhone={contactPhone}
         contactWhatsapp={contactWhatsapp}
         contactEmail={contactEmail}
+        virtualTours={virtualTours}
       >
         <ListingInfo
           user={owner ?? { name: null, image: null }}

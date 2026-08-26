@@ -162,7 +162,7 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-4">
             <Heading
-              title="Ou cherchez-vous ?"
+              title="Où cherchez-vous ?"
               subtitle="Trouvez un sejour, une location ou une opportunite immobiliere."
             />
             <CountrySelect value={location} onChange={setCustomValue} />

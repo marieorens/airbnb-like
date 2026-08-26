@@ -33,6 +33,17 @@ export interface Listing {
     publicUrl: string;
     position: number;
   }[];
+  virtualTours: {
+    id: string;
+    provider: "matterport" | "kuula" | "cloudpano" | "panorama" | "other";
+    tourUrl: string;
+    embedUrl: string;
+    sourceType: "external" | "panorama";
+    previewImageUrl: string | null;
+    roomLabel: string | null;
+    position: number;
+    status: "active" | "hidden";
+  }[];
   createdAt: Date;
   category: string;
   roomCount: number;
@@ -96,5 +107,16 @@ export type ListingLike = Listing & {
     public_url?: string | null;
     storage_path?: string | null;
     position?: number | null;
+  }[];
+  listing_virtual_tours?: {
+    id?: string;
+    provider?: "matterport" | "kuula" | "cloudpano" | "panorama" | "other";
+    tour_url?: string | null;
+    embed_url?: string | null;
+    source_type?: "external" | "panorama";
+    preview_image_url?: string | null;
+    room_label?: string | null;
+    position?: number | null;
+    status?: "active" | "hidden";
   }[];
 };

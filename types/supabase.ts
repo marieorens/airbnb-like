@@ -175,6 +175,38 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["listing_photos"]["Insert"]>;
         Relationships: [];
       };
+      listing_virtual_tours: {
+        Row: {
+          id: string;
+          listing_id: string;
+          provider: "matterport" | "kuula" | "cloudpano" | "panorama" | "other";
+          tour_url: string;
+          embed_url: string;
+          source_type: "external" | "panorama";
+          preview_image_url: string | null;
+          room_label: string | null;
+          position: number;
+          status: "active" | "hidden";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          provider?: "matterport" | "kuula" | "cloudpano" | "panorama" | "other";
+          tour_url: string;
+          embed_url: string;
+          source_type?: "external" | "panorama";
+          preview_image_url?: string | null;
+          room_label?: string | null;
+          position?: number;
+          status?: "active" | "hidden";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["listing_virtual_tours"]["Insert"]>;
+        Relationships: [];
+      };
       bookings: {
         Row: {
           id: string;

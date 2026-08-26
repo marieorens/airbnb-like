@@ -14,9 +14,22 @@ type ListingBookingRow = Pick<
 >;
 
 type ListingProfileRow = Pick<Tables<"profiles">, "full_name" | "avatar_url">;
+type ListingVirtualTourRow = Pick<
+  Tables<"listing_virtual_tours">,
+  | "id"
+  | "provider"
+  | "tour_url"
+  | "embed_url"
+  | "source_type"
+  | "preview_image_url"
+  | "room_label"
+  | "position"
+  | "status"
+>;
 
 type ListingQueryRow = Tables<"listings"> & {
   listing_photos?: ListingPhotoRow[] | null;
+  listing_virtual_tours?: ListingVirtualTourRow[] | null;
   bookings?: ListingBookingRow[] | null;
   profiles?: ListingProfileRow | null;
 };
@@ -37,6 +50,7 @@ const listingSelect = `
   *,
   profiles(full_name, avatar_url),
   listing_photos(storage_path, public_url, position),
+  listing_virtual_tours(id, provider, tour_url, embed_url, source_type, preview_image_url, room_label, position, status),
   bookings(check_in, check_out, status)
 `;
 
@@ -84,6 +98,21 @@ export const mapListing = (row: ListingQueryRow): Listing => {
     photos: photos.length
       ? photos
       : [{ publicUrl: "/images/placeholder.jpg", position: 0 }],
+    virtualTours: (row.listing_virtual_tours ?? [])
+      .filter((tour) => tour.status === "active")
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+      .map((tour) => ({
+        id: tour.id,
+        provider: tour.provider,
+        tourUrl: tour.tour_url,
+        embedUrl: tour.embed_url,
+        sourceType:
+          tour.source_type ?? (tour.provider === "panorama" ? "panorama" : "external"),
+        previewImageUrl: tour.preview_image_url,
+        roomLabel: tour.room_label,
+        position: tour.position ?? 0,
+        status: tour.status,
+      })),
     createdAt: new Date(row.created_at),
     category: row.category,
     roomCount: row.room_count,

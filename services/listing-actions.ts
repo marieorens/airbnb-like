@@ -6,6 +6,15 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
 import { mapListing } from "./listing";
 import { assetTypes } from "@/utils/constants";
+import {
+  normalizePanoramaVirtualTourUrl,
+  normalizeVirtualTourUrl,
+} from "@/utils/virtualTour";
+
+type PanoramaInput = {
+  url?: unknown;
+  label?: unknown;
+};
 
 export const createListing = async (data: { [x: string]: unknown }) => {
   const requestedAssetType = String(data.assetType || "short_stay");
@@ -36,6 +45,27 @@ export const createListing = async (data: { [x: string]: unknown }) => {
   const addressDetails = String(data.addressDetails || "");
   const title = String(data.title || "");
   const description = String(data.description || "");
+  const virtualTourMode = String(data.virtualTourMode || "external");
+  const virtualTourPanoramas = Array.isArray(data.virtualTourPanoramas)
+    ? (data.virtualTourPanoramas as PanoramaInput[])
+        .map((item, index) => {
+          const normalized = normalizePanoramaVirtualTourUrl(String(item.url || ""));
+          if (!normalized) return null;
+
+          return {
+            ...normalized,
+            roomLabel: String(item.label || `Piece ${index + 1}`).trim(),
+            position: index,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    : [];
+  const virtualTour =
+    virtualTourMode === "panorama"
+      ? null
+      : normalizeVirtualTourUrl(String(data.virtualTourUrl || ""));
+  const virtualTours =
+    virtualTourMode === "panorama" ? virtualTourPanoramas : virtualTour ? [virtualTour] : [];
   const displayPrice =
     transactionType === "sale"
       ? salePrice
@@ -120,7 +150,26 @@ export const createListing = async (data: { [x: string]: unknown }) => {
 
   if (photoError) throw new Error(photoError.message);
 
+  if (virtualTours.length) {
+    const { error: tourError } = await supabase
+      .from("listing_virtual_tours")
+      .insert(virtualTours.map((tour, index) => ({
+        listing_id: listing.id,
+        provider: tour.provider,
+        tour_url: tour.tourUrl,
+        embed_url: tour.embedUrl,
+        source_type: tour.sourceType,
+        preview_image_url: tour.previewImageUrl ?? null,
+        room_label: tour.roomLabel ?? null,
+        position: tour.position ?? index,
+        status: "active",
+      })));
+
+    if (tourError) throw new Error(tourError.message);
+  }
+
   revalidatePath("/");
+  revalidatePath("/annonces");
   revalidatePath("/properties");
 
   return mapListing({
@@ -129,6 +178,17 @@ export const createListing = async (data: { [x: string]: unknown }) => {
       storage_path: photo,
       public_url: photo,
       position: index,
+    })),
+    listing_virtual_tours: virtualTours.map((tour, index) => ({
+      id: "",
+      provider: tour.provider,
+      tour_url: tour.tourUrl,
+      embed_url: tour.embedUrl,
+      source_type: tour.sourceType,
+      preview_image_url: tour.previewImageUrl ?? null,
+      room_label: tour.roomLabel ?? null,
+      position: tour.position ?? index,
+      status: "active",
     })),
     bookings: [],
     profiles: { full_name: user.name, avatar_url: user.image },

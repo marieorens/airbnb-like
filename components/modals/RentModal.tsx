@@ -16,6 +16,7 @@ import Input from "../inputs/Input";
 import CategoryButton from "../inputs/CategoryButton";
 import CountrySelect from "../inputs/CountrySelect";
 import ImageUpload from "../ImageUpload";
+import VirtualTourUpload from "../VirtualTourUpload";
 
 import { assetTypes, categories, currencies } from "@/utils/constants";
 import { createListing } from "@/services/listing-actions";
@@ -73,12 +74,16 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
       addressDetails: "",
       title: "",
       description: "",
+      virtualTourMode: "external",
+      virtualTourUrl: "",
+      virtualTourPanoramas: [],
     },
   });
 
   const location = watch("location");
   const country = location?.label;
   const assetType = watch("assetType") || "short_stay";
+  const virtualTourMode = watch("virtualTourMode") || "external";
   const selectedAsset = assetTypes.find((asset) => asset.value === assetType);
   const transactionType = selectedAsset?.transactionType ?? "booking";
   const usesLifestyleCategory = ["short_stay", "house_rent", "house_sale"].includes(
@@ -414,6 +419,52 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
               errors={errors}
               watch={watch}
             />
+            <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4">
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: "external", label: "Lien externe" },
+                  { value: "panorama", label: "Image 360" },
+                ].map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => setCustomValue("virtualTourMode", item.value)}
+                    className={`rounded-full px-4 py-2 text-sm font-black transition ${
+                      virtualTourMode === item.value
+                        ? "bg-neutral-950 text-white"
+                        : "bg-white text-neutral-600 hover:text-neutral-950"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4">
+                {virtualTourMode === "panorama" ? (
+                  <VirtualTourUpload
+                    value={getValues("virtualTourPanoramas")}
+                    onChange={setCustomValue}
+                  />
+                ) : (
+                  <>
+                    <Input
+                      id="virtualTourUrl"
+                      label="Lien de visite virtuelle (optionnel)"
+                      type="url"
+                      disabled={isLoading}
+                      register={register}
+                      errors={errors}
+                      watch={watch}
+                    />
+                    <p className="mt-3 text-xs font-medium leading-5 text-neutral-500">
+                      Matterport, Kuula, CloudPano ou tout autre lien de visite
+                      externe.
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         );
 
