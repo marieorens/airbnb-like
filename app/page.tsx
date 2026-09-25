@@ -10,7 +10,6 @@ import {
   MdTravelExplore,
 } from "react-icons/md";
 import { RiHomeHeartLine, RiMapPinRangeLine, RiUserStarLine } from "react-icons/ri";
-
 import RevealOnScroll from "@/components/RevealOnScroll";
 
 const heroImage =

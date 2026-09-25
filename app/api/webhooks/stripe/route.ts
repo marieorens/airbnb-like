@@ -3,8 +3,14 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 import { stripe } from "@/lib/stripe";
-import { createReservation } from "@/services/reservation";
+import { confirmBooking, releaseBooking } from "@/services/checkout";
 
+/**
+ * Webhook Stripe.
+ *
+ * La reservation existe deja en `pending_payment` : ce webhook ne la cree plus,
+ * il la confirme. C'est le seul endroit qui fait foi pour un paiement.
+ */
 export async function POST(req: Request) {
   let eventType = "unknown";
 
@@ -24,40 +30,29 @@ export async function POST(req: Request) {
     eventType = event.type;
 
     if (event.type === "checkout.session.completed") {
-      if (!event.data.object.customer_details?.email) {
-        throw new Error("Missing user email");
-      }
-
       const session = event.data.object as Stripe.Checkout.Session;
+      const bookingId = session.metadata?.bookingId;
 
-      const { listingId, startDate, endDate, totalPrice, userId } =
-        session.metadata || {};
-
-      if (!listingId || !startDate || !endDate || !totalPrice || !userId) {
-        throw new Error("Invalid request metadata");
+      if (!bookingId) {
+        throw new Error("Missing bookingId metadata");
       }
 
-      await createReservation({
-        listingId,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        totalPrice: Number(totalPrice),
-        userId,
-        stripeSession: session,
-      });
+      await confirmBooking(bookingId, session);
 
-      return NextResponse.json({
-        ok: true,
-        eventType,
-        reservationCreated: true,
-      });
+      return NextResponse.json({ ok: true, eventType, bookingConfirmed: true });
     }
 
-    return NextResponse.json({
-      ok: true,
-      eventType,
-      ignored: true,
-    });
+    // Session abandonnee ou expiree : le creneau est libere.
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const bookingId = session.metadata?.bookingId;
+
+      if (bookingId) await releaseBooking(bookingId);
+
+      return NextResponse.json({ ok: true, eventType, bookingReleased: true });
+    }
+
+    return NextResponse.json({ ok: true, eventType, ignored: true });
   } catch (err) {
     console.error(err);
 

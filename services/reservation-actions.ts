@@ -3,18 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import { stripe } from "@/lib/stripe";
+import { createCheckout } from "./checkout";
 import { getCurrentUser } from "./user";
-import type { Tables } from "@/types/supabase";
-
-type PaymentListingRow = Pick<
-  Tables<"listings">,
-  "id" | "title" | "price_per_night" | "transaction_type"
-> & {
-  listing_photos?:
-    | Pick<Tables<"listing_photos">, "public_url" | "storage_path" | "position">[]
-    | null;
-};
 
 export const deleteReservation = async (reservationId: string) => {
   const currentUser = await getCurrentUser();
@@ -55,75 +45,47 @@ export const deleteReservation = async (reservationId: string) => {
   return reservation;
 };
 
+const toDateString = (date: Date) => date.toISOString().slice(0, 10);
+
+/**
+ * Paiement depuis le site web.
+ *
+ * Toute la logique vit dans `createCheckout`, partagee avec la route
+ * `/api/checkout` utilisee par l'application mobile. `totalPrice` n'est plus
+ * lu : le montant est recalcule cote serveur a partir du prix de l'annonce.
+ */
 export const createPaymentSession = async ({
   listingId,
   startDate,
   endDate,
-  totalPrice,
 }: {
   listingId: string;
   startDate: Date | undefined;
   endDate: Date | undefined;
-  totalPrice: number;
+  totalPrice?: number;
 }) => {
-  if (!listingId || !startDate || !endDate || !totalPrice) {
+  if (!listingId || !startDate || !endDate) {
     throw new Error("Invalid data");
   }
 
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select("id, title, price_per_night, transaction_type, listing_photos(public_url, storage_path, position)")
-    .eq("id", listingId)
-    .single();
-
-  const listing = data as unknown as PaymentListingRow | null;
-
-  if (error || !listing) throw new Error("Annonce introuvable.");
-  if (listing.transaction_type !== "booking") {
-    throw new Error("Cette annonce n'est pas disponible en reservation en ligne.");
-  }
-
   const user = await getCurrentUser();
-
   if (!user) {
     throw new Error("Veuillez vous connecter pour reserver.");
   }
-  if (!user.isProfileComplete) {
-    throw new Error("Veuillez completer votre profil avant de reserver.");
-  }
 
-  const sortedPhotos = [...(listing.listing_photos ?? [])].sort(
-    (a, b) => a.position - b.position
-  );
-  const image = sortedPhotos[0]?.public_url || sortedPhotos[0]?.storage_path;
+  const origin = (process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(/\/+$/, "");
 
-  const product = await stripe.products.create({
-    name: listing.title,
-    images: image ? [image] : undefined,
-    default_price_data: {
-      currency: "USD",
-      unit_amount: totalPrice * 100,
-    },
+  const { url } = await createCheckout({
+    userId: user.id,
+    listingId,
+    checkIn: toDateString(startDate),
+    checkOut: toDateString(endDate),
+    successUrl: `${origin}/trips`,
+    cancelUrl: `${origin}/listings/${listingId}`,
   });
 
-  const stripeSession = await stripe.checkout.sessions.create({
-    success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/trips`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/listings/${listing.id}`,
-    payment_method_types: ["card"],
-    mode: "payment",
-    shipping_address_collection: {
-      allowed_countries: ["DE", "US", "NP", "CH", "BH", "AU"],
-    },
-    metadata: {
-      listingId,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      totalPrice: String(totalPrice),
-      userId: user.id,
-    },
-    line_items: [{ price: product.default_price as string, quantity: 1 }],
-  });
+  revalidatePath(`/listings/${listingId}`);
+  revalidatePath("/trips");
 
-  return { url: stripeSession.url };
+  return { url };
 };
