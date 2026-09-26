@@ -5,61 +5,109 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
+import type { CompleteProfileState, ProfileField } from "@/types/profileForm";
 
-const requiredText = (formData: FormData, key: string) =>
+const text = (formData: FormData, key: string) =>
   String(formData.get(key) ?? "").trim();
 
-export async function completeProfile(formData: FormData) {
+/**
+ * Tous les champs du formulaire sont obligatoires.
+ *
+ * C'est plus strict que `profile_is_complete()` en base, qui n'exige ni
+ * WhatsApp ni la presentation. Ce choix vient du produit : un profil complet
+ * doit etre reellement exploitable par les acheteurs et la moderation.
+ */
+const REQUIRED_FIELDS: { field: ProfileField; message: string }[] = [
+  { field: "fullName", message: "Le nom complet est obligatoire." },
+  { field: "phone", message: "Le téléphone est obligatoire." },
+  { field: "whatsapp", message: "Le numéro WhatsApp est obligatoire." },
+  { field: "countryOfResidence", message: "Le pays de résidence est obligatoire." },
+  { field: "cityOfResidence", message: "La ville de résidence est obligatoire." },
+  { field: "countryOfOrigin", message: "Le pays d'origine est obligatoire." },
+  { field: "bio", message: "La présentation est obligatoire." },
+];
+
+/**
+ * Completion du profil.
+ *
+ * Signature `useFormState` : l'action renvoie un etat plutot que de lever une
+ * exception. Sans cela, un champ manquant produit une page « Application
+ * error » generique, sans indiquer ce qui cloche.
+ */
+export async function completeProfile(
+  _prevState: CompleteProfileState,
+  formData: FormData
+): Promise<CompleteProfileState> {
   const user = await getCurrentUser();
-  if (!user) throw new Error("Connexion requise.");
-
-  const fullName = requiredText(formData, "fullName");
-  const phone = requiredText(formData, "phone");
-  const whatsapp = requiredText(formData, "whatsapp");
-  const countryOfResidence = requiredText(formData, "countryOfResidence");
-  const cityOfResidence = requiredText(formData, "cityOfResidence");
-  const countryOfOrigin = requiredText(formData, "countryOfOrigin");
-  const preferredContact = requiredText(formData, "preferredContact") || "email";
-  const bio = requiredText(formData, "bio");
-  const next = requiredText(formData, "next") || "/";
-  const accountPurpose = formData
-    .getAll("accountPurpose")
-    .map((value) => String(value).trim())
-    .filter(Boolean);
-
-  if (
-    !fullName ||
-    !phone ||
-    !countryOfResidence ||
-    !cityOfResidence ||
-    !countryOfOrigin ||
-    accountPurpose.length === 0
-  ) {
-    throw new Error("Merci de remplir les champs obligatoires du profil.");
+  if (!user) {
+    return { message: "Connexion requise." };
   }
+
+  const values = {
+    fullName: text(formData, "fullName"),
+    phone: text(formData, "phone"),
+    whatsapp: text(formData, "whatsapp"),
+    countryOfResidence: text(formData, "countryOfResidence"),
+    cityOfResidence: text(formData, "cityOfResidence"),
+    countryOfOrigin: text(formData, "countryOfOrigin"),
+    preferredContact: text(formData, "preferredContact") || "email",
+    bio: text(formData, "bio"),
+    accountPurpose: formData
+      .getAll("accountPurpose")
+      .map((value) => String(value).trim())
+      .filter(Boolean),
+  };
+
+  const errors: Partial<Record<ProfileField, string>> = {};
+
+  REQUIRED_FIELDS.forEach(({ field, message }) => {
+    if (!values[field as keyof typeof values]) {
+      errors[field] = message;
+    }
+  });
+
+  if (values.accountPurpose.length === 0) {
+    errors.accountPurpose = "Choisissez au moins un objectif.";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return {
+      errors,
+      message: "Certains champs obligatoires sont manquants.",
+      values,
+    };
+  }
+
+  const next = text(formData, "next") || "/";
 
   const supabase = createClient();
   const { error } = await supabase
     .from("profiles")
     .update({
-      full_name: fullName,
-      phone,
-      whatsapp: whatsapp || phone,
-      country_of_residence: countryOfResidence,
-      city_of_residence: cityOfResidence,
-      country_of_origin: countryOfOrigin,
-      account_purpose: accountPurpose,
-      preferred_contact: preferredContact as "email" | "phone" | "whatsapp",
-      bio: bio || null,
+      full_name: values.fullName,
+      phone: values.phone,
+      whatsapp: values.whatsapp || values.phone,
+      country_of_residence: values.countryOfResidence,
+      city_of_residence: values.cityOfResidence,
+      country_of_origin: values.countryOfOrigin,
+      account_purpose: values.accountPurpose,
+      preferred_contact: values.preferredContact as "email" | "phone" | "whatsapp",
+      bio: values.bio || null,
       profile_completed_at: new Date().toISOString(),
     })
     .eq("id", user.id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    return {
+      message: "Enregistrement impossible. Réessayez dans un instant.",
+      values,
+    };
+  }
 
   revalidatePath("/");
   revalidatePath("/complete-profile");
   revalidatePath("/properties");
 
+  // `redirect` leve volontairement : il doit rester hors de tout try/catch.
   redirect(next.startsWith("/") ? next : "/");
 }
