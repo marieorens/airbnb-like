@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "node scripts/clean-next-cache.mjs",
+    "clean": "node scripts/clean-next-cache.mjs --all",
     "prebuild": "node scripts/clean-next-cache.mjs",
     "typecheck": "tsc --noEmit"
   },

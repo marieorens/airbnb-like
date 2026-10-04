@@ -4,12 +4,17 @@ import { resolve } from "node:path";
 /**
  * Nettoie les caches de build.
  *
- * `.next/types` contient des fichiers generes que `tsconfig.json` inclut.
- * `tsconfig.tsbuildinfo` memorise cette liste : si on efface `.next` sans
- * l'effacer lui, TypeScript reclame des fichiers disparus et le build echoue
- * sur « Root file specified for compilation ». Les deux vont donc ensemble.
+ * Par defaut, seul `tsconfig.tsbuildinfo` est efface. C'est lui qui cause
+ * l'erreur « Root file specified for compilation » : il memorise la liste des
+ * fichiers generes dans `.next/types`, et les reclame meme apres leur
+ * disparition.
+ *
+ * `.next` n'est efface qu'avec `--all`. Le supprimer avant chaque build le
+ * rend instable sous Windows : l'antivirus scanne l'arborescence pendant que
+ * Next la reecrit, et la collecte des pages echoue en ENOENT.
  */
-const targets = [".next", "tsconfig.tsbuildinfo"];
+const full = process.argv.includes("--all");
+const targets = full ? [".next", "tsconfig.tsbuildinfo"] : ["tsconfig.tsbuildinfo"];
 
 for (const target of targets) {
   const path = resolve(process.cwd(), target);
