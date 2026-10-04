@@ -12,12 +12,24 @@ import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
  * jeton Supabase, jamais du corps : on verifie que l'appelant est bien
  * l'expediteur du message annonce.
  *
+ * Chaque message notifie, sans regroupement ni delai : choix produit assume.
+ *
  * Tant que le push n'existe pas, c'est le seul canal qui previent un
  * destinataire dont l'application est fermee.
  */
 
-/** Au-dela de ce delai, on considere que la conversation n'est plus active. */
-const ACTIVE_CONVERSATION_WINDOW_MS = 15 * 60 * 1000;
+/**
+ * Controle de configuration.
+ *
+ * Ne renvoie que des booleens, jamais une valeur : sans cela, un envoi qui
+ * echoue en silence est impossible a diagnostiquer depuis l'exterieur.
+ */
+export async function GET() {
+  return NextResponse.json({
+    mailerConfigured: isMailerConfigured(),
+    serverUrlConfigured: Boolean(process.env.NEXT_PUBLIC_SERVER_URL),
+  });
+}
 
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization") ?? "";
@@ -98,24 +110,6 @@ export async function POST(request: Request) {
 
   const recipientId =
     conversation.host_id === user.id ? conversation.guest_id : conversation.host_id;
-
-  // Conversation active : les deux echangent en direct, un email serait du bruit.
-  const { data: previous } = await admin
-    .from("messages")
-    .select("created_at")
-    .eq("conversation_id", message.conversation_id)
-    .lt("created_at", message.created_at)
-    .order("created_at", { ascending: false })
-    .limit(1);
-
-  const previousAt = previous?.[0]?.created_at;
-  if (
-    previousAt &&
-    new Date(message.created_at).getTime() - new Date(previousAt).getTime() <
-      ACTIVE_CONVERSATION_WINDOW_MS
-  ) {
-    return NextResponse.json({ ok: true, skipped: "conversation-active" });
-  }
 
   const [{ data: recipient }, { data: sender }] = await Promise.all([
     admin.from("profiles").select("email, full_name").eq("id", recipientId).single(),
