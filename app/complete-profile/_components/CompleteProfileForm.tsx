@@ -21,7 +21,6 @@ const accountPurposeOptions = [
 const REQUIRED_TEXT_FIELDS: { name: ProfileField; message: string }[] = [
   { name: "fullName", message: "Le nom complet est obligatoire." },
   { name: "phone", message: "Le téléphone est obligatoire." },
-  { name: "whatsapp", message: "Le numéro WhatsApp est obligatoire." },
   { name: "countryOfResidence", message: "Le pays de résidence est obligatoire." },
   { name: "cityOfResidence", message: "La ville de résidence est obligatoire." },
   { name: "countryOfOrigin", message: "Le pays d'origine est obligatoire." },
@@ -141,12 +140,6 @@ export default function CompleteProfileForm({ user, next }: CompleteProfileFormP
             placeholder: undefined,
           },
           {
-            name: "whatsapp" as const,
-            label: "WhatsApp *",
-            defaultValue: values?.whatsapp ?? user.whatsapp ?? user.phone ?? "",
-            placeholder: undefined,
-          },
-          {
             name: "countryOfResidence" as const,
             label: "Pays de résidence *",
             defaultValue: values?.countryOfResidence ?? user.countryOfResidence ?? "",
@@ -197,12 +190,14 @@ export default function CompleteProfileForm({ user, next }: CompleteProfileFormP
           Contact préféré *
           <select
             name="preferredContact"
-            defaultValue={values?.preferredContact ?? user.preferredContact}
+            defaultValue={
+              values?.preferredContact ??
+              (user.preferredContact === "whatsapp" ? "email" : user.preferredContact)
+            }
             className={inputClass(false)}
           >
             <option value="email">Email</option>
             <option value="phone">Téléphone</option>
-            <option value="whatsapp">WhatsApp</option>
           </select>
         </label>
       </div>

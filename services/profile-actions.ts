@@ -13,14 +13,13 @@ const text = (formData: FormData, key: string) =>
 /**
  * Tous les champs du formulaire sont obligatoires.
  *
- * C'est plus strict que `profile_is_complete()` en base, qui n'exige ni
- * WhatsApp ni la presentation. Ce choix vient du produit : un profil complet
- * doit etre reellement exploitable par les acheteurs et la moderation.
+ * C'est plus strict que `profile_is_complete()` en base, qui n'exige pas la
+ * presentation. Ce choix vient du produit : un profil complet doit etre
+ * reellement exploitable par les acheteurs et la moderation.
  */
 const REQUIRED_FIELDS: { field: ProfileField; message: string }[] = [
   { field: "fullName", message: "Le nom complet est obligatoire." },
   { field: "phone", message: "Le téléphone est obligatoire." },
-  { field: "whatsapp", message: "Le numéro WhatsApp est obligatoire." },
   { field: "countryOfResidence", message: "Le pays de résidence est obligatoire." },
   { field: "cityOfResidence", message: "La ville de résidence est obligatoire." },
   { field: "countryOfOrigin", message: "Le pays d'origine est obligatoire." },
@@ -46,7 +45,6 @@ export async function completeProfile(
   const values = {
     fullName: text(formData, "fullName"),
     phone: text(formData, "phone"),
-    whatsapp: text(formData, "whatsapp"),
     countryOfResidence: text(formData, "countryOfResidence"),
     cityOfResidence: text(formData, "cityOfResidence"),
     countryOfOrigin: text(formData, "countryOfOrigin"),
@@ -86,12 +84,11 @@ export async function completeProfile(
     .update({
       full_name: values.fullName,
       phone: values.phone,
-      whatsapp: values.whatsapp || values.phone,
       country_of_residence: values.countryOfResidence,
       city_of_residence: values.cityOfResidence,
       country_of_origin: values.countryOfOrigin,
       account_purpose: values.accountPurpose,
-      preferred_contact: values.preferredContact as "email" | "phone" | "whatsapp",
+      preferred_contact: values.preferredContact as "email" | "phone",
       bio: values.bio || null,
       profile_completed_at: new Date().toISOString(),
     })

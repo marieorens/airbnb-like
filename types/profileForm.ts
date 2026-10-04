@@ -1,7 +1,6 @@
 export const PROFILE_FIELDS = [
   "fullName",
   "phone",
-  "whatsapp",
   "countryOfResidence",
   "cityOfResidence",
   "countryOfOrigin",
@@ -28,7 +27,6 @@ export type CompleteProfileState = {
   values?: {
     fullName: string;
     phone: string;
-    whatsapp: string;
     countryOfResidence: string;
     cityOfResidence: string;
     countryOfOrigin: string;
