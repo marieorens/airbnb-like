@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import ListingReservation from "./ListingReservation";
 import VirtualTourSection from "./VirtualTourSection";
 import { createPaymentSession } from "@/services/reservation-actions";
+import { openConversation } from "@/lib/messaging";
+import SpinnerMini from "@/components/Loader";
 import type { CurrentUser, Listing } from "@/types/listing";
 
 const initialDateRange = {
@@ -33,10 +35,7 @@ interface ListingClientProps {
   price: number;
   transactionType: string;
   currency: string;
-  contactName: string | null;
-  contactPhone: string | null;
-  contactWhatsapp: string | null;
-  contactEmail: string | null;
+  hostId: string;
   virtualTours?: Listing["virtualTours"];
   user:
     | CurrentUser
@@ -52,10 +51,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
   title,
   transactionType,
   currency,
-  contactName,
-  contactPhone,
-  contactWhatsapp,
-  contactEmail,
+  hostId,
   virtualTours = [],
 }) => {
   const [totalPrice, setTotalPrice] = useState(price);
@@ -90,6 +86,39 @@ const ListingClient: React.FC<ListingClientProps> = ({
     }
   }, [dateRange.endDate, dateRange.startDate, price]);
 
+  const [isOpeningChat, setIsOpeningChat] = useState(false);
+
+  const onSendMessage = async () => {
+    if (!user) return toast.error("Connectez-vous pour envoyer un message.");
+    if (user.id === hostId) return;
+
+    setIsOpeningChat(true);
+    try {
+      const conversationId = await openConversation({
+        listingId: id,
+        guestId: user.id,
+        hostId,
+      });
+      router.push(`/messages?c=${conversationId}`);
+    } catch {
+      toast.error("Impossible d'ouvrir la conversation.");
+    } finally {
+      setIsOpeningChat(false);
+    }
+  };
+
+  const messageButton =
+    user?.id === hostId ? null : (
+      <button
+        type="button"
+        onClick={onSendMessage}
+        disabled={isOpeningChat}
+        className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-rose-500 text-sm font-bold text-white transition hover:bg-rose-600 disabled:opacity-60"
+      >
+        {isOpeningChat ? <SpinnerMini className="h-4 w-4" /> : "Envoyer un message"}
+      </button>
+    );
+
   const onCreateReservation = () => {
     if (!user) return toast.error("Please log in to reserve listing.");
     startTransition(async () => {
@@ -118,43 +147,31 @@ const ListingClient: React.FC<ListingClientProps> = ({
       <div className="order-first mb-10 md:order-last md:col-span-3">
         <div className="grid gap-5">
           {transactionType === "booking" ? (
-            <ListingReservation
-              price={price}
-              totalPrice={totalPrice}
-              onChangeDate={(name, value) => setDateRange(value)}
-              dateRange={dateRange}
-              onSubmit={onCreateReservation}
-              isLoading={isLoading}
-              disabledDates={disabledDates}
-            />
+            <div className="grid gap-3">
+              <ListingReservation
+                price={price}
+                totalPrice={totalPrice}
+                onChangeDate={(name, value) => setDateRange(value)}
+                dateRange={dateRange}
+                onSubmit={onCreateReservation}
+                isLoading={isLoading}
+                disabledDates={disabledDates}
+              />
+              {messageButton}
+            </div>
           ) : (
             <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
-                {transactionType === "sale" ? "Prix de vente" : "Loyer estime"}
+                {transactionType === "sale" ? "Prix de vente" : "Loyer estimé"}
               </p>
               <p className="mt-2 text-2xl font-black text-neutral-900">
                 {currency} {price.toLocaleString("en-US")}
               </p>
-              <div className="mt-5 rounded-lg bg-neutral-50 p-4 text-sm text-neutral-600">
-                <p className="font-bold text-neutral-900">
-                  {contactName || "Contact annonceur"}
-                </p>
-                {contactEmail && <p className="mt-1">{contactEmail}</p>}
-                {contactPhone && <p className="mt-1">Tel: {contactPhone}</p>}
-                {contactWhatsapp && <p className="mt-1">WhatsApp: {contactWhatsapp}</p>}
-              </div>
-              <a
-                href={
-                  contactWhatsapp
-                    ? `https://wa.me/${contactWhatsapp.replace(/\D/g, "")}`
-                    : contactEmail
-                    ? `mailto:${contactEmail}?subject=${encodeURIComponent(title)}`
-                    : "#"
-                }
-                className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-lg bg-rose-500 text-sm font-bold text-white transition hover:bg-rose-600"
-              >
-                Contacter annonceur
-              </a>
+              <p className="mt-4 text-sm font-medium leading-6 text-neutral-500">
+                Échangez directement avec l&apos;annonceur depuis VacationHub : vos messages
+                restent rattachés à l&apos;annonce.
+              </p>
+              <div className="mt-5">{messageButton}</div>
             </div>
           )}
 

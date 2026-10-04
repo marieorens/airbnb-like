@@ -74,10 +74,7 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
         title={title}
         transactionType={transactionType}
         currency={currency}
-        contactName={contactName}
-        contactPhone={contactPhone}
-        contactWhatsapp={contactWhatsapp}
-        contactEmail={contactEmail}
+        hostId={listing.userId}
         virtualTours={virtualTours}
       >
         <ListingInfo

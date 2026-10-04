@@ -136,6 +136,10 @@ export const currencies = ["USD", "EUR", "XOF"] as const;
 
 export const menuItems = [
   {
+    label: "Mes messages",
+    path: "/messages",
+  },
+  {
     label: "Mes voyages",
     path: "/trips",
   },
