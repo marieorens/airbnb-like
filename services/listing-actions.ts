@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
+import { translateListingText } from "@/lib/listing-translation";
+
 import { mapListing } from "./listing";
 import { assetTypes } from "@/utils/constants";
 import {
@@ -42,7 +44,20 @@ export const createListing = async (data: { [x: string]: unknown }) => {
   const landTitleStatus = String(data.landTitleStatus || "");
   const propertyCondition = String(data.propertyCondition || "");
   const availableFrom = String(data.availableFrom || "");
-  const addressDetails = String(data.addressDetails || "");
+  const addressDetails = String(data.addressDetails || "").trim().slice(0, 300);
+  const city = String(data.city || "").trim().slice(0, 120);
+  const district = String(data.district || "").trim().slice(0, 120);
+  // Repère placé sur la carte par l'annonceur : [latitude, longitude].
+  const coordinates = Array.isArray(data.coordinates)
+    ? data.coordinates.map(Number)
+    : [];
+  const [latitude, longitude] = coordinates;
+  const hasValidCoordinates =
+    coordinates.length === 2 &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180;
   const title = String(data.title || "");
   const description = String(data.description || "");
   const virtualTourMode = String(data.virtualTourMode || "external");
@@ -76,6 +91,8 @@ export const createListing = async (data: { [x: string]: unknown }) => {
   if (
     !asset ||
     !location ||
+    !city ||
+    !hasValidCoordinates ||
     images.length < 3 ||
     !displayPrice ||
     !title ||
@@ -91,6 +108,10 @@ export const createListing = async (data: { [x: string]: unknown }) => {
   if (!user.isProfileComplete) {
     throw new Error("Completez votre profil avant de publier un bien.");
   }
+  // Publier exige un compte validé par la modération (vérification d'identité).
+  if (!user.isVerified) {
+    throw new Error("Votre compte doit être vérifié avant de publier un bien.");
+  }
 
   const supabase = createClient();
   const { data: listing, error } = await supabase
@@ -104,8 +125,10 @@ export const createListing = async (data: { [x: string]: unknown }) => {
       guest_count: guestCount,
       country: location.label ?? null,
       region: location.region ?? null,
-      latitude: location.latlng?.[0] ?? null,
-      longitude: location.latlng?.[1] ?? null,
+      city,
+      district: district || null,
+      latitude,
+      longitude,
       price_per_night: displayPrice,
       asset_type: asset.value,
       transaction_type: transactionType,
@@ -117,10 +140,9 @@ export const createListing = async (data: { [x: string]: unknown }) => {
       property_condition: propertyCondition || null,
       available_from: availableFrom || null,
       address_details: addressDetails || null,
+      // Les coordonnées de l'hôte restent dans son profil, privé : la colonne
+      // `listings` est lisible par tous (migration 202611190001).
       contact_name: user.name,
-      contact_phone: user.phone,
-      contact_whatsapp: user.whatsapp,
-      contact_email: user.email,
       host_id: user.id,
       status: "pending_review",
     })
@@ -168,9 +190,15 @@ export const createListing = async (data: { [x: string]: unknown }) => {
     if (tourError) throw new Error(tourError.message);
   }
 
-  revalidatePath("/");
-  revalidatePath("/annonces");
-  revalidatePath("/properties");
+  // Traduction FR / EN du titre et de la description. Jamais bloquante : en
+  // cas d'échec, l'annonce s'affiche dans sa langue d'origine.
+  const translations = await translateListingText({ title, description });
+  if (translations) {
+    await supabase.from("listings").update({ translations }).eq("id", listing.id);
+  }
+
+  // Toutes les langues (`/trips`, `/en/trips`…) : on invalide tout le site.
+  revalidatePath("/", "layout");
 
   return mapListing({
     ...listing,

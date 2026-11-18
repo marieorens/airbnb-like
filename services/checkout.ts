@@ -1,6 +1,8 @@
 import { differenceInCalendarDays } from "date-fns";
 import type Stripe from "stripe";
 
+import { isKkiapaySandbox, type KkiapayTransaction } from "@/lib/kkiapay";
+import type { PaymentProvider } from "@/lib/payments";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import type { Tables } from "@/types/supabase";
@@ -14,13 +16,34 @@ const ZERO_DECIMAL_CURRENCIES = new Set([
   "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF",
 ]);
 
+/**
+ * Erreur métier du paiement. `code` permet au site de l'afficher dans la langue
+ * de l'utilisateur (`checkoutErrors.<code>`) ; `message` reste le texte français
+ * renvoyé tel quel par `/api/checkout` à l'application mobile.
+ */
+export class CheckoutError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string
+  ) {
+    super(message);
+    this.name = "CheckoutError";
+  }
+}
+
 export const toStripeAmount = (amount: number, currency: string): number =>
   ZERO_DECIMAL_CURRENCIES.has(currency.toUpperCase())
     ? Math.round(amount)
     : Math.round(amount * 100);
 
-/** La session expire au bout d'une heure : les dates ne restent pas bloquees. */
-const SESSION_TTL_SECONDS = 60 * 60;
+/** La session expire au bout de 30 minutes (minimum Stripe) : les dates ne restent pas bloquees. */
+const SESSION_TTL_SECONDS = 30 * 60;
+
+/**
+ * Kkiapay n'a pas d'expiration de session. Une reservation laissee en
+ * `pending_payment` est liberee au bout d'une heure, au prochain passage.
+ */
+const PENDING_PAYMENT_TTL_MS = 60 * 60 * 1000;
 
 const CANCELLED_STATUSES = [
   "cancelled_by_guest",
@@ -37,6 +60,10 @@ type CheckoutInput = {
   checkOut: string;
   successUrl: string;
   cancelUrl: string;
+  /** Origine publique du site, pour construire la page de paiement Kkiapay. */
+  webOrigin?: string;
+  /** Stripe par defaut : les appels existants restent inchanges. */
+  provider?: PaymentProvider;
 };
 
 type ListingRow = Pick<
@@ -73,9 +100,11 @@ export async function createCheckout({
   checkOut,
   successUrl,
   cancelUrl,
+  webOrigin,
+  provider = "stripe",
 }: CheckoutInput) {
   if (!listingId || !checkIn || !checkOut) {
-    throw new Error("Donnees de reservation incompletes.");
+    throw new CheckoutError("incomplete", "Données de réservation incomplètes.");
   }
 
   const admin = createAdminClient();
@@ -100,7 +129,7 @@ export async function createCheckout({
   );
 
   if (!isProfileComplete) {
-    throw new Error("Completez votre profil avant de reserver.");
+    throw new CheckoutError("profile_incomplete", "Complétez votre profil avant de réserver.");
   }
 
   const { data, error } = await admin
@@ -113,26 +142,40 @@ export async function createCheckout({
 
   const listing = data as unknown as ListingRow | null;
 
-  if (error || !listing) throw new Error("Annonce introuvable.");
+  if (error || !listing) throw new CheckoutError("listing_not_found", "Annonce introuvable.");
   if (listing.status !== "published") {
-    throw new Error("Cette annonce n'est pas disponible.");
+    throw new CheckoutError("listing_unavailable", "Cette annonce n’est pas disponible.");
   }
   if (listing.transaction_type !== "booking") {
-    throw new Error("Cette annonce n'est pas reservable en ligne.");
+    throw new CheckoutError("not_bookable", "Cette annonce n’est pas réservable en ligne.");
   }
   if (listing.host_id === userId) {
-    throw new Error("Vous ne pouvez pas reserver votre propre bien.");
+    throw new CheckoutError("own_listing", "Vous ne pouvez pas réserver votre propre bien.");
+  }
+  if (provider === "kkiapay" && listing.currency.toUpperCase() !== "XOF") {
+    throw new Error(
+      "Kkiapay accepte uniquement les paiements en XOF. Choisissez Stripe pour cette annonce."
+    );
   }
 
   const start = toDate(checkIn);
   const end = toDate(checkOut);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) {
-    throw new Error("Dates invalides.");
+    throw new CheckoutError("invalid_dates", "Dates invalides.");
   }
 
   // Meme regle que le web : les deux journees bornes sont comptees.
   const nightCount = Math.max(differenceInCalendarDays(end, start) + 1, 1);
   const totalPrice = nightCount * listing.price_per_night;
+
+  // Kkiapay n'expire pas la session de paiement. Sans ce menage, une
+  // reservation abandonnee bloquerait les dates indefiniment.
+  await admin
+    .from("bookings")
+    .update({ status: "cancelled_by_guest" })
+    .eq("listing_id", listingId)
+    .eq("status", "pending_payment")
+    .lt("created_at", new Date(Date.now() - PENDING_PAYMENT_TTL_MS).toISOString());
 
   const { data: existing } = await admin
     .from("bookings")
@@ -147,7 +190,7 @@ export async function createCheckout({
   });
 
   if (hasConflict) {
-    throw new Error("Ces dates viennent d'etre reservees. Choisissez-en d'autres.");
+    throw new CheckoutError("dates_taken", "Ces dates viennent d’être réservées. Choisissez-en d’autres.");
   }
 
   const { data: booking, error: bookingError } = await admin
@@ -173,9 +216,38 @@ export async function createCheckout({
   const sortedPhotos = [...(listing.listing_photos ?? [])].sort(
     (a, b) => a.position - b.position
   );
-  const image = sortedPhotos[0]?.public_url || sortedPhotos[0]?.storage_path;
+  const rawImage = sortedPhotos[0]?.public_url;
+  const image =
+    typeof rawImage === "string" && (rawImage.startsWith("http://") || rawImage.startsWith("https://"))
+      ? rawImage
+      : undefined;
 
   try {
+    if (provider === "kkiapay") {
+      const origin = (webOrigin ?? process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(
+        /\/+$/,
+        ""
+      );
+      if (!origin) {
+        throw new CheckoutError("missing_origin", "URL du site manquante pour le paiement Kkiapay.");
+      }
+
+      // Le widget vit sur une page du site : le mobile y ouvre le navigateur
+      // système, comme pour Stripe. Les URL de retour sont validées par la page.
+      const params = new URLSearchParams({
+        success: successUrl,
+        cancel: cancelUrl,
+      });
+
+      return {
+        url: `${origin}/paiement/kkiapay/${booking.id}?${params.toString()}`,
+        bookingId: booking.id,
+        totalPrice,
+        nightCount,
+        provider,
+      };
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -200,18 +272,35 @@ export async function createCheckout({
       ],
     });
 
-    return { url: session.url, bookingId: booking.id, totalPrice, nightCount };
-  } catch (stripeError) {
+    return {
+      url: session.url,
+      bookingId: booking.id,
+      totalPrice,
+      nightCount,
+      provider,
+    };
+  } catch (checkoutError) {
     // Pas de session de paiement : la reservation ne doit pas bloquer le creneau.
     await admin
       .from("bookings")
       .update({ status: "cancelled_by_guest" })
       .eq("id", booking.id);
-    throw stripeError;
+    throw checkoutError;
   }
 }
 
-/** Paiement confirme : seul le webhook appelle cette fonction. */
+/**
+ * Paiement confirme : seul le webhook appelle cette fonction.
+ *
+ * Le paiement est enregistre **avant** le changement de statut, et de facon
+ * idempotente : un rejeu du webhook ne cree pas de doublon et ne reecrit pas un
+ * remboursement deja enregistre.
+ *
+ * La reservation n'est confirmee que si elle est encore `pending_payment`. Si le
+ * voyageur l'a annulee entre-temps (retour depuis Stripe, expiration), elle
+ * reste annulee : le paiement est tout de meme trace pour que l'equipe puisse
+ * rembourser. On ne ressuscite jamais une reservation annulee.
+ */
 export async function confirmBooking(
   bookingId: string,
   session: Stripe.Checkout.Session
@@ -220,10 +309,9 @@ export async function confirmBooking(
 
   const { data: booking, error } = await admin
     .from("bookings")
-    .update({ status: "confirmed" })
+    .select("id, guest_id, total_price, status")
     .eq("id", bookingId)
-    .select("id, guest_id, total_price")
-    .single();
+    .maybeSingle();
 
   if (error || !booking) {
     throw new Error(error?.message || "Reservation introuvable.");
@@ -234,17 +322,200 @@ export async function confirmBooking(
       ? session.payment_intent
       : session.payment_intent?.id;
 
-  await admin.from("payments").insert({
-    booking_id: booking.id,
-    user_id: booking.guest_id,
-    stripe_checkout_session_id: session.id,
-    stripe_payment_intent_id: paymentIntent ?? null,
-    amount: booking.total_price,
-    currency: session.currency ?? "usd",
-    status: "paid",
-  });
+  const { error: paymentError } = await admin.from("payments").upsert(
+    {
+      booking_id: booking.id,
+      user_id: booking.guest_id,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntent ?? null,
+      amount: booking.total_price,
+      currency: session.currency ?? "usd",
+      status: "paid",
+    },
+    { onConflict: "stripe_checkout_session_id", ignoreDuplicates: true }
+  );
 
-  return booking;
+  if (paymentError) {
+    throw new Error(paymentError.message);
+  }
+
+  return confirmPendingBooking(booking, "stripe");
+}
+
+/**
+ * Paiement Kkiapay verifie cote serveur.
+ *
+ * `transaction` vient de l'API Kkiapay, jamais du client. Le `partnerId` porte
+ * l'identifiant de la reservation : c'est lui qui rattache le paiement au bon
+ * sejour. Le montant est compare au total calcule a la creation.
+ *
+ * Aucune reservation n'est confirmee si le lien avec la transaction est absent :
+ * un paiement ne doit jamais pouvoir etre reutilise sur une autre reservation.
+ */
+export async function confirmKkiapayPayment(
+  bookingId: string,
+  transaction: KkiapayTransaction
+) {
+  const admin = createAdminClient();
+
+  const { data: booking, error } = await admin
+    .from("bookings")
+    .select("id, guest_id, total_price, status")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (error || !booking) {
+    throw new Error(error?.message || "Reservation introuvable.");
+  }
+
+  if (
+    transaction.status !== "SUCCESS" &&
+    transaction.status !== "COMPLETE" &&
+    transaction.status !== "COMPLETED"
+  ) {
+    throw new CheckoutError("kkiapay_failed", "Le paiement Kkiapay n’a pas abouti.");
+  }
+
+  if (Number(transaction.amount) !== booking.total_price) {
+    throw new CheckoutError("amount_mismatch", "Le montant du paiement ne correspond pas à la réservation.");
+  }
+
+  const linkedBookingId = transaction.partnerId || transaction.data;
+  if (linkedBookingId !== bookingId) {
+    throw new CheckoutError("unlinked_payment", "Impossible de rattacher ce paiement à la réservation.");
+  }
+
+  const { error: paymentError } = await admin.from("payments").upsert(
+    {
+      booking_id: booking.id,
+      user_id: booking.guest_id,
+      provider: "kkiapay",
+      provider_transaction_id: transaction.transactionId,
+      amount: booking.total_price,
+      currency: "XOF",
+      status: "paid",
+    },
+    {
+      onConflict: "provider,provider_transaction_id",
+      ignoreDuplicates: true,
+    }
+  );
+
+  if (paymentError) {
+    throw new Error(paymentError.message);
+  }
+
+  return confirmPendingBooking(booking, "kkiapay");
+}
+
+/**
+ * Confirmation de secours en sandbox, sans cles serveur Kkiapay.
+ *
+ * Le widget ne renvoie qu'un identifiant de transaction : sans cle privee ni
+ * secret, Kkiapay ne peut pas confirmer le paiement. En sandbox uniquement, on
+ * accepte donc le retour du widget pour permettre de tester le parcours de bout
+ * en bout. La page de paiement refuse ce chemin en production : aucun vrai
+ * paiement ne peut etre confirme sans verification serveur.
+ *
+ * Le paiement est tout de meme trace, avec l'identifiant de transaction prefixe
+ * `sandbox:`, pour que l'equipe puisse le rapprocher du tableau de bord Kkiapay
+ * sans le confondre avec un paiement verifie.
+ */
+export async function confirmKkiapaySandboxPayment(
+  bookingId: string,
+  transactionId: string
+) {
+  if (!isKkiapaySandbox()) {
+    throw new Error(
+      "La confirmation sans verification Kkiapay est reservee au sandbox."
+    );
+  }
+
+  const admin = createAdminClient();
+
+  const { data: booking, error } = await admin
+    .from("bookings")
+    .select("id, guest_id, total_price, status")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (error || !booking) {
+    throw new Error(error?.message || "Reservation introuvable.");
+  }
+
+  const { error: paymentError } = await admin.from("payments").upsert(
+    {
+      booking_id: booking.id,
+      user_id: booking.guest_id,
+      provider: "kkiapay",
+      // Prefixe explicite : la ligne est identifiable comme non verifiee.
+      provider_transaction_id: `sandbox:${transactionId}`,
+      amount: booking.total_price,
+      currency: "XOF",
+      status: "paid",
+    },
+    {
+      onConflict: "provider,provider_transaction_id",
+      ignoreDuplicates: true,
+    }
+  );
+
+  if (paymentError) {
+    throw new Error(paymentError.message);
+  }
+
+  console.warn(
+    "[kkiapay] confirmation sandbox sans verification serveur",
+    booking.id,
+    transactionId
+  );
+
+  return confirmPendingBooking(booking, "kkiapay");
+}
+
+/**
+ * Confirme une reservation encore en attente, de facon idempotente.
+ *
+ * Un rejeu normal retombe sur `confirmed`. Tout autre statut signifie que la
+ * reservation a ete annulee, terminee ou remboursee avant l'arrivee du
+ * paiement : on le signale, on ne l'ecrase jamais.
+ */
+async function confirmPendingBooking(
+  booking: { id: string; status: string },
+  provider: PaymentProvider
+) {
+  if (booking.status !== "pending_payment") {
+    if (booking.status !== "confirmed") {
+      console.warn(
+        `[${provider}] paiement recu pour une reservation non en attente`,
+        booking.id,
+        booking.status
+      );
+    }
+
+    return {
+      confirmed: booking.status === "confirmed",
+      previousStatus: booking.status,
+    };
+  }
+
+  const admin = createAdminClient();
+  const { data: updated, error } = await admin
+    .from("bookings")
+    .update({ status: "confirmed" })
+    .eq("id", booking.id)
+    .eq("status", "pending_payment")
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    confirmed: Boolean(updated),
+    previousStatus: booking.status,
+  };
 }
 
 /** Session expiree ou abandonnee : on libere le creneau. */

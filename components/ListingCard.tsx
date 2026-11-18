@@ -1,16 +1,19 @@
 import React from "react";
-import Link from "next/link";
 import { format } from "date-fns";
 import Skeleton from "react-loading-skeleton";
 import { FiMapPin } from "react-icons/fi";
+import { useLocale, useTranslations } from "next-intl";
+
+import { pickListingText } from "@/utils/listingText";
 
 import HeartButton from "./HeartButton";
 import Image from "./Image";
 import ListingMenu from "./ListingMenu";
 
 import type { ListingLike } from "@/types/listing";
-import { assetTypes } from "@/utils/constants";
 import { formatPrice } from "@/utils/helper";
+import { getDateLocale } from "@/utils/dateLocale";
+import { Link } from "@/i18n/navigation";
 
 interface ListingCardProps {
   data: ListingLike;
@@ -19,15 +22,22 @@ interface ListingCardProps {
     startDate: Date;
     endDate: Date;
     totalPrice: number;
+    status?: string;
   };
   hasFavorited: boolean;
+  /** Distance depuis la position de l'utilisateur (« Autour de moi »). */
+  distanceKm?: number;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
   data,
   reservation,
   hasFavorited,
+  distanceKm,
 }) => {
+  const t = useTranslations("listingCard");
+  const tDomain = useTranslations("domain");
+  const locale = useLocale();
   const sortedPhotos = [...(data.listing_photos ?? [])].sort(
     (a, b) => (a.position ?? 0) - (b.position ?? 0)
   );
@@ -46,32 +56,29 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const transactionType =
     data.transactionType || data.transaction_type || "booking";
   const assetType = data.assetType || data.asset_type || "short_stay";
-  const assetLabel =
-    assetTypes.find((asset) => asset.value === assetType)?.label ||
-    "Bien immobilier";
-  const transactionLabel =
-    transactionType === "sale"
-      ? "Vente"
-      : transactionType === "rent"
-        ? "Location"
-        : transactionType === "lead"
-          ? "Contact"
-          : "Sejour";
+  const assetLabel = tDomain.has(`assetTypes.${assetType}`)
+    ? tDomain(`assetTypes.${assetType}`)
+    : t("defaultAsset");
+  const transactionLabel = tDomain.has(`transactionBadges.${transactionType}`)
+    ? tDomain(`transactionBadges.${transactionType}`)
+    : tDomain("transactionBadges.booking");
   const priceSuffix =
     reservation || transactionType === "sale" || transactionType === "lead"
       ? ""
       : transactionType === "rent"
-        ? "mois"
-        : "nuit";
-  const region = data.region || "";
+        ? t("perMonth")
+        : t("perNight");
+  // Ville si elle est connue ; les anciennes annonces n'ont que le continent (`region`).
+  const place = data.city || data.region || "";
   const country = data.country || "";
-  const location = [region, country].filter(Boolean).join(", ") || data.title;
+  const location = [place, country].filter(Boolean).join(", ") || data.title;
 
   let reservationDate;
   if (reservation) {
     const start = new Date(reservation.startDate);
     const end = new Date(reservation.endDate);
-    reservationDate = `${format(start, "PP")} - ${format(end, "PP")}`;
+    const dateLocale = getDateLocale(locale);
+    reservationDate = `${format(start, "PP", { locale: dateLocale })} - ${format(end, "PP", { locale: dateLocale })}`;
   }
 
   return (
@@ -99,14 +106,26 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   ".supabase.co/"
                 )}
                 fill
-                alt={data.title}
+                alt={pickListingText(data, locale).title}
                 effect="zoom"
                 className="object-cover"
                 sizes="100vw"
               />
               <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-neutral-950/70 to-transparent" />
-              <span className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1 text-[11px] font-black uppercase tracking-wide text-neutral-950 shadow-sm">
-                {transactionLabel}
+              <span
+                className={`absolute bottom-3 left-3 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide shadow-sm ${
+                  reservation?.status === "pending_payment"
+                    ? "bg-amber-100 text-amber-800"
+                    : reservation?.status === "confirmed"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-white text-neutral-950"
+                }`}
+              >
+                {reservation?.status === "pending_payment"
+                  ? t("pending")
+                  : reservation?.status === "confirmed"
+                  ? t("confirmed")
+                  : transactionLabel}
               </span>
             </div>
           </div>
@@ -121,13 +140,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 <p className="mt-1 line-clamp-1 text-xs font-semibold text-neutral-500">
                   {reservationDate || assetLabel || data.category}
                 </p>
+                {distanceKm !== undefined ? (
+                  <p className="mt-1 text-xs font-black text-[#E11D48]">
+                    {t("distance", {
+                      distance: new Intl.NumberFormat(locale, {
+                        maximumFractionDigits: distanceKm < 10 ? 1 : 0,
+                      }).format(distanceKm),
+                    })}
+                  </p>
+                ) : null}
               </div>
             </div>
 
             <div className="mt-4 flex items-end justify-between gap-3">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-wide text-neutral-400">
-                  Prix
+                  {reservation ? t("total") : t("price")}
                 </p>
                 <div className="flex flex-row items-baseline gap-1">
                   <span className="text-[16px] font-black text-neutral-950">
@@ -141,7 +169,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 </div>
               </div>
               <span className="rounded-full bg-neutral-100 px-3 py-1 text-[11px] font-black text-neutral-600">
-                Details
+                {t("details")}
               </span>
             </div>
           </div>

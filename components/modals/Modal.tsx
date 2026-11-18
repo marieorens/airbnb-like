@@ -13,6 +13,7 @@ import React, {
 import { motion, AnimatePresence } from "framer-motion";
 import { IoMdClose } from "react-icons/io";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { useIsClient } from "@/hooks/useIsClient";
@@ -142,6 +143,7 @@ const Window: FC<WindowProps> = ({ children, name }) => {
 
 const WindowHeader: FC<WindowHeaderProps> = ({ title, subtitle }) => {
   const { close } = useContext(ModalContext);
+  const t = useTranslations("common");
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-neutral-200/80 bg-white/95 px-5 py-4 backdrop-blur md:px-7">
       <div className="min-w-0">
@@ -159,7 +161,7 @@ const WindowHeader: FC<WindowHeaderProps> = ({ title, subtitle }) => {
         type="button"
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 transition hover:bg-neutral-950 hover:text-white"
         onClick={close}
-        aria-label="Fermer"
+        aria-label={t("close")}
       >
         <IoMdClose size={18} />
       </button>

@@ -1,3 +1,5 @@
+import type { ListingTranslations } from "@/utils/listingText";
+
 export interface CurrentUser {
   id: string;
   email: string | null;
@@ -15,6 +17,15 @@ export interface CurrentUser {
   bio: string | null;
   profileCompletedAt: string | null;
   isProfileComplete: boolean;
+  accountType: "individual" | "agency";
+  companyName: string | null;
+  verificationStatus: "unverified" | "pending" | "approved" | "rejected";
+  /** Motif du dernier refus, affiché à l'utilisateur. */
+  verificationNote: string | null;
+  /** Codes des motifs du dernier refus (`profiles.verification_reasons`). */
+  verificationReasons: string[];
+  /** Compte validé par la modération : condition pour publier. */
+  isVerified: boolean;
 }
 
 export interface ReservationSummary {
@@ -22,12 +33,16 @@ export interface ReservationSummary {
   startDate: Date;
   endDate: Date;
   totalPrice: number;
+  status?: string;
 }
 
 export interface Listing {
   id: string;
+  /** Texte saisi par l'annonceur, dans sa langue. */
   title: string;
   description: string;
+  /** Versions FR / EN produites par la traduction automatique, si disponibles. */
+  translations: ListingTranslations | null;
   imageSrc: string;
   photos: {
     publicUrl: string;
@@ -68,6 +83,8 @@ export interface Listing {
   country: string | null;
   latlng: number[];
   region: string | null;
+  city: string | null;
+  district: string | null;
   user?: {
     name: string | null;
     image: string | null;

@@ -26,6 +26,14 @@ export type Database = {
           preferred_contact: "email" | "phone" | "whatsapp";
           bio: string | null;
           profile_completed_at: string | null;
+          account_type: "individual" | "agency";
+          company_name: string | null;
+          verification_status: "unverified" | "pending" | "approved" | "rejected";
+          verification_note: string | null;
+          verification_reasons: ("unreadable" | "expired" | "name_mismatch" | "incomplete" | "wrong_document" | "company_mismatch")[];
+          verification_submitted_at: string | null;
+          verification_reviewed_at: string | null;
+          verification_reviewed_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -45,6 +53,14 @@ export type Database = {
           preferred_contact?: "email" | "phone" | "whatsapp";
           bio?: string | null;
           profile_completed_at?: string | null;
+          account_type?: "individual" | "agency";
+          company_name?: string | null;
+          verification_status?: "unverified" | "pending" | "approved" | "rejected";
+          verification_note?: string | null;
+          verification_reasons?: ("unreadable" | "expired" | "name_mismatch" | "incomplete" | "wrong_document" | "company_mismatch")[];
+          verification_submitted_at?: string | null;
+          verification_reviewed_at?: string | null;
+          verification_reviewed_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -63,8 +79,52 @@ export type Database = {
           preferred_contact?: "email" | "phone" | "whatsapp";
           bio?: string | null;
           profile_completed_at?: string | null;
+          account_type?: "individual" | "agency";
+          company_name?: string | null;
+          verification_status?: "unverified" | "pending" | "approved" | "rejected";
+          verification_note?: string | null;
+          verification_reasons?: ("unreadable" | "expired" | "name_mismatch" | "incomplete" | "wrong_document" | "company_mismatch")[];
+          verification_submitted_at?: string | null;
+          verification_reviewed_at?: string | null;
+          verification_reviewed_by?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      listing_private_locations: {
+        Row: {
+          listing_id: string;
+          latitude: number | null;
+          longitude: number | null;
+          address_details: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          listing_id: string;
+          latitude?: number | null;
+          longitude?: number | null;
+          address_details?: string | null;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["listing_private_locations"]["Insert"]>;
+        Relationships: [];
+      };
+      verification_documents: {
+        Row: {
+          id: string;
+          user_id: string;
+          kind: "id_front" | "id_back" | "rccm" | "ifu" | "manager_id_front" | "manager_id_back";
+          storage_path: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          kind: "id_front" | "id_back" | "rccm" | "ifu" | "manager_id_front" | "manager_id_back";
+          storage_path: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["verification_documents"]["Insert"]>;
         Relationships: [];
       };
       listings: {
@@ -72,6 +132,7 @@ export type Database = {
           id: string;
           host_id: string;
           title: string;
+          translations: Json;
           description: string;
           category: string;
           type: string | null;
@@ -97,6 +158,8 @@ export type Database = {
           property_condition: string | null;
           available_from: string | null;
           address_details: string | null;
+          city: string | null;
+          district: string | null;
           contact_name: string | null;
           contact_phone: string | null;
           contact_whatsapp: string | null;
@@ -113,6 +176,7 @@ export type Database = {
           id?: string;
           host_id: string;
           title: string;
+          translations?: Json;
           description: string;
           category: string;
           type?: string | null;
@@ -138,6 +202,8 @@ export type Database = {
           property_condition?: string | null;
           available_from?: string | null;
           address_details?: string | null;
+          city?: string | null;
+          district?: string | null;
           contact_name?: string | null;
           contact_phone?: string | null;
           contact_whatsapp?: string | null;
@@ -274,6 +340,8 @@ export type Database = {
           user_id: string;
           stripe_checkout_session_id: string | null;
           stripe_payment_intent_id: string | null;
+          provider: string;
+          provider_transaction_id: string | null;
           amount: number;
           currency: string;
           status: "pending" | "paid" | "failed" | "refunded";
@@ -286,6 +354,8 @@ export type Database = {
           user_id: string;
           stripe_checkout_session_id?: string | null;
           stripe_payment_intent_id?: string | null;
+          provider?: string;
+          provider_transaction_id?: string | null;
           amount: number;
           currency?: string;
           status?: "pending" | "paid" | "failed" | "refunded";
@@ -370,8 +440,33 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      public_profiles: {
+        Row: {
+          id: string;
+          full_name: string | null;
+          avatar_url: string | null;
+          account_type: "individual" | "agency";
+          company_name: string | null;
+          is_verified: boolean;
+        };
+        Relationships: [];
+      };
+    };
+    Functions: {
+      listings_near: {
+        Args: { lat: number; lng: number; radius_km?: number; max_results?: number };
+        Returns: { listing_id: string; distance_km: number }[];
+      };
+      submit_verification: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
+      unavailable_listing_ids: {
+        Args: { start_date: string; end_date: string };
+        Returns: string[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

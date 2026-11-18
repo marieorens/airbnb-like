@@ -1,6 +1,9 @@
 "use client"
 import React from "react";
 import { DateRange, Range, RangeKeyDict } from "react-date-range";
+import { useLocale } from "next-intl";
+
+import { getDateLocale } from "@/utils/dateLocale";
 
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
@@ -16,12 +19,14 @@ const Calendar: React.FC<CalendarProps> = ({
   onChange,
   disabledDates,
 }) => {
+  const locale = useLocale();
   const handleChange = (value: RangeKeyDict) => {
     onChange("dateRange", value.selection)
   }
   return (
     <DateRange
       rangeColors={["#262626"]}
+      locale={getDateLocale(locale)}
       ranges={[value]}
       date={new Date()}
       onChange={handleChange}

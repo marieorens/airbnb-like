@@ -1,6 +1,7 @@
 "use client";
 import React, { useRef, useEffect } from "react";
 import { FieldValues, UseFormWatch } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/utils/helper";
 import { Category } from "@/types";
@@ -16,6 +17,9 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   onClick,
   watch,
 }) => {
+  const t = useTranslations("domain.categories");
+  // `label` est la valeur enregistrée en base (français) ; seul l'affichage est traduit.
+  const displayLabel = t.has(`${label}.label`) ? t(`${label}.label`) : label;
   const isSelected = watch("category") === label;
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -48,7 +52,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
         onFocus={handleChange}
       >
         <Icon size={24} />
-        <span className="font-semibold text-sm select-none text-start">{label}</span>
+        <span className="font-semibold text-sm select-none text-start">{displayLabel}</span>
       </button>
     </div>
   );

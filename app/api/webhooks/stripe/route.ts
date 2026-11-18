@@ -37,9 +37,14 @@ export async function POST(req: Request) {
         throw new Error("Missing bookingId metadata");
       }
 
-      await confirmBooking(bookingId, session);
+      const result = await confirmBooking(bookingId, session);
 
-      return NextResponse.json({ ok: true, eventType, bookingConfirmed: true });
+      return NextResponse.json({
+        ok: true,
+        eventType,
+        bookingConfirmed: result.confirmed,
+        bookingStatus: result.previousStatus,
+      });
     }
 
     // Session abandonnee ou expiree : le creneau est libere.

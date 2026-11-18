@@ -1,6 +1,7 @@
 "use client";
 import React, { FC } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 
 import ListingCard, { ListingSkeleton } from "./ListingCard";
 import { useLoadMore } from "@/hooks/useLoadMore";
@@ -24,6 +25,7 @@ const LoadMore: FC<LoadMoreProps> = ({
   queryKey,
   favorites,
 }) => {
+  const t = useTranslations("common");
   const { data, isFetchingNextPage, hasNextPage, status, fetchNextPage } =
     useInfiniteQuery({
       queryFn: ({ pageParam = nextCursor }) =>
@@ -78,7 +80,7 @@ const LoadMore: FC<LoadMoreProps> = ({
       )}
       {status === "error" && (
         <p className="text-xl mt-8 text-center font-semibold">
-          Something went wrong!
+          {t("error")}
         </p>
       )}
       <div ref={ref} />

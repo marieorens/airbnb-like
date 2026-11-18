@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
+import { getRequestLocale, localizePath } from "@/i18n/routing";
 import type { Database } from "@/types/supabase";
 
 type CookieToSet = {
@@ -13,7 +14,11 @@ type CookieToSet = {
 export async function GET(request: NextRequest) {
   const requestUrl = request.nextUrl.clone();
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? "/";
+  const requestedNext = requestUrl.searchParams.get("next") ?? "/";
+  // Chemin interne uniquement (pas de redirection vers un autre site).
+  const next = requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/";
+  // Les URL de retour enregistrées chez Supabase n'ont pas de langue : on la retrouve ici.
+  const locale = getRequestLocale(request);
   const debug = requestUrl.searchParams.get("debug") === "1";
   const cookiesToSet: CookieToSet[] = [];
 
@@ -26,7 +31,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.redirect(new URL(next, requestUrl.origin));
+    return NextResponse.redirect(new URL(localizePath(next, locale), requestUrl.origin));
   }
 
   const supabase = createServerClient<Database>(
@@ -85,7 +90,9 @@ export async function GET(request: NextRequest) {
           .map((cookie) => cookie.name)
           .filter((name) => name.startsWith("sb-")),
       })
-    : NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
+    : NextResponse.redirect(
+        new URL(localizePath(redirectPath, locale), requestUrl.origin)
+      );
 
   cookiesToSet.forEach(({ name, value, options }) => {
     response.cookies.set(name, value, options);

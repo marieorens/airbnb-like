@@ -1,10 +1,12 @@
 "use client";
 import React from "react";
 import { MdKeyboardBackspace } from "react-icons/md";
+import { useTranslations } from "next-intl";
 import { useMoveBack } from "@/hooks/useMoveBack";
 
 const BackButton = () => {
   const back = useMoveBack();
+  const t = useTranslations("common");
   return (
     <button
       type="button"
@@ -12,7 +14,7 @@ const BackButton = () => {
       onClick={back}
     >
     <MdKeyboardBackspace size={18}/>
-      <span>Retour</span>
+      <span>{t("back")}</span>
     </button>
   );
 };

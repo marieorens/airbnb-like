@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import Select from "react-select";
+import { useLocale, useTranslations } from "next-intl";
 import countries from "@/data/countries.json";
 
 export type CountrySelectValue = {
@@ -19,6 +20,19 @@ const CountrySelect = ({
   onChange: (name: string, val: CountrySelectValue) => void;
 }) => {
   const ref = useRef<any>(null);
+  const locale = useLocale();
+  const t = useTranslations("countrySelect");
+  // Le libellé enregistré en base reste celui de countries.json ; l'affichage suit la langue.
+  const regionNames = new Intl.DisplayNames([locale], { type: "region" });
+  const countryName = (option: CountrySelectValue) => {
+    try {
+      return regionNames.of(option.value) ?? option.label;
+    } catch {
+      return option.label;
+    }
+  };
+  const continentName = (region: string) =>
+    t.has(`continents.${region}`) ? t(`continents.${region}`) : region;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -35,7 +49,9 @@ const CountrySelect = ({
   return (
     <Select
       ref={ref}
-      placeholder="Choisir un pays"
+      placeholder={t("placeholder")}
+      getOptionLabel={countryName}
+      noOptionsMessage={() => t("noOptions")}
       isClearable
       options={countries}
       value={value}
@@ -44,8 +60,8 @@ const CountrySelect = ({
         <div className="flex flex-row items-center gap-3 z-[10]">
           <div>{option.flag}</div>
           <div>
-            {option.label},
-            <span className="text-neutral-500 ml-1">{option.region}</span>
+            {countryName(option)},
+            <span className="text-neutral-500 ml-1">{continentName(option.region)}</span>
           </div>
         </div>
       )}

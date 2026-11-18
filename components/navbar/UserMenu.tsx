@@ -1,7 +1,9 @@
 "use client";
 import React from "react";
 import { AiOutlineMenu } from "react-icons/ai";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+
+import { useRouter } from "@/i18n/navigation";
 
 import Avatar from "../Avatar";
 import MenuItem from "./MenuItem";
@@ -19,7 +21,12 @@ interface UserMenuProps {
 
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
   const router = useRouter();
-  const canPublish = Boolean(user?.isProfileComplete);
+  const t = useTranslations("nav");
+  // Publier exige un profil complet, puis un compte validé par la modération.
+  const canPublish = Boolean(user?.isProfileComplete && user?.isVerified);
+  const nextStep = !user?.isProfileComplete
+    ? { label: t("completeProfile"), href: "/complete-profile?next=/verification" }
+    : { label: t("verifyAccount"), href: "/verification" };
 
   const redirect = (url: string) => {
     router.push(url);
@@ -43,16 +50,16 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                   type="button"
                   className="hidden md:block text-sm font-bold py-3 px-4 rounded-full hover:bg-neutral-100 transition cursor-pointer text-[#585858]"
                 >
-                  Publier un bien
+                  {t("publish")}
                 </button>
               </Modal.Trigger>
             ) : (
               <button
                 type="button"
-                onClick={() => redirect("/complete-profile?next=/")}
+                onClick={() => redirect(nextStep.href)}
                 className="hidden md:block text-sm font-bold py-3 px-4 rounded-full hover:bg-neutral-100 transition cursor-pointer text-[#585858]"
               >
-                Completer mon profil
+                {nextStep.label}
               </button>
             )
           ) : null}
@@ -63,7 +70,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                   type="button"
                   className="h-11 rounded-full border border-neutral-300 bg-white px-5 text-sm font-black text-neutral-950 transition hover:border-neutral-950"
                 >
-                  S&apos;inscrire
+                  {t("signUp")}
                 </button>
               </Modal.Trigger>
               <Modal.Trigger name="Connexion">
@@ -71,7 +78,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                   type="button"
                   className="h-11 rounded-full bg-[#E11D48] px-6 text-sm font-black text-white transition hover:bg-[#BE123C]"
                 >
-                  Se connecter
+                  {t("signIn")}
                 </button>
               </Modal.Trigger>
             </div>
@@ -95,33 +102,30 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                 <>
                   {menuItems.map((item) => (
                     <MenuItem
-                      label={item.label}
+                      label={t(`menu.${item.key}`)}
                       onClick={() => redirect(item.path)}
-                      key={item.label}
+                      key={item.key}
                     />
                   ))}
 
                   {canPublish ? (
                     <Modal.Trigger name="share">
-                      <MenuItem label="Publier un bien" />
+                      <MenuItem label={t("publish")} />
                     </Modal.Trigger>
                   ) : (
-                    <MenuItem
-                      label="Completer mon profil"
-                      onClick={() => redirect("/complete-profile?next=/")}
-                    />
+                    <MenuItem label={nextStep.label} onClick={() => redirect(nextStep.href)} />
                   )}
                   <hr />
-                  <MenuItem label="Se deconnecter" onClick={handleSignOut} />
+                  <MenuItem label={t("signOut")} onClick={handleSignOut} />
                 </>
               ) : (
                 <>
                   <Modal.Trigger name="Connexion">
-                    <MenuItem label="Se connecter" />
+                    <MenuItem label={t("signIn")} />
                   </Modal.Trigger>
 
                   <Modal.Trigger name="Inscription">
-                    <MenuItem label="Creer un compte" />
+                    <MenuItem label={t("createAccount")} />
                   </Modal.Trigger>
                 </>
               )}

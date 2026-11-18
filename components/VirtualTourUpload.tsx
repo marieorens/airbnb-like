@@ -3,6 +3,7 @@
 import React, { ChangeEvent, FC, useState, useTransition } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { FiTrash2 } from "react-icons/fi";
 import { TbView360 } from "react-icons/tb";
 
@@ -20,19 +21,26 @@ interface VirtualTourUploadProps {
   onChange: (fieldName: string, value: PanoramaInput[]) => void;
 }
 
-const defaultRoomLabels = [
-  "Salon",
-  "Chambre",
-  "Cuisine",
-  "Salle de bain",
-  "Terrasse",
-  "Exterieur",
-];
+// Noms proposés par défaut aux premiers panoramas : clés `virtualTourUpload.rooms.<clé>`.
+const defaultRoomKeys = [
+  "livingRoom",
+  "bedroom",
+  "kitchen",
+  "bathroom",
+  "terrace",
+  "outdoor",
+] as const;
 
 const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
   value = [],
   onChange,
 }) => {
+  const t = useTranslations("virtualTourUpload");
+  // Nom proposé au panorama n° `position` (0 = premier) : Salon, Chambre… puis « Pièce N ».
+  const defaultRoomLabel = (position: number) => {
+    const roomKey = defaultRoomKeys[position];
+    return roomKey ? t(`rooms.${roomKey}`) : t("roomFallback", { index: position + 1 });
+  };
   const [panoramas, setPanoramas] = useState<PanoramaInput[]>(value);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, startTransition] = useTransition();
@@ -50,7 +58,7 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
     );
 
     if (!imageFiles.length) {
-      toast.error("Veuillez choisir des images panoramiques.");
+      toast.error(t("invalidFiles"));
       return;
     }
 
@@ -58,9 +66,7 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
       ...panoramas,
       ...imageFiles.map((file, index) => ({
         url: URL.createObjectURL(file),
-        label:
-          defaultRoomLabels[panoramas.length + index] ??
-          `Piece ${panoramas.length + index + 1}`,
+        label: defaultRoomLabel(panoramas.length + index),
       })),
     ];
     setPanoramas(optimisticPanoramas);
@@ -72,7 +78,7 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        toast.error("Connectez-vous pour ajouter une visite 360.");
+        toast.error(t("signInRequired"));
         setPanoramas(panoramas);
         return;
       }
@@ -107,18 +113,12 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
 
         uploadedPanoramas.push({
           url: publicUrl,
-          label:
-            defaultRoomLabels[panoramas.length + index] ??
-            `Piece ${panoramas.length + index + 1}`,
+          label: defaultRoomLabel(panoramas.length + index),
         });
       }
 
       syncPanoramas([...panoramas, ...uploadedPanoramas]);
-      toast.success(
-        `${uploadedPanoramas.length} panorama${
-          uploadedPanoramas.length > 1 ? "s" : ""
-        } ajoute${uploadedPanoramas.length > 1 ? "s" : ""}.`
-      );
+      toast.success(t("added", { count: uploadedPanoramas.length }));
     });
   };
 
@@ -161,11 +161,10 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
       >
         <TbView360 className="mb-4 h-14 w-14 text-neutral-800" />
         <span className="text-lg font-black text-neutral-950">
-          Ajouter des panoramas 360
+          {t("title")}
         </span>
         <span className="mt-2 max-w-[390px] text-sm font-medium leading-6 text-neutral-500">
-          Ajoutez plusieurs images equirectangulaires, puis nommez chaque point:
-          salon, chambre, cuisine, terrasse...
+          {t("hint")}
         </span>
 
         {isLoading && (
@@ -194,7 +193,7 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
               <div className="relative h-24 overflow-hidden rounded-xl bg-neutral-100">
                 <Image
                   src={panorama.url}
-                  alt={`Panorama ${index + 1}`}
+                  alt={t("panoramaAlt", { index: index + 1 })}
                   fill
                   sizes="120px"
                   className="object-cover"
@@ -202,19 +201,19 @@ const VirtualTourUpload: FC<VirtualTourUploadProps> = ({
                 />
               </div>
               <label className="flex flex-col justify-center gap-2 text-xs font-black uppercase tracking-wide text-neutral-500">
-                Nom du point
+                {t("pointName")}
                 <input
                   value={panorama.label}
                   onChange={(event) => updateLabel(index, event.target.value)}
                   className="h-11 rounded-xl border border-neutral-200 px-3 text-sm font-bold normal-case tracking-normal text-neutral-950 outline-none transition focus:border-neutral-950"
-                  placeholder={`Piece ${index + 1}`}
+                  placeholder={t("roomFallback", { index: index + 1 })}
                 />
               </label>
               <button
                 type="button"
                 onClick={() => removePanorama(index)}
                 className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 text-neutral-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 sm:self-center"
-                aria-label="Retirer ce panorama"
+                aria-label={t("remove")}
               >
                 <FiTrash2 size={18} />
               </button>

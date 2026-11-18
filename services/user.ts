@@ -12,7 +12,7 @@ export const getCurrentUser = async (): Promise<CurrentUser | undefined> => {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, role, is_host, phone, whatsapp, country_of_residence, city_of_residence, country_of_origin, account_purpose, preferred_contact, bio, profile_completed_at"
+      "full_name, avatar_url, role, is_host, phone, whatsapp, country_of_residence, city_of_residence, country_of_origin, account_purpose, preferred_contact, bio, profile_completed_at, account_type, company_name, verification_status, verification_note, verification_reasons"
     )
     .eq("id", user.id)
     .single();
@@ -46,5 +46,11 @@ export const getCurrentUser = async (): Promise<CurrentUser | undefined> => {
     bio: profile?.bio ?? null,
     profileCompletedAt: profile?.profile_completed_at ?? null,
     isProfileComplete,
+    accountType: profile?.account_type ?? "individual",
+    companyName: profile?.company_name ?? null,
+    verificationStatus: profile?.verification_status ?? "unverified",
+    verificationNote: profile?.verification_note ?? null,
+    verificationReasons: profile?.verification_reasons ?? [],
+    isVerified: profile?.verification_status === "approved",
   };
 };

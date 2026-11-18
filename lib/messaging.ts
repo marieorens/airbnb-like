@@ -1,14 +1,13 @@
 import { createClient } from "@/lib/supabase/browser";
 import type { Tables } from "@/types/supabase";
+import { parseTranslations, type ListingTranslations } from "@/utils/listingText";
 
 const normalizeStorageUrl = (url: string) =>
   url.replace(/\.supabase\.co\/rest\/v1\//, ".supabase.co/");
 
 const CONVERSATION_SELECT = `
   id,listing_id,guest_id,host_id,last_message_at,guest_last_read_at,host_last_read_at,
-  listings(title,listing_photos(public_url,storage_path,position)),
-  guest:profiles!conversations_guest_id_fkey(id,full_name,avatar_url),
-  host:profiles!conversations_host_id_fkey(id,full_name,avatar_url)
+  listings(title,translations,listing_photos(public_url,storage_path,position))
 `;
 
 export type Message = {
@@ -22,7 +21,9 @@ export type Message = {
 export type ConversationSummary = {
   id: string;
   listingId: string;
+  /** Titre d'origine ; afficher via `localizedTitle()`. */
   listingTitle: string;
+  listingTranslations: ListingTranslations | null;
   listingImageUrl: string | null;
   otherParty: { id: string; name: string | null; avatarUrl: string | null };
   lastMessageAt: string;
@@ -33,7 +34,6 @@ export type ConversationSummary = {
 
 export type ConversationRole = "guest" | "host";
 
-type ProfileRef = Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">;
 
 type ConversationRow = Pick<
   Tables<"conversations">,
@@ -47,12 +47,11 @@ type ConversationRow = Pick<
 > & {
   listings?: {
     title: string;
+    translations: unknown;
     listing_photos?:
       | Pick<Tables<"listing_photos">, "public_url" | "storage_path" | "position">[]
       | null;
   } | null;
-  guest?: ProfileRef | null;
-  host?: ProfileRef | null;
 };
 
 export const toMessage = (row: Tables<"messages">): Message => ({
@@ -81,6 +80,17 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
   if (error) throw error;
 
   const rows = (data ?? []) as unknown as ConversationRow[];
+
+  // L'interlocuteur se lit dans la vue `public_profiles` : `profiles` est privé
+  // (migration 202611190001).
+  const participantIds = Array.from(new Set(rows.flatMap((row) => [row.guest_id, row.host_id])));
+  const { data: people } = participantIds.length
+    ? await supabase
+        .from("public_profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", participantIds)
+    : { data: [] };
+  const profileById = new Map((people ?? []).map((person) => [person.id, person]));
   if (rows.length === 0) return [];
 
   const { data: recent, error: messagesError } = await supabase
@@ -106,7 +116,7 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
 
   return rows.map((row) => {
     const isHost = row.host_id === userId;
-    const otherProfile = isHost ? row.guest : row.host;
+    const otherProfile = profileById.get(isHost ? row.guest_id : row.host_id);
     const lastReadAt = isHost ? row.host_last_read_at : row.guest_last_read_at;
     const last = lastByConversation.get(row.id);
 
@@ -118,7 +128,8 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
     return {
       id: row.id,
       listingId: row.listing_id,
-      listingTitle: row.listings?.title ?? "Annonce",
+      listingTitle: row.listings?.title ?? "VacationHub",
+      listingTranslations: parseTranslations(row.listings?.translations),
       listingImageUrl: rawUrl ? normalizeStorageUrl(rawUrl) : null,
       otherParty: {
         id: isHost ? row.guest_id : row.host_id,
@@ -266,19 +277,21 @@ export async function fetchConversationRole(
   return data.host_id === userId ? "host" : "guest";
 }
 
-const timeOnly = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
-const dayAndMonth = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
-const fullDate = new Intl.DateTimeFormat("fr-FR", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
-export const formatMessageTime = (iso: string): string => {
+/** Heure du jour, sinon date courte : « 14:05 », « 3 nov. », « 3 nov. 2025 ». */
+export const formatMessageTime = (iso: string, locale = "fr"): string => {
   const date = new Date(iso);
   const now = new Date();
+  const intlLocale = locale === "en" ? "en-GB" : "fr-FR";
 
-  if (date.toDateString() === now.toDateString()) return timeOnly.format(date);
-  if (date.getFullYear() === now.getFullYear()) return dayAndMonth.format(date);
-  return fullDate.format(date);
+  if (date.toDateString() === now.toDateString()) {
+    return new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(date);
+  }
+  if (date.getFullYear() === now.getFullYear()) {
+    return new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short" }).format(date);
+  }
+  return new Intl.DateTimeFormat(intlLocale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 };

@@ -4,7 +4,9 @@ import dynamic from "next/dynamic";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+
+import { useRouter } from "@/i18n/navigation";
 import { BiDollar } from "react-icons/bi";
 
 import Modal from "./Modal";
@@ -41,6 +43,9 @@ enum STEPS {
 }
 
 const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
+  const t = useTranslations("rentModal");
+  const tDomain = useTranslations("domain");
+  const tCommon = useTranslations("common");
   const [step, setStep] = useState(STEPS.ASSET);
   const [isLoading, startTransition] = useTransition();
   const queryClient = useQueryClient();
@@ -58,6 +63,9 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
       assetType: "short_stay",
       category: "Plage",
       location: null,
+      city: "",
+      district: "",
+      coordinates: null,
       guestCount: 1,
       bathroomCount: 1,
       roomCount: 1,
@@ -82,6 +90,13 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
 
   const location = watch("location");
   const country = location?.label;
+  const city = (watch("city") as string | undefined) ?? "";
+  const coordinates = watch("coordinates") as [number, number] | null;
+  // Où la carte doit se centrer après « Utiliser ma position » (sinon : le pays choisi).
+  const [mapFocus, setMapFocus] = useState<{ center: number[]; zoom: number } | null>(
+    null
+  );
+  const [isLocating, setIsLocating] = useState(false);
   const assetType = watch("assetType") || "short_stay";
   const virtualTourMode = watch("virtualTourMode") || "external";
   const selectedAsset = assetTypes.find((asset) => asset.value === assetType);
@@ -90,15 +105,15 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     assetType
   );
   const stepItems = [
-    { step: STEPS.ASSET, label: "Type" },
+    { step: STEPS.ASSET, label: t("steps.type") },
     ...(usesLifestyleCategory
-      ? [{ step: STEPS.CATEGORY, label: "Categorie" }]
+      ? [{ step: STEPS.CATEGORY, label: t("steps.category") }]
       : []),
-    { step: STEPS.LOCATION, label: "Adresse" },
-    { step: STEPS.INFO, label: assetType === "land_sale" ? "Terrain" : "Details" },
-    { step: STEPS.IMAGES, label: "Photos" },
-    { step: STEPS.DESCRIPTION, label: "Description" },
-    { step: STEPS.PRICE, label: "Prix" },
+    { step: STEPS.LOCATION, label: t("steps.address") },
+    { step: STEPS.INFO, label: assetType === "land_sale" ? t("steps.land") : t("steps.details") },
+    { step: STEPS.IMAGES, label: t("steps.photos") },
+    { step: STEPS.DESCRIPTION, label: t("steps.description") },
+    { step: STEPS.PRICE, label: t("steps.price") },
   ];
   const currentStepIndex = Math.max(
     stepItems.findIndex((item) => item.step === step),
@@ -121,6 +136,37 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
       shouldTouch: true,
       shouldValidate: true,
     });
+  };
+
+  const selectCountry = (name: string, value: unknown) => {
+    setCustomValue(name, value);
+    // Nouveau pays : l'ancien repère n'a plus de sens.
+    setCustomValue("coordinates", null);
+    setMapFocus(null);
+  };
+
+  const locateMe = () => {
+    if (!("geolocation" in navigator)) {
+      toast.error(t("geoUnsupported"));
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const point: [number, number] = [
+          position.coords.latitude,
+          position.coords.longitude,
+        ];
+        setCustomValue("coordinates", point);
+        setMapFocus({ center: point, zoom: 16 });
+        setIsLocating(false);
+      },
+      () => {
+        toast.error(t("geoFailed"));
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const selectAssetType = (value: string) => {
@@ -151,7 +197,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     startTransition(async () => {
       try {
         const newListing = await createListing(data);
-        toast.success(`${data.title} a ete envoye en verification.`);
+        toast.success(t("submitted", { title: data.title }));
         queryClient.invalidateQueries({
           queryKey: ["listings"],
         });
@@ -161,7 +207,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         router.refresh();
         router.push(`/listings/${newListing.id}`);
       } catch (error: any) {
-        toast.error("Impossible de creer l'annonce.");
+        toast.error(t("submitError"));
         console.log(error?.message)
       }
     });
@@ -173,8 +219,8 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-4">
             <Heading
-              title="Que voulez-vous publier ?"
-              subtitle="Locations courtes, ventes, parcelles et biens pros sont acceptes."
+              title={t("assetTitle")}
+              subtitle={t("assetSubtitle")}
             />
             <div className="grid grid-cols-1 gap-3">
               {assetTypes.map((item) => (
@@ -193,20 +239,14 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                       assetType === item.value ? "text-white" : "text-neutral-900"
                     }`}
                   >
-                    {item.label}
+                    {tDomain(`assetTypes.${item.value}`)}
                   </span>
                   <span
                     className={`mt-1 block text-xs font-medium uppercase tracking-wide ${
                       assetType === item.value ? "text-white/65" : "text-neutral-500"
                     }`}
                   >
-                    {item.transactionType === "booking"
-                      ? "Reservation en ligne"
-                      : item.transactionType === "rent"
-                      ? "Location longue duree"
-                      : item.transactionType === "sale"
-                      ? "Vente immobiliere"
-                      : "Demande de contact"}
+                    {tDomain(`transactionKinds.${item.transactionType}`)}
                   </span>
                 </button>
               ))}
@@ -218,12 +258,76 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Ou se trouve le bien ?"
-              subtitle="Aidez les acheteurs et voyageurs a le situer."
+              title={t("locationTitle")}
+              subtitle={t("locationSubtitle")}
             />
-            <CountrySelect value={location} onChange={setCustomValue} />
-            <div className="h-[240px]">
-              <Map center={location?.latlng} />
+            <CountrySelect value={location} onChange={selectCountry} />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Input
+                id="city"
+                label={t("city")}
+                disabled={isLoading}
+                register={register}
+                errors={errors}
+                watch={watch}
+                maxLength={120}
+                required
+              />
+              <Input
+                id="district"
+                label={t("district")}
+                disabled={isLoading}
+                register={register}
+                errors={errors}
+                watch={watch}
+                maxLength={120}
+              />
+            </div>
+            <div>
+              <Input
+                id="addressDetails"
+                label={t("addressDetails")}
+                disabled={isLoading}
+                register={register}
+                errors={errors}
+                watch={watch}
+                maxLength={300}
+              />
+              <p className="mt-2 text-xs font-medium text-neutral-500">
+                {t("addressHint")}
+              </p>
+            </div>
+            <div>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-bold text-neutral-900">
+                  {t("mapLabel")}
+                </p>
+                <button
+                  type="button"
+                  onClick={locateMe}
+                  disabled={isLocating}
+                  className="rounded-full border border-neutral-300 px-3 py-1.5 text-xs font-black text-neutral-700 transition hover:bg-neutral-950 hover:text-white disabled:opacity-60"
+                >
+                  {isLocating ? t("locating") : t("useMyPosition")}
+                </button>
+              </div>
+              <div className="h-[300px] overflow-hidden rounded-lg">
+                <Map
+                  center={mapFocus?.center ?? location?.latlng}
+                  zoom={mapFocus?.zoom ?? (location ? 6 : 2)}
+                  marker={coordinates}
+                  onPick={(point) => setCustomValue("coordinates", point)}
+                />
+              </div>
+              <p
+                className={`mt-2 text-xs font-semibold ${
+                  coordinates ? "text-emerald-700" : "text-neutral-500"
+                }`}
+              >
+                {coordinates
+                  ? t("pinPlaced")
+                  : t("pinHint")}
+              </p>
             </div>
           </div>
         );
@@ -232,18 +336,14 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Quelques infos utiles"
-              subtitle={
-                assetType === "land_sale"
-                  ? "Pour une parcelle, la surface et les documents comptent plus que les pieces."
-                  : "Ces infos restent utiles pour qualifier le bien."
-              }
+              title={t("infoTitle")}
+              subtitle={assetType === "land_sale" ? t("infoSubtitleLand") : t("infoSubtitle")}
             />
             {assetType !== "land_sale" && transactionType === "booking" && (
               <>
                 <Counter
-                  title="Voyageurs"
-                  subtitle="Combien de personnes peuvent etre accueillies ?"
+                  title={t("guests")}
+                  subtitle={t("guestsHint")}
                   watch={watch}
                   onChange={setCustomValue}
                   name="guestCount"
@@ -255,7 +355,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
               <>
                 <Input
                   id="areaSqm"
-                  label="Surface du terrain en m2"
+                  label={t("landArea")}
                   type="number"
                   disabled={isLoading}
                   register={register}
@@ -265,7 +365,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                 />
                 <Input
                   id="landTitleStatus"
-                  label="Statut des documents fonciers"
+                  label={t("landTitleStatus")}
                   disabled={isLoading}
                   register={register}
                   errors={errors}
@@ -278,16 +378,16 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                 <Counter
                   onChange={setCustomValue}
                   watch={watch}
-                  title="Pieces"
-                  subtitle="Combien de pieces comporte le bien ?"
+                  title={t("rooms")}
+                  subtitle={t("roomsHint")}
                   name="roomCount"
                 />
                 <hr />
                 <Counter
                   onChange={setCustomValue}
                   watch={watch}
-                  title="Salles de bain"
-                  subtitle="Combien de salles de bain sont disponibles ?"
+                  title={t("bathrooms")}
+                  subtitle={t("bathroomsHint")}
                   name="bathroomCount"
                 />
               </>
@@ -299,8 +399,8 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Ajoutez au moins 3 photos"
-              subtitle="Montrez la facade, l'interieur ou les limites du terrain."
+              title={t("photosTitle")}
+              subtitle={t("photosSubtitle")}
             />
             <ImageUpload
               onChange={setCustomValue}
@@ -314,12 +414,12 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Decrivez le bien"
-              subtitle="Soyez clair: localisation, etat, documents, atouts."
+              title={t("descriptionTitle")}
+              subtitle={t("descriptionSubtitle")}
             />
             <Input
               id="title"
-              label="Titre"
+              label={t("titleField")}
               disabled={isLoading}
               register={register}
               errors={errors}
@@ -330,7 +430,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
             <hr />
             <Input
               id="description"
-              label="Description"
+              label={t("descriptionField")}
               disabled={isLoading}
               register={register}
               errors={errors}
@@ -344,17 +444,17 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-6">
             <Heading
-              title="Prix et details"
+              title={t("priceTitle")}
               subtitle={
                 transactionType === "booking"
-                  ? "Combien facturez-vous par nuit ?"
+                  ? t("priceSubtitleBooking")
                   : transactionType === "rent"
-                  ? "Indiquez le loyer mensuel attendu."
-                  : "Indiquez le prix de vente attendu."
+                  ? t("priceSubtitleRent")
+                  : t("priceSubtitleSale")
               }
             />
             <label className="flex flex-col gap-2 text-sm font-medium text-neutral-700">
-              Devise
+              {t("currency")}
               <select
                 {...register("currency", { required: true })}
                 disabled={isLoading}
@@ -378,10 +478,10 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
               }
               label={
                 transactionType === "booking"
-                  ? "Prix par nuit"
+                  ? t("pricePerNight")
                   : transactionType === "rent"
-                  ? "Loyer mensuel"
-                  : "Prix de vente"
+                  ? t("monthlyRent")
+                  : t("salePrice")
               }
               icon={BiDollar}
               type="number"
@@ -395,7 +495,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
             {assetType !== "land_sale" && (
               <Input
                 id="areaSqm"
-                label="Surface en m2"
+                label={t("area")}
                 type="number"
                 disabled={isLoading}
                 register={register}
@@ -405,15 +505,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
             )}
             <Input
               id="propertyCondition"
-              label="Etat du bien"
-              disabled={isLoading}
-              register={register}
-              errors={errors}
-              watch={watch}
-            />
-            <Input
-              id="addressDetails"
-              label="Details de l'adresse"
+              label={t("condition")}
               disabled={isLoading}
               register={register}
               errors={errors}
@@ -422,8 +514,8 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
             <div className="rounded-3xl border border-neutral-200 bg-neutral-50 p-4">
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: "external", label: "Lien externe" },
-                  { value: "panorama", label: "Image 360" },
+                  { value: "external", label: t("tourExternal") },
+                  { value: "panorama", label: t("tourPanorama") },
                 ].map((item) => (
                   <button
                     key={item.value}
@@ -450,7 +542,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                   <>
                     <Input
                       id="virtualTourUrl"
-                      label="Lien de visite virtuelle (optionnel)"
+                      label={t("tourUrl")}
                       type="url"
                       disabled={isLoading}
                       register={register}
@@ -458,8 +550,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                       watch={watch}
                     />
                     <p className="mt-3 text-xs font-medium leading-5 text-neutral-500">
-                      Matterport, Kuula, CloudPano ou tout autre lien de visite
-                      externe.
+                      {t("tourUrlHint")}
                     </p>
                   </>
                 )}
@@ -472,8 +563,8 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         return (
           <div className="flex flex-col gap-2">
             <Heading
-              title="Quelle categorie de bien ?"
-              subtitle="Cette etape sert uniquement aux logements et maisons."
+              title={t("categoryTitle")}
+              subtitle={t("categorySubtitle")}
             />
             <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-y-auto pr-1 scroll-smooth md:max-h-[46vh]">
               {categories.map((item) => (
@@ -505,13 +596,15 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
       ? uploadedImages.length >= 3
       : step === STEPS.CATEGORY && !usesLifestyleCategory
       ? true
+      : step === STEPS.LOCATION
+      ? Boolean(location && city.trim() && coordinates)
       : !!getValues(steps[step]);
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
       <Modal.WindowHeader
-        title="Publier un bien"
-        subtitle="Votre annonce partira en verification admin avant publication"
+        title={t("title")}
+        subtitle={t("subtitle")}
       />
       <form
         className="grid min-h-0 flex-1 bg-white outline-none focus:outline-none md:grid-cols-[300px_1fr]"
@@ -520,20 +613,16 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
         <aside className="hidden border-r border-neutral-200 bg-neutral-950 p-6 text-white md:block">
           <div className="sticky top-24">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-rose-300">
-              Nouvelle annonce
+              {t("asideKicker")}
             </p>
             <h2 className="mt-4 text-2xl font-black leading-tight">
-              Un parcours clair, puis moderation.
+              {t("asideTitle")}
             </h2>
             <p className="mt-3 text-sm leading-6 text-neutral-300">
-              {selectedAsset?.label ?? "Selectionnez un type de bien"} ·{" "}
-              {transactionType === "booking"
-                ? "reservation"
-                : transactionType === "rent"
-                ? "location"
-                : transactionType === "sale"
-                ? "vente"
-                : "contact"}
+              {selectedAsset
+                ? tDomain(`assetTypes.${selectedAsset.value}`)
+                : t("selectAsset")}{" "}
+              · {tDomain(`transactionKinds.${transactionType}`)}
             </p>
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
               <div
@@ -584,7 +673,7 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                   onClick={onBack}
                   outline
                 >
-                  Retour
+                  {tCommon("back")}
                 </Button>
               ) : null}
               <Button
@@ -595,9 +684,9 @@ const RentModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
                 {isLoading ? (
                   <SpinnerMini />
                 ) : step === STEPS.PRICE ? (
-                  "Envoyer en verification"
+                  t("submit")
                 ) : (
-                  "Continuer"
+                  t("continue")
                 )}
               </Button>
             </div>

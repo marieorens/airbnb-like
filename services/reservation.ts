@@ -1,4 +1,5 @@
 
+import { fetchPublicProfiles } from "@/lib/public-profiles";
 import { createClient } from "@/lib/supabase/server";
 import { LISTINGS_BATCH } from "@/utils/constants";
 import { mapListing } from "./listing";
@@ -31,6 +32,7 @@ const toReservationListing = (booking: BookingWithListing): Listing | null => {
       startDate: new Date(`${booking.check_in}T00:00:00`),
       endDate: new Date(`${booking.check_out}T00:00:00`),
       totalPrice: booking.total_price,
+      status: booking.status,
     },
   };
 };
@@ -47,7 +49,6 @@ export const getReservations = async (args: Record<string, string | undefined>) 
         *,
         listings(
           *,
-          profiles(full_name, avatar_url),
           listing_photos(storage_path, public_url, position)
         )
       `
@@ -75,7 +76,24 @@ export const getReservations = async (args: Record<string, string | undefined>) 
     const { data, error } = await request;
     if (error) throw error;
 
-    const rows = (data ?? []) as unknown as BookingWithListing[];
+    const rawRows = (data ?? []) as unknown as BookingWithListing[];
+    // `profiles` n'est plus lisible par les autres membres : profil public de l'hôte.
+    const hosts = await fetchPublicProfiles(
+      supabase,
+      rawRows.map((row) => row.listings?.host_id)
+    );
+    const rows = rawRows.map((row) => {
+      const host = row.listings ? hosts.get(row.listings.host_id) : undefined;
+      return row.listings && host
+        ? {
+            ...row,
+            listings: {
+              ...row.listings,
+              profiles: { full_name: host.full_name, avatar_url: host.avatar_url },
+            },
+          }
+        : row;
+    });
     const listings = rows
       .map(toReservationListing)
       .filter((listing): listing is Listing => Boolean(listing));

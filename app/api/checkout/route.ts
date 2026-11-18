@@ -1,8 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { isPaymentProvider, type PaymentProvider } from "@/lib/payments";
+import { isAllowedRedirect } from "@/lib/redirects";
 import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
-import { createCheckout } from "@/services/checkout";
+import { CheckoutError, createCheckout } from "@/services/checkout";
 
 /**
  * Point d'entree de paiement pour l'application mobile.
@@ -14,18 +16,6 @@ import { createCheckout } from "@/services/checkout";
  * L'identite vient du jeton Supabase envoye en `Authorization: Bearer`, jamais
  * du corps de la requete.
  */
-
-/** Empeche une redirection ouverte : on n'accepte que nos propres cibles. */
-function isAllowedRedirect(url: unknown): url is string {
-  if (typeof url !== "string" || !url) return false;
-
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL ?? "";
-  return (
-    url.startsWith("vacationhub://") ||
-    url.startsWith("exp://") ||
-    (Boolean(serverUrl) && url.startsWith(serverUrl))
-  );
-}
 
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization") ?? "";
@@ -57,7 +47,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Requete invalide." }, { status: 400 });
   }
 
-  const { listingId, checkIn, checkOut, successUrl, cancelUrl } = body;
+  const { listingId, checkIn, checkOut, successUrl, cancelUrl, provider } = body;
 
   if (
     typeof listingId !== "string" ||
@@ -67,9 +57,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Donnees de reservation invalides." }, { status: 400 });
   }
 
-  if (!isAllowedRedirect(successUrl) || !isAllowedRedirect(cancelUrl)) {
+  if (provider !== undefined && !isPaymentProvider(provider)) {
+    return NextResponse.json({ message: "Moyen de paiement invalide." }, { status: 400 });
+  }
+
+  const forwardedHost =
+    request.headers.get("x-forwarded-host") || request.headers.get("host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "http";
+  const requestOrigin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : new URL(request.url).origin;
+
+  if (
+    !isAllowedRedirect(successUrl, requestOrigin) ||
+    !isAllowedRedirect(cancelUrl, requestOrigin)
+  ) {
     return NextResponse.json({ message: "Url de retour non autorisee." }, { status: 400 });
   }
+
+  const paymentProvider: PaymentProvider = isPaymentProvider(provider)
+    ? provider
+    : "stripe";
 
   try {
     const { url, bookingId } = await createCheckout({
@@ -79,12 +87,16 @@ export async function POST(request: Request) {
       checkOut,
       successUrl,
       cancelUrl,
+      webOrigin: requestOrigin,
+      provider: paymentProvider,
     });
 
-    return NextResponse.json({ url, bookingId });
+    return NextResponse.json({ url, bookingId, provider: paymentProvider });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Impossible de creer la reservation.";
-    return NextResponse.json({ message }, { status: 400 });
+      error instanceof Error ? error.message : "Impossible de créer la réservation.";
+    // `code` permet au mobile d'afficher l'erreur dans la langue de l'utilisateur.
+    const code = error instanceof CheckoutError ? error.code : "generic";
+    return NextResponse.json({ message, code }, { status: 400 });
   }
 }

@@ -117,12 +117,12 @@ export const assetTypes = [
   },
   {
     value: "commercial_rent",
-    label: "Local commercial a louer",
+    label: "Local commercial / bureau à louer",
     transactionType: "rent",
   },
   {
     value: "commercial_sale",
-    label: "Local commercial a vendre",
+    label: "Local commercial / bureau à vendre",
     transactionType: "sale",
   },
   {
@@ -134,25 +134,12 @@ export const assetTypes = [
 
 export const currencies = ["USD", "EUR", "XOF"] as const;
 
+// `key` renvoie au libellé traduit `nav.menu.<key>` (messages/*.json).
 export const menuItems = [
-  {
-    label: "Mes messages",
-    path: "/messages",
-  },
-  {
-    label: "Mes voyages",
-    path: "/trips",
-  },
-  {
-    label: "Mes favoris",
-    path: "/favorites",
-  },
-  {
-    label: "Mes reservations",
-    path: "/reservations",
-  },
-  {
-    label: "Mes biens",
-    path: "/properties",
-  },
-];
+  { key: "messages", path: "/messages" },
+  { key: "trips", path: "/trips" },
+  { key: "favorites", path: "/favorites" },
+  { key: "reservations", path: "/reservations" },
+  { key: "properties", path: "/properties" },
+  { key: "verification", path: "/verification" },
+] as const;

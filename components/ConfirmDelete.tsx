@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import { useTranslations } from "next-intl";
 import { IoMdClose } from "react-icons/io";
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 import Button from "./Button";
@@ -17,6 +19,7 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
   onCloseModal,
   isLoading = false,
 }) => {
+  const t = useTranslations("common");
   const onAction = () => {
     onConfirm(onCloseModal);
   };
@@ -27,7 +30,7 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
         type="button"
         className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 transition hover:bg-neutral-950 hover:text-white"
         onClick={() => onCloseModal?.()}
-        aria-label="Fermer"
+        aria-label={t("close")}
       >
         <IoMdClose size={18} />
       </button>
@@ -39,7 +42,7 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
           {title}
         </h1>
         <p className="mt-2 text-[15px] leading-6 text-neutral-600">
-          Cette action est definitive. Verifiez bien avant de confirmer.
+          {t("irreversible")}
         </p>
       </div>
 
@@ -49,13 +52,13 @@ const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({
           className="h-full rounded-xl"
           outline
         >
-          Annuler
+          {t("cancel")}
         </Button>
         <Button
           onClick={onAction}
           className="flex h-full items-center justify-center rounded-xl bg-neutral-950 font-bold hover:bg-neutral-800"
         >
-          {isLoading ? <SpinnerMini /> : <span>Confirmer</span>}
+          {isLoading ? <SpinnerMini /> : <span>{t("confirm")}</span>}
         </Button>
       </div>
     </div>

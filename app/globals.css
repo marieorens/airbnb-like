@@ -33,7 +33,12 @@ body {
 }
 
 .main-container {
-  @apply max-w-[1140px] 2xl:max-w-[1200px] mx-auto xl:px-0 px-4;
+  @apply mx-auto w-full max-w-[1140px] px-4 sm:px-8 lg:px-12 xl:px-0 2xl:max-w-[1200px];
+}
+
+/* Pages larges (accueil, catalogue) : contenu centré avec marges latérales. */
+.page-container {
+  @apply mx-auto w-full max-w-[1320px] px-4 sm:px-8 lg:px-12;
 }
 
 .swiper-wrapper {

@@ -2,6 +2,7 @@ import React, { ChangeEvent, FC, useState, useTransition } from "react";
 import Image from "next/image";
 import { TbPhotoPlus } from "react-icons/tb";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 import SpinnerMini from "./Loader";
 import { createClient } from "@/lib/supabase/browser";
@@ -20,6 +21,7 @@ const ImageUpload: FC<ImageUploadProps> = ({
   initialImages,
   minImages = 3,
 }) => {
+  const t = useTranslations("imageUpload");
   const [images, setImages] = useState<string[]>(
     initialImages?.length ? initialImages : initialImage ? [initialImage] : []
   );
@@ -52,7 +54,7 @@ const ImageUpload: FC<ImageUploadProps> = ({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        toast.error("Please sign in to upload images.");
+        toast.error(t("signInRequired"));
         setImages(images);
         return;
       }
@@ -135,11 +137,10 @@ const ImageUpload: FC<ImageUploadProps> = ({
         )}
         <TbPhotoPlus className="mb-4 h-14 w-14" />
         <span className="text-lg font-black text-neutral-900">
-          Ajouter des photos
+          {t("title")}
         </span>
         <span className="mt-2 max-w-[320px] text-sm font-medium text-neutral-500">
-          Minimum {minImages} photos. Vous pouvez en selectionner plusieurs a
-          la fois.
+          {t("hint", { count: minImages })}
         </span>
         <input
           type="file"
@@ -153,9 +154,9 @@ const ImageUpload: FC<ImageUploadProps> = ({
       </label>
 
       <div className="flex items-center justify-between rounded-2xl bg-neutral-950 px-4 py-3 text-sm font-bold text-white">
-        <span>{images.length} photo{images.length > 1 ? "s" : ""} ajoutée{images.length > 1 ? "s" : ""}</span>
+        <span>{t("added", { count: images.length })}</span>
         <span className={remaining ? "text-rose-200" : "text-emerald-200"}>
-          {remaining ? `${remaining} encore requise${remaining > 1 ? "s" : ""}` :""}
+          {remaining ? t("remaining", { count: remaining }) : ""}
         </span>
       </div>
 
@@ -170,7 +171,7 @@ const ImageUpload: FC<ImageUploadProps> = ({
                 fill
                 style={{ objectFit: "cover" }}
                 src={image}
-                alt={`Photo ${index + 1}`}
+                alt={t("photoAlt", { index: index + 1 })}
                 sizes="160px"
                 unoptimized
               />

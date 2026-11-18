@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { isMailerConfigured, newMessageEmail, sendEmail } from "@/lib/mailer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
+import { localizePath } from "@/i18n/routing";
+import { parseTranslations } from "@/utils/listingText";
 
 /**
  * Notification par email a la reception d'un message.
@@ -24,6 +26,15 @@ import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
  * Ne renvoie que des booleens, jamais une valeur : sans cela, un envoi qui
  * echoue en silence est impossible a diagnostiquer depuis l'exterieur.
  */
+/**
+ * Journal de l'envoi, visible dans le terminal en local et dans les logs de
+ * fonction chez Vercel. Prefixe unique pour pouvoir filtrer d'un coup d'oeil.
+ */
+const log = (...parts: unknown[]) => console.log("[notify-message]", ...parts);
+
+/** On ne journalise jamais une adresse complete. */
+const maskEmail = (email: string) => email.replace(/^(.{1,2})[^@]*(@.*)$/, "$1***$2");
+
 export async function GET() {
   return NextResponse.json({
     mailerConfigured: isMailerConfigured(),
@@ -51,6 +62,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser(token);
 
   if (authError || !user) {
+    log("refuse : session invalide");
     return NextResponse.json({ message: "Session invalide." }, { status: 401 });
   }
 
@@ -63,11 +75,15 @@ export async function POST(request: Request) {
 
   const messageId = body.messageId;
   if (typeof messageId !== "string") {
+    log("refuse : identifiant de message manquant");
     return NextResponse.json({ message: "Identifiant de message manquant." }, { status: 400 });
   }
 
+  log("recu — message", messageId, "de", user.id);
+
   // Sans configuration SMTP, on ne fait pas echouer l'envoi du message.
   if (!isMailerConfigured()) {
+    log("ignore : GMAIL_USER ou GMAIL_APP_PASSWORD absent");
     return NextResponse.json({ ok: true, skipped: "mailer-not-configured" });
   }
 
@@ -80,10 +96,12 @@ export async function POST(request: Request) {
     .single();
 
   if (messageError || !message) {
+    log("echec : message", messageId, "introuvable");
     return NextResponse.json({ message: "Message introuvable." }, { status: 404 });
   }
 
   if (message.sender_id !== user.id) {
+    log("refuse :", user.id, "n'est pas l'expediteur du message", messageId);
     return NextResponse.json({ message: "Message non autorise." }, { status: 403 });
   }
 
@@ -93,18 +111,19 @@ export async function POST(request: Request) {
     id: string;
     guest_id: string;
     host_id: string;
-    listings?: { title: string } | null;
+    listings?: { title: string; translations: unknown } | null;
   };
 
   const { data: conversationData, error: conversationError } = await admin
     .from("conversations")
-    .select("id, guest_id, host_id, listings(title)")
+    .select("id, guest_id, host_id, listings(title, translations)")
     .eq("id", message.conversation_id)
     .single();
 
   const conversation = conversationData as unknown as ConversationRow | null;
 
   if (conversationError || !conversation) {
+    log("echec : conversation du message", messageId, "introuvable");
     return NextResponse.json({ message: "Conversation introuvable." }, { status: 404 });
   }
 
@@ -117,24 +136,39 @@ export async function POST(request: Request) {
   ]);
 
   if (!recipient?.email) {
+    log("ignore : le destinataire", recipientId, "n'a pas d'adresse email");
     return NextResponse.json({ ok: true, skipped: "no-recipient-email" });
   }
 
   const origin = (process.env.NEXT_PUBLIC_SERVER_URL ?? "").replace(/\/+$/, "");
 
+  const listingTitle = conversation.listings?.title ?? "VacationHub";
+  const translations = parseTranslations(conversation.listings?.translations);
+  const conversationPath = `/messages?c=${conversation.id}`;
+
   const email = newMessageEmail({
-    senderName: sender?.full_name || "Un membre VacationHub",
-    listingTitle: conversation.listings?.title ?? "votre annonce",
+    senderName: sender?.full_name || null,
+    listingTitles: {
+      fr: translations?.fr.title ?? listingTitle,
+      en: translations?.en.title ?? listingTitle,
+    },
     body: message.body,
-    conversationUrl: `${origin}/messages?c=${conversation.id}`,
+    conversationUrls: {
+      fr: `${origin}${localizePath(conversationPath, "fr")}`,
+      en: `${origin}${localizePath(conversationPath, "en")}`,
+    },
   });
 
+  const startedAt = Date.now();
+  log(`envoi a ${maskEmail(recipient.email)} — « ${email.subject} »`);
+
   try {
-    await sendEmail({ to: recipient.email, ...email });
+    const info = await sendEmail({ to: recipient.email, refId: message.id, ...email });
+    log(`envoye en ${Date.now() - startedAt} ms — ${info.messageId} — ${info.response}`);
   } catch (error) {
     // L'echec d'un email ne doit jamais remonter jusqu'a l'utilisateur :
     // son message est deja parti.
-    console.error("notify-message", error);
+    log("ECHEC apres", `${Date.now() - startedAt} ms :`, error instanceof Error ? error.message : error);
     return NextResponse.json({ ok: false, skipped: "send-failed" });
   }
 

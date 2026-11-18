@@ -43,9 +43,8 @@ export const updateFavorite = async ({
     if (error) throw new Error(error.message);
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listingId}`);
-  revalidatePath("/favorites");
+  // Toutes les langues (`/trips`, `/en/trips`…) : on invalide tout le site.
+  revalidatePath("/", "layout");
 
   return {
     hasFavorited: favorite,

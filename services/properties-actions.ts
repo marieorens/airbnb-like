@@ -25,12 +25,8 @@ export const deleteProperty = async (listingId: string) => {
 
   if (error) throw new Error("Failed to delete the property!");
 
-  revalidatePath("/");
-  revalidatePath("/reservations");
-  revalidatePath("/trips");
-  revalidatePath("/favorites");
-  revalidatePath("/properties");
-  revalidatePath(`/listings/${listingId}`);
+  // Toutes les langues (`/trips`, `/en/trips`…) : on invalide tout le site.
+  revalidatePath("/", "layout");
 
   return "success";
 };

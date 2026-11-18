@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 
 import SpinnerMini from "./Loader";
 
@@ -12,10 +13,11 @@ type FormSubmitButtonProps = {
 
 export default function FormSubmitButton({
   children,
-  pendingLabel = "Enregistrement...",
+  pendingLabel,
   className = "",
 }: FormSubmitButtonProps) {
   const { pending } = useFormStatus();
+  const t = useTranslations("common");
 
   return (
     <button
@@ -26,7 +28,7 @@ export default function FormSubmitButton({
       {pending ? (
         <>
           <SpinnerMini className="h-4 w-4" />
-          {pendingLabel}
+          {pendingLabel ?? t("saving")}
         </>
       ) : (
         children

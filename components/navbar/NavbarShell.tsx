@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
+import { useTranslations } from "next-intl";
 
 import { useTheme } from "@/components/ThemeProvider";
 import { cn } from "@/utils/helper";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 interface NavbarShellProps {
   logo: React.ReactNode;
@@ -21,6 +23,7 @@ const NavbarShell: React.FC<NavbarShellProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const t = useTranslations("nav");
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 18);
@@ -56,9 +59,10 @@ const NavbarShell: React.FC<NavbarShellProps> = ({
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <div className="hidden md:block">{search}</div>
+            <LocaleSwitcher />
             <button
               type="button"
-              aria-label="Changer le theme"
+              aria-label={t("toggleTheme")}
               aria-pressed={isDark}
               onClick={toggleTheme}
               className={cn(

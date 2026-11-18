@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { redirect } from "@/i18n/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
@@ -17,14 +19,15 @@ const text = (formData: FormData, key: string) =>
  * presentation. Ce choix vient du produit : un profil complet doit etre
  * reellement exploitable par les acheteurs et la moderation.
  */
-const REQUIRED_FIELDS: { field: ProfileField; message: string }[] = [
-  { field: "fullName", message: "Le nom complet est obligatoire." },
-  { field: "phone", message: "Le téléphone est obligatoire." },
-  { field: "countryOfResidence", message: "Le pays de résidence est obligatoire." },
-  { field: "cityOfResidence", message: "La ville de résidence est obligatoire." },
-  { field: "countryOfOrigin", message: "Le pays d'origine est obligatoire." },
-  { field: "bio", message: "La présentation est obligatoire." },
-];
+// Message d'erreur : `profile.errors.<champ>` dans messages/*.json.
+const REQUIRED_FIELDS = [
+  "fullName",
+  "phone",
+  "countryOfResidence",
+  "cityOfResidence",
+  "countryOfOrigin",
+  "bio",
+] as const satisfies readonly ProfileField[];
 
 /**
  * Completion du profil.
@@ -37,9 +40,10 @@ export async function completeProfile(
   _prevState: CompleteProfileState,
   formData: FormData
 ): Promise<CompleteProfileState> {
+  const t = await getTranslations("profile.errors");
   const user = await getCurrentUser();
   if (!user) {
-    return { message: "Connexion requise." };
+    return { message: t("signInRequired") };
   }
 
   const values = {
@@ -58,20 +62,20 @@ export async function completeProfile(
 
   const errors: Partial<Record<ProfileField, string>> = {};
 
-  REQUIRED_FIELDS.forEach(({ field, message }) => {
-    if (!values[field as keyof typeof values]) {
-      errors[field] = message;
+  REQUIRED_FIELDS.forEach((field) => {
+    if (!values[field]) {
+      errors[field] = t(field);
     }
   });
 
   if (values.accountPurpose.length === 0) {
-    errors.accountPurpose = "Choisissez au moins un objectif.";
+    errors.accountPurpose = t("accountPurpose");
   }
 
   if (Object.keys(errors).length > 0) {
     return {
       errors,
-      message: "Certains champs obligatoires sont manquants.",
+      message: t("missingFields"),
       values,
     };
   }
@@ -96,15 +100,18 @@ export async function completeProfile(
 
   if (error) {
     return {
-      message: "Enregistrement impossible. Réessayez dans un instant.",
+      message: t("saveFailed"),
       values,
     };
   }
 
-  revalidatePath("/");
-  revalidatePath("/complete-profile");
-  revalidatePath("/properties");
+  // Toutes les langues (`/trips`, `/en/trips`…) : on invalide tout le site.
+  revalidatePath("/", "layout");
 
   // `redirect` leve volontairement : il doit rester hors de tout try/catch.
-  redirect(next.startsWith("/") ? next : "/");
+  // `next` est un chemin sans langue (`/trips`) : la redirection ajoute `/en` si besoin.
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  redirect({ href: safeNext, locale: await getLocale() });
+  // Jamais atteint (`redirect` lève) : le type de next-intl ne le déclare pas comme `never`.
+  return {};
 }

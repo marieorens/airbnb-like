@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { getSupabasePublicKey, getSupabaseUrl } from "@/lib/supabase/config";
+import { getRequestLocale, localizePath } from "@/i18n/routing";
 import type { Database } from "@/types/supabase";
 
 type CookieToSet = {
@@ -37,7 +38,9 @@ export async function GET(request: NextRequest) {
   });
 
   if (error || !data.url) {
-    return NextResponse.redirect(new URL("/", requestUrl.origin));
+    return NextResponse.redirect(
+      new URL(localizePath("/", getRequestLocale(request)), requestUrl.origin)
+    );
   }
 
   const response = NextResponse.redirect(data.url);

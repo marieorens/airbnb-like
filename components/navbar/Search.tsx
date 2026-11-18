@@ -1,12 +1,13 @@
 "use client";
 import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { differenceInDays } from "date-fns";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { FaSearch } from "react-icons/fa";
 
 import Modal from "../modals/Modal";
+import { Link, usePathname } from "@/i18n/navigation";
 
 const SearchModal = dynamic(() => import("@/components/modals/SearchModal"), {
   ssr: false
@@ -15,6 +16,7 @@ const SearchModal = dynamic(() => import("@/components/modals/SearchModal"), {
 const Search = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const t = useTranslations("nav.search");
 
   const country = searchParams?.get("country");
 
@@ -32,15 +34,15 @@ const Search = () => {
         diff = 1;
       }
 
-      return `${diff} jour${diff > 1 ? "s" : ""}`;
+      return t("days", { count: diff });
     }
 
-    return "Quand ?";
-  }, [endDate, startDate]);
+    return t("when");
+  }, [endDate, startDate, t]);
 
   const guestLabel = guestCount
-    ? `${guestCount} voyageur${Number(guestCount) > 1 ? "s" : ""}`
-    : "Voyageurs";
+    ? t("guestCount", { count: Number(guestCount) })
+    : t("guests");
 
   if (pathname === "/") {
     return (
@@ -48,7 +50,7 @@ const Search = () => {
         href="/annonces"
         className="hidden rounded-full border border-neutral-200 px-5 py-3 text-sm font-black text-[#585858] transition hover:shadow-md md:inline-flex"
       >
-        Explorer les annonces
+        {t("explore")}
       </Link>
     );
   }
@@ -62,7 +64,7 @@ const Search = () => {
         >
           <div className="flex flex-row justify-between items-center">
             <small className="text-sm font-bold px-6 text-[#585858]">
-              {country ? country : "Ou ?"}
+              {country ? country : t("where")}
             </small>
 
             <small className="hidden sm:block text-sm font-bold px-6 border-x-[1px] flex-1 text-center text-[#585858]">

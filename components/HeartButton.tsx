@@ -4,6 +4,7 @@ import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { useMutation } from "@tanstack/react-query";
 import debounce from "lodash.debounce";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/utils/helper";
 import { updateFavorite } from "@/services/favorite-actions";
@@ -17,14 +18,16 @@ const HeartButton: React.FC<HeartButtonProps> = ({
   listingId,
   hasFavorited: initialValue,
 }) => {
+  const t = useTranslations("favorites");
   const [hasFavorited, setHasFavorited] = useState(initialValue);
   const hasFavoritedRef = useRef(initialValue);
   const { mutate } = useMutation({
     mutationFn: updateFavorite,
-    onError: (error) => {
+    onError: () => {
       hasFavoritedRef.current = !hasFavoritedRef.current;
       setHasFavorited(hasFavoritedRef.current);
-      toast.error(error instanceof Error ? error.message : "Failed to favorite");
+            // Le message d'une action serveur est masqué en production : on affiche le nôtre.
+      toast.error(t("toggleError"));
     }
   });
 
@@ -53,6 +56,8 @@ const HeartButton: React.FC<HeartButtonProps> = ({
     <button
       type="button"
       onClick={handleClick}
+      aria-label={hasFavorited ? t("remove") : t("add")}
+      aria-pressed={hasFavorited}
       className=" relative hover:opacity-80 transition cursor-pointer z-[5] "
     >
       <AiOutlineHeart
