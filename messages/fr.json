@@ -241,7 +241,8 @@
       "over_email_send_rate_limit": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
       "over_request_rate_limit": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
       "signup_disabled": "Les inscriptions sont momentanément fermées.",
-      "otp_expired": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau."
+      "otp_expired": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.",
+      "same_password": "Choisissez un mot de passe différent de l’ancien."
     },
     "accountType": "Type de compte",
     "accountTypes": {
@@ -264,7 +265,21 @@
     "changeEmail": "Utiliser une autre adresse",
     "codeHint": "Le code est valable une heure. Pensez à regarder dans les courriers indésirables.",
     "codeInvalid": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.",
-    "emailVerified": "Adresse confirmée. Bienvenue sur VacationHub !"
+    "emailVerified": "Adresse confirmée. Bienvenue sur VacationHub !",
+    "forgotLink": "Mot de passe oublié ?",
+    "forgotTitle": "Mot de passe oublié",
+    "forgotHeading": "Réinitialiser votre mot de passe",
+    "forgotIntro": "Indiquez l’email de votre compte : nous vous envoyons un code à 6 chiffres.",
+    "sendCode": "Recevoir un code",
+    "resetHeading": "Choisissez un nouveau mot de passe",
+    "resetIntro": "Si un compte existe pour {email}, un code à 6 chiffres vient d’y être envoyé.",
+    "resetCodeLabel": "Code reçu par email",
+    "newPassword": "Nouveau mot de passe",
+    "resetSubmit": "Changer mon mot de passe",
+    "passwordChanged": "Mot de passe modifié. Vous êtes connecté.",
+    "backToSignIn": "Retour à la connexion",
+    "sending": "Envoi…",
+    "codeResent": "Code envoyé · nouvel envoi dans {seconds} s"
   },
   "searchModal": {
     "steps": {
@@ -584,7 +599,17 @@
     "threadEmpty": "Présentez-vous et posez vos questions sur le bien. Les échanges restent dans VacationHub.",
     "placeholder": "Votre message",
     "send": "Envoyer",
-    "sendFailed": "Message non envoyé. Réessayez."
+    "sendFailed": "Message non envoyé. Réessayez.",
+    "deleted": "Message supprimé",
+    "quoteUnavailable": "Message indisponible",
+    "you": "Vous",
+    "reply": "Répondre",
+    "replyingTo": "Réponse à {name}",
+    "cancelReply": "Annuler la réponse",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce message ? Il sera remplacé par « Message supprimé » pour vous deux.",
+    "deleteFailed": "Suppression impossible. Réessayez.",
+    "sending": "Envoi…"
   },
   "profile": {
     "signInRequired": "Connexion requise",

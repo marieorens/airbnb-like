@@ -13,6 +13,8 @@ import Input from "../inputs/Input";
 import Button from "../Button";
 import Modal from "./Modal";
 import SpinnerMini from "../Loader";
+import ForgotPassword from "./ForgotPassword";
+import ResendCodeButton from "./ResendCodeButton";
 import { createClient } from "@/lib/supabase/browser";
 
 const AuthModal = ({
@@ -30,6 +32,8 @@ const AuthModal = ({
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [isVerifying, startVerifying] = useTransition();
+  const [isResending, startResending] = useTransition();
+  const [forgotPassword, setForgotPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -190,10 +194,10 @@ const AuthModal = ({
     });
   };
 
-  const resendCode = () => {
+  const resendCode = (onSent: () => void) => {
     if (!pendingEmail) return;
     const supabase = createClient();
-    startVerifying(async () => {
+    startResending(async () => {
       const { error } = await supabase.auth.resend({ type: "signup", email: pendingEmail });
       if (error) {
         const errorCode = typeof error.code === "string" ? error.code : "";
@@ -202,9 +206,23 @@ const AuthModal = ({
         );
         return;
       }
-      toast.success(t("codeSent"));
+      onSent();
     });
   };
+
+  if (forgotPassword) {
+    return (
+      <ForgotPassword
+        initialEmail={String(watch("email") ?? "").trim()}
+        onBack={() => setForgotPassword(false)}
+        onDone={() => {
+          reset();
+          setForgotPassword(false);
+          onCloseModal?.();
+        }}
+      />
+    );
+  }
 
   if (pendingEmail) {
     return (
@@ -237,14 +255,7 @@ const AuthModal = ({
             {isVerifying ? <SpinnerMini className="w-5 h-5" /> : t("verify")}
           </Button>
           <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-            <button
-              type="button"
-              onClick={resendCode}
-              disabled={isVerifying}
-              className="font-black text-neutral-950 hover:underline disabled:opacity-60"
-            >
-              {t("resendCode")}
-            </button>
+            <ResendCodeButton justSent pending={isResending} onResend={resendCode} />
             <button
               type="button"
               onClick={() => {
@@ -426,6 +437,15 @@ const AuthModal = ({
               required
               watch={watch}
             />
+            {isLoginModal && (
+              <button
+                type="button"
+                onClick={() => setForgotPassword(true)}
+                className="justify-self-end text-sm font-black text-neutral-950 hover:underline"
+              >
+                {t("forgotLink")}
+              </button>
+            )}
           </div>
 
           <Button

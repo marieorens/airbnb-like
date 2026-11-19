@@ -91,7 +91,7 @@ export async function POST(request: Request) {
 
   const { data: message, error: messageError } = await admin
     .from("messages")
-    .select("id, conversation_id, sender_id, body, created_at")
+    .select("id, conversation_id, sender_id, body, deleted_at, created_at")
     .eq("id", messageId)
     .single();
 
@@ -103,6 +103,12 @@ export async function POST(request: Request) {
   if (message.sender_id !== user.id) {
     log("refuse :", user.id, "n'est pas l'expediteur du message", messageId);
     return NextResponse.json({ message: "Message non autorise." }, { status: 403 });
+  }
+
+  // Supprimé entre-temps : il n'y a plus rien à annoncer.
+  if (message.deleted_at) {
+    log("ignore : message", messageId, "supprime");
+    return NextResponse.json({ ok: true, skipped: "message-deleted" });
   }
 
   // Les types generes ne decrivent pas les relations imbriquees : meme

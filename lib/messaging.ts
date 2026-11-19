@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/browser";
 import type { Tables } from "@/types/supabase";
-import { parseTranslations, type ListingTranslations } from "@/utils/listingText";
+import {
+  parseTranslations,
+  type ListingTranslations,
+} from "@/utils/listingText";
 
 const normalizeStorageUrl = (url: string) =>
   url.replace(/\.supabase\.co\/rest\/v1\//, ".supabase.co/");
@@ -14,8 +17,17 @@ export type Message = {
   id: string;
   conversationId: string;
   senderId: string;
+  /** Vide quand le message a été supprimé. */
   body: string;
+  /** Message cité par celui-ci (réponse précise), du même fil. */
+  replyToId: string | null;
+  /** Renseigné quand l'auteur a supprimé son message. */
+  deletedAt: string | null;
   createdAt: string;
+  /** Local : affiché tout de suite, en attente de confirmation par la base. */
+  pending?: boolean;
+  /** Local : clé d'affichage stable entre la version provisoire et la confirmée. */
+  clientKey?: string;
 };
 
 export type ConversationSummary = {
@@ -29,11 +41,12 @@ export type ConversationSummary = {
   lastMessageAt: string;
   lastMessagePreview: string | null;
   lastMessageFromMe: boolean;
+  /** Le dernier message a été supprimé : afficher « Message supprimé ». */
+  lastMessageDeleted: boolean;
   unread: boolean;
 };
 
 export type ConversationRole = "guest" | "host";
-
 
 type ConversationRow = Pick<
   Tables<"conversations">,
@@ -49,7 +62,10 @@ type ConversationRow = Pick<
     title: string;
     translations: unknown;
     listing_photos?:
-      | Pick<Tables<"listing_photos">, "public_url" | "storage_path" | "position">[]
+      | Pick<
+          Tables<"listing_photos">,
+          "public_url" | "storage_path" | "position"
+        >[]
       | null;
   } | null;
 };
@@ -59,6 +75,8 @@ export const toMessage = (row: Tables<"messages">): Message => ({
   conversationId: row.conversation_id,
   senderId: row.sender_id,
   body: row.body,
+  replyToId: row.reply_to_id,
+  deletedAt: row.deleted_at,
   createdAt: row.created_at,
 });
 
@@ -68,7 +86,9 @@ export const toMessage = (row: Tables<"messages">): Message => ({
  * Meme logique que le mobile : l'apercu vient d'une seconde requete plutot que
  * d'une colonne denormalisee a maintenir.
  */
-export async function fetchConversations(userId: string): Promise<ConversationSummary[]> {
+export async function fetchConversations(
+  userId: string,
+): Promise<ConversationSummary[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -83,22 +103,26 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
 
   // L'interlocuteur se lit dans la vue `public_profiles` : `profiles` est privé
   // (migration 202611190001).
-  const participantIds = Array.from(new Set(rows.flatMap((row) => [row.guest_id, row.host_id])));
+  const participantIds = Array.from(
+    new Set(rows.flatMap((row) => [row.guest_id, row.host_id])),
+  );
   const { data: people } = participantIds.length
     ? await supabase
         .from("public_profiles")
         .select("id, full_name, avatar_url")
         .in("id", participantIds)
     : { data: [] };
-  const profileById = new Map((people ?? []).map((person) => [person.id, person]));
+  const profileById = new Map(
+    (people ?? []).map((person) => [person.id, person]),
+  );
   if (rows.length === 0) return [];
 
   const { data: recent, error: messagesError } = await supabase
     .from("messages")
-    .select("conversation_id,sender_id,body,created_at")
+    .select("conversation_id,sender_id,body,deleted_at,created_at")
     .in(
       "conversation_id",
-      rows.map((row) => row.id)
+      rows.map((row) => row.id),
     )
     .order("created_at", { ascending: false });
 
@@ -106,7 +130,12 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
 
   const lastByConversation = new Map<
     string,
-    { sender_id: string; body: string; created_at: string }
+    {
+      sender_id: string;
+      body: string;
+      deleted_at: string | null;
+      created_at: string;
+    }
   >();
   (recent ?? []).forEach((message) => {
     if (!lastByConversation.has(message.conversation_id)) {
@@ -121,7 +150,7 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
     const last = lastByConversation.get(row.id);
 
     const cover = [...(row.listings?.listing_photos ?? [])].sort(
-      (a, b) => a.position - b.position
+      (a, b) => a.position - b.position,
     )[0];
     const rawUrl = cover?.public_url || cover?.storage_path || null;
 
@@ -139,14 +168,19 @@ export async function fetchConversations(userId: string): Promise<ConversationSu
       lastMessageAt: row.last_message_at,
       lastMessagePreview: last?.body ?? null,
       lastMessageFromMe: last?.sender_id === userId,
+      lastMessageDeleted: Boolean(last?.deleted_at),
       unread: Boolean(
-        last && last.sender_id !== userId && (!lastReadAt || last.created_at > lastReadAt)
+        last &&
+        last.sender_id !== userId &&
+        (!lastReadAt || last.created_at > lastReadAt),
       ),
     };
   });
 }
 
-export async function fetchMessages(conversationId: string): Promise<Message[]> {
+export async function fetchMessages(
+  conversationId: string,
+): Promise<Message[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -163,16 +197,23 @@ export async function sendMessage({
   conversationId,
   senderId,
   body,
+  replyToId,
 }: {
   conversationId: string;
   senderId: string;
   body: string;
+  replyToId: string | null;
 }): Promise<Message> {
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from("messages")
-    .insert({ conversation_id: conversationId, sender_id: senderId, body: body.trim() })
+    .insert({
+      conversation_id: conversationId,
+      sender_id: senderId,
+      body: body.trim(),
+      reply_to_id: replyToId,
+    })
     .select("*")
     .single();
 
@@ -183,6 +224,47 @@ export async function sendMessage({
 }
 
 /**
+ * Supprime l'un de ses messages : la base efface le texte et garde une trace
+ * « Message supprimé » (fonction `delete_message`, migration 202611200001).
+ */
+export async function deleteMessage(messageId: string): Promise<void> {
+  const { error } = await createClient().rpc("delete_message", {
+    message_id: messageId,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Ajoute un message confirmé au fil affiché, sans doublon : il peut arriver par
+ * la réponse de l'insertion et par l'écho temps réel, et remplace la version
+ * provisoire affichée à l'envoi (dont il garde la clé d'affichage).
+ */
+export function mergeConfirmed(
+  current: Message[],
+  message: Message,
+  tempId?: string,
+): Message[] {
+  if (current.some((item) => item.id === message.id)) {
+    return tempId ? current.filter((item) => item.id !== tempId) : current;
+  }
+
+  const provisional = current.find((item) =>
+    tempId
+      ? item.id === tempId
+      : item.pending &&
+        item.senderId === message.senderId &&
+        item.body === message.body,
+  );
+  if (!provisional) return [...current, message];
+
+  return current.map((item) =>
+    item === provisional
+      ? { ...message, clientKey: provisional.clientKey }
+      : item,
+  );
+}
+
+/**
  * Previent le destinataire par email, sans bloquer l'envoi.
  *
  * La route ignore d'elle-meme les conversations actives : inutile de filtrer
@@ -190,7 +272,7 @@ export async function sendMessage({
  */
 async function notifyRecipient(
   supabase: ReturnType<typeof createClient>,
-  messageId: string
+  messageId: string,
 ) {
   try {
     const {
@@ -213,11 +295,12 @@ async function notifyRecipient(
 
 export async function markConversationRead(
   conversationId: string,
-  role: ConversationRole
+  role: ConversationRole,
 ): Promise<void> {
   const supabase = createClient();
   const now = new Date().toISOString();
-  const payload = role === "host" ? { host_last_read_at: now } : { guest_last_read_at: now };
+  const payload =
+    role === "host" ? { host_last_read_at: now } : { guest_last_read_at: now };
 
   const { error } = await supabase
     .from("conversations")
@@ -261,7 +344,7 @@ export async function openConversation({
 
 export async function fetchConversationRole(
   conversationId: string,
-  userId: string
+  userId: string,
 ): Promise<ConversationRole | null> {
   const supabase = createClient();
 
@@ -284,10 +367,16 @@ export const formatMessageTime = (iso: string, locale = "fr"): string => {
   const intlLocale = locale === "en" ? "en-GB" : "fr-FR";
 
   if (date.toDateString() === now.toDateString()) {
-    return new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(date);
+    return new Intl.DateTimeFormat(intlLocale, {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
   }
   if (date.getFullYear() === now.getFullYear()) {
-    return new Intl.DateTimeFormat(intlLocale, { day: "numeric", month: "short" }).format(date);
+    return new Intl.DateTimeFormat(intlLocale, {
+      day: "numeric",
+      month: "short",
+    }).format(date);
   }
   return new Intl.DateTimeFormat(intlLocale, {
     day: "numeric",

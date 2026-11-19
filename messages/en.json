@@ -241,7 +241,8 @@
       "over_email_send_rate_limit": "Too many attempts. Please wait a few minutes and try again.",
       "over_request_rate_limit": "Too many attempts. Please wait a few minutes and try again.",
       "signup_disabled": "Sign-ups are temporarily closed.",
-      "otp_expired": "Incorrect or expired code. Check it or request a new one."
+      "otp_expired": "Incorrect or expired code. Check it or request a new one.",
+      "same_password": "Choose a password different from your old one."
     },
     "accountType": "Account type",
     "accountTypes": {
@@ -264,7 +265,21 @@
     "changeEmail": "Use another email",
     "codeHint": "The code is valid for one hour. Remember to check your spam folder.",
     "codeInvalid": "Incorrect or expired code. Check it or request a new one.",
-    "emailVerified": "Email confirmed. Welcome to VacationHub!"
+    "emailVerified": "Email confirmed. Welcome to VacationHub!",
+    "forgotLink": "Forgot your password?",
+    "forgotTitle": "Forgot password",
+    "forgotHeading": "Reset your password",
+    "forgotIntro": "Enter your account email: we will send you a 6-digit code.",
+    "sendCode": "Get a code",
+    "resetHeading": "Choose a new password",
+    "resetIntro": "If an account exists for {email}, a 6-digit code has just been sent to it.",
+    "resetCodeLabel": "Code from the email",
+    "newPassword": "New password",
+    "resetSubmit": "Change my password",
+    "passwordChanged": "Password changed. You are logged in.",
+    "backToSignIn": "Back to log in",
+    "sending": "Sending…",
+    "codeResent": "Code sent · resend in {seconds}s"
   },
   "searchModal": {
     "steps": {
@@ -584,7 +599,17 @@
     "threadEmpty": "Introduce yourself and ask your questions about the property. Conversations stay on VacationHub.",
     "placeholder": "Your message",
     "send": "Send",
-    "sendFailed": "Message not sent. Please try again."
+    "sendFailed": "Message not sent. Please try again.",
+    "deleted": "Message deleted",
+    "quoteUnavailable": "Message unavailable",
+    "you": "You",
+    "reply": "Reply",
+    "replyingTo": "Replying to {name}",
+    "cancelReply": "Cancel reply",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this message? It will be replaced by “Message deleted” for both of you.",
+    "deleteFailed": "Could not delete. Please try again.",
+    "sending": "Sending…"
   },
   "profile": {
     "signInRequired": "Login required",

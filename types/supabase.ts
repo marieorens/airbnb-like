@@ -427,6 +427,8 @@ export type Database = {
           conversation_id: string;
           sender_id: string;
           body: string;
+          reply_to_id: string | null;
+          deleted_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -434,6 +436,8 @@ export type Database = {
           conversation_id: string;
           sender_id: string;
           body: string;
+          reply_to_id?: string | null;
+          deleted_at?: string | null;
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["messages"]["Insert"]>;
@@ -454,6 +458,10 @@ export type Database = {
       };
     };
     Functions: {
+      delete_message: {
+        Args: { message_id: string };
+        Returns: undefined;
+      };
       listings_near: {
         Args: { lat: number; lng: number; radius_km?: number; max_results?: number };
         Returns: { listing_id: string; distance_km: number }[];
