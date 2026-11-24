@@ -1,6 +1,7 @@
 import { fetchPublicProfiles } from "@/lib/public-profiles";
 import { createClient } from "@/lib/supabase/server";
 import { assetTypes, currencies, LISTINGS_BATCH } from "@/utils/constants";
+import { fetchRates, priceRangeFilter } from "@/lib/currency";
 import type { Listing } from "@/types/listing";
 import { parseTranslations } from "@/utils/listingText";
 import type { Tables } from "@/types/supabase";
@@ -208,6 +209,7 @@ export const getListings = async (query?: {
       guestCount,
       bathroomCount,
       country,
+      city,
       region,
       currency,
       startDate,
@@ -222,6 +224,10 @@ export const getListings = async (query?: {
 
     const supabase = createClient();
     const unavailableIds = await getUnavailableListingIds(startDate, endDate);
+    const min = minPrice && !Array.isArray(minPrice) ? Number(minPrice) : 0;
+    const max = maxPrice && !Array.isArray(maxPrice) ? Number(maxPrice) : 0;
+    // Les taux ne servent qu'au filtre de prix (cache de 12 heures).
+    const rates = min > 0 || max > 0 ? await fetchRates() : null;
     // Le client Supabase modifie la requête sur place : on en construit une neuve à chaque lot.
     const buildRequest = () => {
       let request = supabase
@@ -242,23 +248,31 @@ export const getListings = async (query?: {
       ) {
         request = request.eq("transaction_type", transactionType);
       }
-      // Un prix n'a de sens que dans une devise : 100 XOF et 100 EUR ne se comparent pas.
-      // Les bornes de prix ne s'appliquent donc que si une devise est choisie.
+      // Bornes saisies dans une devise : chaque annonce est comparée dans la sienne,
+      // après conversion. Sans taux, on se limite aux annonces de cette devise.
       const activeCurrency =
         currency && !Array.isArray(currency) && isCurrency(currency) ? currency : null;
-      if (activeCurrency) {
-        request = request.eq("currency", activeCurrency);
-        if (minPrice && !Array.isArray(minPrice) && Number(minPrice) > 0) {
-          request = request.gte("price_per_night", Number(minPrice));
-        }
-        if (maxPrice && !Array.isArray(maxPrice) && Number(maxPrice) > 0) {
-          request = request.lte("price_per_night", Number(maxPrice));
+      if (activeCurrency && (min > 0 || max > 0)) {
+        const range = priceRangeFilter(activeCurrency, min, max, rates);
+        if (range) {
+          request = request.or(range);
+        } else {
+          request = request.eq("currency", activeCurrency);
+          if (min > 0) request = request.gte("price_per_night", min);
+          if (max > 0) request = request.lte("price_per_night", max);
         }
       }
       if (roomCount && !Array.isArray(roomCount)) request = request.gte("room_count", Number(roomCount));
       if (guestCount && !Array.isArray(guestCount)) request = request.gte("guest_count", Number(guestCount));
       if (bathroomCount && !Array.isArray(bathroomCount)) request = request.gte("bathroom_count", Number(bathroomCount));
-      if (country && !Array.isArray(country)) request = request.eq("country", country);
+      if (country && !Array.isArray(country)) {
+        request = request.eq("country", country);
+        // Ville du pays choisi, sans tenir compte de la casse.
+        if (city && !Array.isArray(city) && city.trim()) {
+          // `%`, `_` et `\` échappés : comparaison exacte, pas de motif.
+          request = request.ilike("city", city.trim().replace(/[\\%_]/g, "\\$&"));
+        }
+      }
       if (region && !Array.isArray(region)) request = request.eq("region", region);
       if (unavailableIds.length) {
         request = request.not("id", "in", `(${unavailableIds.join(",")})`);
@@ -298,8 +312,9 @@ const relaxationSteps = [
   { keys: ["minPrice", "maxPrice", "currency"], id: "price" },
   { keys: ["roomCount", "bathroomCount", "guestCount"], id: "capacity" },
   { keys: ["category"], id: "category" },
+  { keys: ["city"], id: "city" },
   { keys: ["region"], id: "region" },
-  { keys: ["country"], id: "country" },
+  { keys: ["country", "city"], id: "country" },
   { keys: ["assetType"], id: "assetType" },
   { keys: ["transactionType"], id: "transactionType" },
 ] as const;

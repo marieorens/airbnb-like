@@ -11,6 +11,7 @@ import Modal from "./Modal";
 import Button from "../Button";
 import Heading from "../Heading";
 import Counter from "../inputs/Counter";
+import CitySelect from "../inputs/CitySelect";
 import CountrySelect from "../inputs/CountrySelect";
 import { useRouter } from "@/i18n/navigation";
 
@@ -52,6 +53,9 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
   const location = watch("location");
   const dateRange = watch("dateRange");
   const country = location?.label;
+  // Ville rattachée au pays où elle a été choisie : changer de pays l'oublie.
+  const [cityChoice, setCityChoice] = useState<{ country?: string; city?: string }>({});
+  const city = cityChoice.country === country ? cityChoice.city : undefined;
   const stepItems = [t("steps.destination"), t("steps.dates"), t("steps.capacity")];
   const progress = Math.round(((step + 1) / stepItems.length) * 100);
 
@@ -93,6 +97,7 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
     const updatedQuery: any = {
       ...currentQuery,
       country: location?.label,
+      city: country ? city : undefined,
       guestCount,
       roomCount,
       bathroomCount,
@@ -171,6 +176,24 @@ const SearchModal = ({ onCloseModal }: { onCloseModal?: () => void }) => {
               subtitle={t("whereSubtitle")}
             />
             <CountrySelect value={location} onChange={setCustomValue} />
+            {country ? (
+              <label className="flex flex-col gap-2 text-sm font-semibold text-neutral-700">
+                {t("city")}
+                <CitySelect
+                  country={country}
+                  value={city}
+                  onChange={(value) => setCityChoice({ country, city: value })}
+                  className="h-[46px] rounded-lg border border-neutral-300 bg-white px-3 text-[15px] font-medium text-neutral-900 outline-none transition focus:border-neutral-900"
+                  labels={{
+                    allCities: t("allCities"),
+                    citiesWithListings: t("citiesWithListings"),
+                    otherCities: t("otherCities"),
+                    citiesLoading: t("citiesLoading"),
+                    cityCount: (count) => t("cityCount", { count }),
+                  }}
+                />
+              </label>
+            ) : null}
             <div className="h-[240px] overflow-hidden rounded-2xl border border-neutral-200">
               <Map center={location?.latlng} />
             </div>

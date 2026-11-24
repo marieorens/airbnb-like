@@ -17,6 +17,14 @@ import { CheckoutError, createCheckout } from "@/services/checkout";
  * du corps de la requete.
  */
 
+const log = (...parts: unknown[]) => console.error("[checkout]", ...parts);
+
+/** Refus avec un `code` stable, que le mobile affiche dans la langue de l'utilisateur. */
+const refuse = (code: string, message: string, status: number) => {
+  log("refus :", code, message);
+  return NextResponse.json({ message, code }, { status });
+};
+
 export async function POST(request: Request) {
   const authorization = request.headers.get("authorization") ?? "";
   const token = authorization.startsWith("Bearer ")
@@ -24,7 +32,7 @@ export async function POST(request: Request) {
     : null;
 
   if (!token) {
-    return NextResponse.json({ message: "Authentification requise." }, { status: 401 });
+    return refuse("sign_in", "Authentification requise.", 401);
   }
 
   const supabase = createClient(getSupabaseUrl(), getSupabasePublicKey(), {
@@ -37,14 +45,14 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser(token);
 
   if (authError || !user) {
-    return NextResponse.json({ message: "Session invalide." }, { status: 401 });
+    return refuse("session_expired", `Session invalide : ${authError?.message ?? "inconnue"}`, 401);
   }
 
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ message: "Requete invalide." }, { status: 400 });
+    return refuse("incomplete", "Requête invalide.", 400);
   }
 
   const { listingId, checkIn, checkOut, successUrl, cancelUrl, provider } = body;
@@ -54,11 +62,11 @@ export async function POST(request: Request) {
     typeof checkIn !== "string" ||
     typeof checkOut !== "string"
   ) {
-    return NextResponse.json({ message: "Donnees de reservation invalides." }, { status: 400 });
+    return refuse("incomplete", "Données de réservation invalides.", 400);
   }
 
   if (provider !== undefined && !isPaymentProvider(provider)) {
-    return NextResponse.json({ message: "Moyen de paiement invalide." }, { status: 400 });
+    return refuse("invalid_provider", "Moyen de paiement invalide.", 400);
   }
 
   const forwardedHost =
@@ -72,7 +80,11 @@ export async function POST(request: Request) {
     !isAllowedRedirect(successUrl, requestOrigin) ||
     !isAllowedRedirect(cancelUrl, requestOrigin)
   ) {
-    return NextResponse.json({ message: "Url de retour non autorisee." }, { status: 400 });
+    return refuse(
+      "invalid_return_url",
+      `Adresse de retour non autorisée : ${String(successUrl)} / ${String(cancelUrl)}`,
+      400
+    );
   }
 
   const paymentProvider: PaymentProvider = isPaymentProvider(provider)
@@ -97,6 +109,7 @@ export async function POST(request: Request) {
       error instanceof Error ? error.message : "Impossible de créer la réservation.";
     // `code` permet au mobile d'afficher l'erreur dans la langue de l'utilisateur.
     const code = error instanceof CheckoutError ? error.code : "generic";
+    log("échec :", code, message);
     return NextResponse.json({ message, code }, { status: 400 });
   }
 }

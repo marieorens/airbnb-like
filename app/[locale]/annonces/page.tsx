@@ -63,6 +63,7 @@ const AnnoncesPage: FC<AnnoncesPageProps> = async ({ searchParams }) => {
       activeAsset ||
       searchParams?.category ||
       searchParams?.country ||
+      searchParams?.city ||
       searchParams?.region ||
       searchParams?.currency ||
       searchParams?.minPrice ||

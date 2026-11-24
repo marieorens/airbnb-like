@@ -14,6 +14,8 @@ export interface CurrentUser {
   countryOfOrigin: string | null;
   accountPurpose: string[];
   preferredContact: "email" | "phone" | "whatsapp";
+  /** Devise d'affichage choisie ; null = devise de chaque annonce. */
+  preferredCurrency: "USD" | "EUR" | "XOF" | null;
   bio: string | null;
   profileCompletedAt: string | null;
   isProfileComplete: boolean;

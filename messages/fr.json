@@ -11,7 +11,7 @@
     "createAccount": "Créer un compte",
     "signOut": "Se déconnecter",
     "toggleTheme": "Changer le thème",
-    "switchLanguage": "Switch to English",
+    "switchLanguage": "Langue",
     "messagesUnread": "Messages, {count, plural, one {# non lu} other {# non lus}}",
     "menu": {
       "messages": "Mes messages",
@@ -29,7 +29,9 @@
       "guests": "Voyageurs",
       "guestCount": "{count, plural, one {# voyageur} other {# voyageurs}}"
     },
-    "verifyAccount": "Vérifier mon compte"
+    "verifyAccount": "Vérifier mon compte",
+    "currency": "Devise d’affichage des prix",
+    "currencyListing": "Devise ¤"
   },
   "common": {
     "close": "Fermer",
@@ -242,7 +244,8 @@
       "over_request_rate_limit": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
       "signup_disabled": "Les inscriptions sont momentanément fermées.",
       "otp_expired": "Code incorrect ou expiré. Vérifiez-le ou demandez-en un nouveau.",
-      "same_password": "Choisissez un mot de passe différent de l’ancien."
+      "same_password": "Choisissez un mot de passe différent de l’ancien.",
+      "phone_invalid": "Numéro invalide : 8 à 15 chiffres, indicatif « + » accepté."
     },
     "accountType": "Type de compte",
     "accountTypes": {
@@ -305,7 +308,13 @@
     "asideTitle": "Cherchez plus vite, choisissez mieux.",
     "asideText": "Vacances, location ou repérage immobilier : les filtres gardent le parcours simple.",
     "search": "Rechercher",
-    "continue": "Continuer"
+    "continue": "Continuer",
+    "city": "Ville (facultatif)",
+    "allCities": "Toutes les villes",
+    "citiesWithListings": "Villes avec des biens",
+    "otherCities": "Autres villes",
+    "citiesLoading": "Chargement des villes…",
+    "cityCount": "{count, plural, one {# bien} other {# biens}}"
   },
   "rentModal": {
     "steps": {
@@ -454,9 +463,15 @@
       "guests": "Voyageurs",
       "any": "Indifférent",
       "currencyRequired": "Choisissez une devise pour filtrer par prix : les montants en XOF, EUR et USD ne se comparent pas directement.",
-      "currencyHint": "Le filtre de prix s’applique dans la devise choisie.",
+      "currencyHint": "Prix saisis dans cette devise ; les biens affichés dans d’autres devises sont convertis.",
       "apply": "Appliquer les filtres",
-      "reset": "Réinitialiser"
+      "reset": "Réinitialiser",
+      "city": "Ville",
+      "allCities": "Toutes les villes",
+      "citiesWithListings": "Villes avec des biens",
+      "otherCities": "Autres villes",
+      "citiesLoading": "Chargement des villes…",
+      "cityCount": "{count, plural, one {# bien} other {# biens}}"
     },
     "alternatives": {
       "title": "Aucun résultat exact pour votre recherche",
@@ -470,7 +485,8 @@
         "region": "dans tout le pays",
         "country": "dans tous les pays",
         "assetType": "sur des biens similaires",
-        "transactionType": "toutes annonces confondues"
+        "transactionType": "toutes annonces confondues",
+        "city": "dans tout le pays"
       }
     },
     "nearMe": {
@@ -509,7 +525,8 @@
       "kkiapayOnlyXof": "Disponible uniquement pour les annonces en XOF.",
       "stripeHint": "Carte bancaire internationale",
       "payAndBook": "Payer et réserver",
-      "total": "Total"
+      "total": "Total",
+      "approxTotal": "Soit environ {amount}"
     },
     "gallery": {
       "photoAlt": "{title} – photo {index}",
@@ -554,7 +571,8 @@
     },
     "autoTranslated": "Traduit automatiquement",
     "showOriginal": "Voir l’original",
-    "showTranslation": "Voir la traduction"
+    "showTranslation": "Voir la traduction",
+    "originalPrice": "Prix de l’annonce : {price}, payé dans cette devise."
   },
   "account": {
     "signInRequired": "Connexion requise",
@@ -657,7 +675,8 @@
       "preferredContact": "Choisissez un moyen de contact.",
       "accountPurpose": "Choisissez au moins un objectif.",
       "missingFields": "Certains champs obligatoires sont manquants.",
-      "saveFailed": "Enregistrement impossible. Réessayez dans un instant."
+      "saveFailed": "Enregistrement impossible. Réessayez dans un instant.",
+      "phoneInvalid": "Numéro invalide : 8 à 15 chiffres, indicatif « + » accepté."
     }
   },
   "payment": {

@@ -34,6 +34,9 @@ export type Database = {
           verification_submitted_at: string | null;
           verification_reviewed_at: string | null;
           verification_reviewed_by: string | null;
+          verification_email_sent_at: string | null;
+          verification_email_error: string | null;
+          preferred_currency: "USD" | "EUR" | "XOF" | null;
           created_at: string;
           updated_at: string;
         };
@@ -61,6 +64,9 @@ export type Database = {
           verification_submitted_at?: string | null;
           verification_reviewed_at?: string | null;
           verification_reviewed_by?: string | null;
+          verification_email_sent_at?: string | null;
+          verification_email_error?: string | null;
+          preferred_currency?: "USD" | "EUR" | "XOF" | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -87,6 +93,9 @@ export type Database = {
           verification_submitted_at?: string | null;
           verification_reviewed_at?: string | null;
           verification_reviewed_by?: string | null;
+          verification_email_sent_at?: string | null;
+          verification_email_error?: string | null;
+          preferred_currency?: "USD" | "EUR" | "XOF" | null;
           updated_at?: string;
         };
         Relationships: [];

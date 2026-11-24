@@ -11,7 +11,8 @@ import Image from "./Image";
 import ListingMenu from "./ListingMenu";
 
 import type { ListingLike } from "@/types/listing";
-import { formatPrice } from "@/utils/helper";
+import PreferredPrice from "@/components/PreferredPrice";
+import { formatMoney } from "@/lib/currency";
 import { getDateLocale } from "@/utils/dateLocale";
 import { Link } from "@/i18n/navigation";
 
@@ -51,8 +52,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
     ? reservation.totalPrice
     : data?.price ?? data?.price_per_night ?? 0;
   const currency = data.currency || "USD";
-  const currencySymbol =
-    currency === "EUR" ? "EUR" : currency === "XOF" ? "XOF" : "$";
+  // Une réservation garde le montant réellement payé, dans sa devise.
+  const priceText = reservation ? (
+    formatMoney(price, currency)
+  ) : (
+    <PreferredPrice amount={price} currency={currency} />
+  );
   const transactionType =
     data.transactionType || data.transaction_type || "booking";
   const assetType = data.assetType || data.asset_type || "short_stay";
@@ -159,7 +164,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 </p>
                 <div className="flex flex-row items-baseline gap-1">
                   <span className="text-[16px] font-black text-neutral-950">
-                    {currencySymbol} {formatPrice(price)}
+                    {priceText}
                   </span>
                   {priceSuffix ? (
                     <span className="text-xs font-semibold text-neutral-500">

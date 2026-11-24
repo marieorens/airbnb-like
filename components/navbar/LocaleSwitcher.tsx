@@ -4,9 +4,9 @@ import React, { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
+import { LOCALE_NAMES, routing, type Locale } from "@/i18n/routing";
 
-// Bascule FR ⇄ EN en restant sur la même page, filtres compris.
+// Changement de langue en restant sur la même page, filtres compris.
 const LocaleSwitcher = () => {
   const t = useTranslations("nav");
   const locale = useLocale();
@@ -14,10 +14,7 @@ const LocaleSwitcher = () => {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const nextLocale: Locale =
-    routing.locales.find((item) => item !== locale) ?? routing.defaultLocale;
-
-  const switchLocale = () => {
+  const switchLocale = (nextLocale: Locale) => {
     const search = window.location.search;
     startTransition(() => {
       router.replace(`${pathname}${search}`, { locale: nextLocale });
@@ -25,16 +22,21 @@ const LocaleSwitcher = () => {
   };
 
   return (
-    <button
-      type="button"
-      onClick={switchLocale}
-      disabled={isPending}
-      aria-label={t("switchLanguage")}
-      title={t("switchLanguage")}
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-black uppercase text-neutral-950 transition hover:bg-neutral-200 disabled:opacity-60 sm:h-11 sm:w-11"
-    >
-      {nextLocale}
-    </button>
+    <label className="relative shrink-0" title={t("switchLanguage")}>
+      <span className="sr-only">{t("switchLanguage")}</span>
+      <select
+        value={locale}
+        disabled={isPending}
+        onChange={(event) => switchLocale(event.target.value as Locale)}
+        className="h-10 cursor-pointer appearance-none rounded-full bg-neutral-100 px-3 text-xs font-black uppercase text-neutral-950 outline-none transition hover:bg-neutral-200 disabled:opacity-60 sm:h-11"
+      >
+        {routing.locales.map((item) => (
+          <option key={item} value={item}>
+            {item.toUpperCase()} · {LOCALE_NAMES[item]}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 };
 

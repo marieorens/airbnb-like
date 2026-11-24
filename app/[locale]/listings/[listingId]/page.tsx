@@ -11,7 +11,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getListingById } from "@/services/listing";
 import { categories } from "@/utils/constants";
-import { pickListingText } from "@/utils/listingText";
+import { needsTranslation, pickListingText } from "@/utils/listingText";
+import TranslationRequest from "./_components/TranslationRequest";
 
 interface IParams {
   listingId: string;
@@ -75,6 +76,9 @@ const ListingPage = async ({ params: { listingId } }: { params: IParams }) => {
 
   return (
     <section className="main-container">
+      {needsTranslation(listing.translations, locale) ? (
+        <TranslationRequest listingId={id} locale={locale} />
+      ) : null}
       <div className="flex flex-col gap-6">
         <ListingHead
           title={text.title}

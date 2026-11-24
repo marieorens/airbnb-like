@@ -153,7 +153,8 @@ export async function createCheckout({
     throw new CheckoutError("own_listing", "Vous ne pouvez pas réserver votre propre bien.");
   }
   if (provider === "kkiapay" && listing.currency.toUpperCase() !== "XOF") {
-    throw new Error(
+    throw new CheckoutError(
+      "kkiapay_currency",
       "Kkiapay accepte uniquement les paiements en XOF. Choisissez Stripe pour cette annonce."
     );
   }
@@ -210,7 +211,10 @@ export async function createCheckout({
     .single();
 
   if (bookingError || !booking) {
-    throw new Error(bookingError?.message || "Impossible de creer la reservation.");
+    throw new CheckoutError(
+      "booking_failed",
+      bookingError?.message || "Impossible de créer la réservation."
+    );
   }
 
   const sortedPhotos = [...(listing.listing_photos ?? [])].sort(
@@ -285,7 +289,12 @@ export async function createCheckout({
       .from("bookings")
       .update({ status: "cancelled_by_guest" })
       .eq("id", booking.id);
-    throw checkoutError;
+    if (checkoutError instanceof CheckoutError) throw checkoutError;
+    // Erreur du prestataire (Stripe…) : code stable pour le client, détail en message.
+    throw new CheckoutError(
+      provider === "kkiapay" ? "kkiapay_failed" : "stripe_failed",
+      checkoutError instanceof Error ? checkoutError.message : "Session de paiement impossible."
+    );
   }
 }
 

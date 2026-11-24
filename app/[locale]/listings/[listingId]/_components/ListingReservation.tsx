@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import Button from "@/components/Button";
 import SpinnerMini from "@/components/Loader";
 import type { PaymentProvider } from "@/lib/payments";
-import { formatPrice } from "@/utils/helper";
+import { formatMoney } from "@/lib/currency";
+import { usePrice } from "@/components/CurrencyProvider";
 
 interface ListingReservationProps {
   price: number;
@@ -25,12 +26,6 @@ const Calendar = dynamic(() => import("@/components/Calender"), {
   ssr: false,
 });
 
-const currencyLabel = (currency: string) => {
-  if (currency.toUpperCase() === "XOF") return "XOF";
-  if (currency.toUpperCase() === "EUR") return "EUR";
-  return "$";
-};
-
 const ListingReservation: React.FC<ListingReservationProps> = ({
   price,
   dateRange,
@@ -45,12 +40,13 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
 }) => {
   const t = useTranslations("listing.reservation");
   const kkiapayDisabled = currency.toUpperCase() !== "XOF";
+  const approxTotal = usePrice(totalPrice, currency.toUpperCase());
 
   return (
     <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
       <div className="flex flex-row items-center gap-1 p-4">
         <span className="text-lg font-semibold">
-          {currencyLabel(currency)} {formatPrice(price)}
+          {formatMoney(price, currency.toUpperCase())}
         </span>
         <span className="font-light text-neutral-600">{t("night")}</span>
       </div>
@@ -124,9 +120,15 @@ const ListingReservation: React.FC<ListingReservationProps> = ({
       <div className="p-4 flex flex-row items-center justify-between font-semibold text-lg">
         <span>{t("total")}</span>
         <span>
-          {currencyLabel(currency)} {formatPrice(totalPrice)}
+          {formatMoney(totalPrice, currency.toUpperCase())}
         </span>
       </div>
+      {/* On paie dans la devise de l'annonce ; l'équivalent n'est qu'indicatif. */}
+      {approxTotal.approximate ? (
+        <p className="-mt-3 px-4 pb-4 text-right text-xs font-semibold text-neutral-500">
+          {t("approxTotal", { amount: approxTotal.main })}
+        </p>
+      ) : null}
     </div>
   );
 };

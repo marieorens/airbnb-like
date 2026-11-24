@@ -16,6 +16,7 @@ import SpinnerMini from "../Loader";
 import ForgotPassword from "./ForgotPassword";
 import ResendCodeButton from "./ResendCodeButton";
 import { createClient } from "@/lib/supabase/browser";
+import { isValidPhone } from "@/utils/phone";
 
 const AuthModal = ({
   name,
@@ -88,6 +89,15 @@ const AuthModal = ({
         companyName,
       } = data;
     const supabase = createClient();
+
+    // Même contrôle que la complétion du profil : écarte un prénom saisi à la
+    // place du numéro.
+    if (!isLoginModal && !isValidPhone(String(phone ?? ""))) {
+      toast.error(t("errors.phone_invalid"));
+      setError("phone", {});
+      setFocus("phone");
+      return;
+    }
 
     startTransition(async () => {
       try {

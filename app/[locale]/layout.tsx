@@ -9,6 +9,9 @@ import "../globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import Navbar from "@/components/navbar";
 import Providers from "@/components/Provider";
+import { CurrencyProvider } from "@/components/CurrencyProvider";
+import { fetchRates } from "@/lib/currency";
+import { getPreferredCurrency } from "@/services/currency-preference";
 import { isLocale } from "@/i18n/routing";
 
 const nunito = Nunito({ subsets: ["latin"] });
@@ -38,11 +41,14 @@ export async function generateMetadata({ params }: LayoutParams): Promise<Metada
   };
 }
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
   children,
   params,
 }: LayoutParams & { children: React.ReactNode }) {
   if (!isLocale(params.locale)) notFound();
+
+  // Devise préférée et taux du jour, partagés par tous les prix affichés.
+  const [preferredCurrency, rates] = await Promise.all([getPreferredCurrency(), fetchRates()]);
 
   return (
     <html lang={params.locale} suppressHydrationWarning>
@@ -50,8 +56,10 @@ export default function LocaleLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <NextIntlClientProvider>
           <Providers>
-            <Navbar />
-            <main className="pb-16 md:pt-28 pt-24">{children}</main>
+            <CurrencyProvider preferred={preferredCurrency} rates={rates}>
+              <Navbar />
+              <main className="pb-16 md:pt-28 pt-24">{children}</main>
+            </CurrencyProvider>
           </Providers>
         </NextIntlClientProvider>
       </body>

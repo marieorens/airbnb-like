@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { intlLocale } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -56,7 +57,7 @@ declare global {
 }
 
 const formatDate = (value: string, locale: string) =>
-  new Date(`${value}T00:00:00`).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", {
+  new Date(`${value}T00:00:00`).toLocaleDateString(intlLocale(locale), {
     day: "numeric",
     month: "long",
     year: "numeric",

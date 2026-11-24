@@ -1,7 +1,10 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 import { currencies } from "@/utils/constants";
 import { Link } from "@/i18n/navigation";
+import { getPreferredCurrency } from "@/services/currency-preference";
+
+import CityField from "./CityField";
 
 type SearchParams = { [key: string]: string | undefined };
 
@@ -51,8 +54,10 @@ const CountSelect = ({
   </label>
 );
 
-const AdvancedFilters = ({ searchParams = {} }: AdvancedFiltersProps) => {
-  const t = useTranslations("catalogue.advanced");
+const AdvancedFilters = async ({ searchParams = {} }: AdvancedFiltersProps) => {
+  const t = await getTranslations("catalogue.advanced");
+  // Devise proposée pour les bornes de prix : la devise préférée du membre.
+  const preferredCurrency = await getPreferredCurrency();
   const { transactionType, assetType, currency, minPrice, maxPrice } =
     searchParams;
 
@@ -88,11 +93,19 @@ const AdvancedFilters = ({ searchParams = {} }: AdvancedFiltersProps) => {
       </p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {searchParams.country ? (
+          <CityField
+            country={searchParams.country}
+            value={searchParams.city}
+            labelClassName={fieldLabel}
+            controlClassName={fieldControl}
+          />
+        ) : null}
         <label className="block">
           <span className={fieldLabel}>{t("currency")}</span>
           <select
             name="currency"
-            defaultValue={currency ?? ""}
+            defaultValue={currency ?? preferredCurrency ?? ""}
             className={fieldControl}
           >
             <option value="">{t("allCurrencies")}</option>

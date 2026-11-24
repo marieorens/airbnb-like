@@ -17,6 +17,10 @@ export type ListingTranslations = {
   en: { title: string; description: string };
 };
 
+/** Code DeepL des langues traduites à la demande (portugais d'Europe et d'Afrique). */
+const DEEPL_TARGETS = { es: "ES", pt: "PT-PT", de: "DE", it: "IT" } as const;
+export type OnDemandLocale = keyof typeof DEEPL_TARGETS;
+
 type DeepLResponse = {
   translations?: { detected_source_language: string; text: string }[];
 };
@@ -32,7 +36,7 @@ const endpoint = () =>
     : "https://api.deepl.com/v2/translate";
 
 /** Traduit `[titre, description]` vers une langue ; renvoie aussi la langue détectée. */
-async function translate(texts: [string, string], targetLang: "FR" | "EN-US") {
+async function translate(texts: [string, string], targetLang: string) {
   const response = await fetch(endpoint(), {
     method: "POST",
     headers: {
@@ -93,6 +97,24 @@ export async function translateListingText(input: {
     return { fr: { title: french.title, description: french.description }, en };
   } catch (error) {
     console.error("[listing-translation]", error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
+/**
+ * Traduction d'une annonce dans une langue supplémentaire, à la première
+ * consultation de sa fiche dans cette langue. `null` si indisponible.
+ */
+export async function translateListingTo(
+  input: { title: string; description: string },
+  locale: OnDemandLocale
+): Promise<{ title: string; description: string } | null> {
+  if (!isTranslationConfigured()) return null;
+  try {
+    const result = await translate([input.title, input.description], DEEPL_TARGETS[locale]);
+    return { title: result.title, description: result.description };
+  } catch (error) {
+    console.error("[listing-translation]", locale, error instanceof Error ? error.message : error);
     return null;
   }
 }

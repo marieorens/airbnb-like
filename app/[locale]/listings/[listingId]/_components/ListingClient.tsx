@@ -19,6 +19,7 @@ import { createPaymentSession } from "@/services/reservation-actions";
 import { openConversation } from "@/lib/messaging";
 import type { PaymentProvider } from "@/lib/payments";
 import SpinnerMini from "@/components/Loader";
+import { usePrice } from "@/components/CurrencyProvider";
 import type { CurrentUser, Listing } from "@/types/listing";
 
 const initialDateRange = {
@@ -59,6 +60,7 @@ const ListingClient: React.FC<ListingClientProps> = ({
 }) => {
   const t = useTranslations("listing");
   const [totalPrice, setTotalPrice] = useState(price);
+  const preferredPrice = usePrice(price, currency);
   const [dateRange, setDateRange] = useState<Range>(initialDateRange);
   const [provider, setProvider] = useState<PaymentProvider>(
     currency.toUpperCase() === "XOF" ? "kkiapay" : "stripe"
@@ -204,8 +206,14 @@ const ListingClient: React.FC<ListingClientProps> = ({
                 {transactionType === "sale" ? t("salePrice") : t("estimatedRent")}
               </p>
               <p className="mt-2 text-2xl font-black text-neutral-900">
-                {currency} {price.toLocaleString("en-US")}
+                {preferredPrice.main}
               </p>
+              {/* Prix converti : on rappelle le prix réel, payé dans la devise de l'annonce. */}
+              {preferredPrice.approximate ? (
+                <p className="mt-1 text-xs font-semibold text-neutral-500">
+                  {t("originalPrice", { price: preferredPrice.original })}
+                </p>
+              ) : null}
               <p className="mt-4 text-sm font-medium leading-6 text-neutral-500">
                 {t("contactHint")}
               </p>

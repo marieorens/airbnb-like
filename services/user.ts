@@ -12,7 +12,7 @@ export const getCurrentUser = async (): Promise<CurrentUser | undefined> => {
   const { data: profile } = await supabase
     .from("profiles")
     .select(
-      "full_name, avatar_url, role, is_host, phone, whatsapp, country_of_residence, city_of_residence, country_of_origin, account_purpose, preferred_contact, bio, profile_completed_at, account_type, company_name, verification_status, verification_note, verification_reasons"
+      "full_name, avatar_url, role, is_host, phone, whatsapp, country_of_residence, city_of_residence, country_of_origin, account_purpose, preferred_contact, bio, profile_completed_at, account_type, company_name, verification_status, verification_note, verification_reasons, preferred_currency"
     )
     .eq("id", user.id)
     .single();
@@ -43,6 +43,7 @@ export const getCurrentUser = async (): Promise<CurrentUser | undefined> => {
     countryOfOrigin: profile?.country_of_origin ?? null,
     accountPurpose,
     preferredContact: profile?.preferred_contact ?? "email",
+    preferredCurrency: profile?.preferred_currency ?? null,
     bio: profile?.bio ?? null,
     profileCompletedAt: profile?.profile_completed_at ?? null,
     isProfileComplete,

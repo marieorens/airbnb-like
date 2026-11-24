@@ -11,7 +11,7 @@
     "createAccount": "Create an account",
     "signOut": "Log out",
     "toggleTheme": "Toggle theme",
-    "switchLanguage": "Passer en français",
+    "switchLanguage": "Language",
     "messagesUnread": "Messages, {count} unread",
     "menu": {
       "messages": "My messages",
@@ -29,7 +29,9 @@
       "guests": "Guests",
       "guestCount": "{count, plural, one {# guest} other {# guests}}"
     },
-    "verifyAccount": "Verify my account"
+    "verifyAccount": "Verify my account",
+    "currency": "Price display currency",
+    "currencyListing": "Currency ¤"
   },
   "common": {
     "close": "Close",
@@ -242,7 +244,8 @@
       "over_request_rate_limit": "Too many attempts. Please wait a few minutes and try again.",
       "signup_disabled": "Sign-ups are temporarily closed.",
       "otp_expired": "Incorrect or expired code. Check it or request a new one.",
-      "same_password": "Choose a password different from your old one."
+      "same_password": "Choose a password different from your old one.",
+      "phone_invalid": "Invalid number: 8 to 15 digits, “+” country code allowed."
     },
     "accountType": "Account type",
     "accountTypes": {
@@ -305,7 +308,13 @@
     "asideTitle": "Search faster, choose better.",
     "asideText": "Holidays, rentals or property scouting: the filters keep things simple.",
     "search": "Search",
-    "continue": "Continue"
+    "continue": "Continue",
+    "city": "City (optional)",
+    "allCities": "All cities",
+    "citiesWithListings": "Cities with listings",
+    "otherCities": "Other cities",
+    "citiesLoading": "Loading cities…",
+    "cityCount": "{count, plural, one {# listing} other {# listings}}"
   },
   "rentModal": {
     "steps": {
@@ -454,9 +463,15 @@
       "guests": "Guests",
       "any": "Any",
       "currencyRequired": "Choose a currency to filter by price: amounts in XOF, EUR and USD can’t be compared directly.",
-      "currencyHint": "The price filter applies in the selected currency.",
+      "currencyHint": "Prices typed in this currency; listings in other currencies are converted.",
       "apply": "Apply filters",
-      "reset": "Reset"
+      "reset": "Reset",
+      "city": "City",
+      "allCities": "All cities",
+      "citiesWithListings": "Cities with listings",
+      "otherCities": "Other cities",
+      "citiesLoading": "Loading cities…",
+      "cityCount": "{count, plural, one {# listing} other {# listings}}"
     },
     "alternatives": {
       "title": "No exact results for your search",
@@ -470,7 +485,8 @@
         "region": "across the whole country",
         "country": "in every country",
         "assetType": "similar properties",
-        "transactionType": "all listings"
+        "transactionType": "all listings",
+        "city": "across the country"
       }
     },
     "nearMe": {
@@ -509,7 +525,8 @@
       "kkiapayOnlyXof": "Only available for listings in XOF.",
       "stripeHint": "International bank card",
       "payAndBook": "Pay and book",
-      "total": "Total"
+      "total": "Total",
+      "approxTotal": "About {amount}"
     },
     "gallery": {
       "photoAlt": "{title} – photo {index}",
@@ -554,7 +571,8 @@
     },
     "autoTranslated": "Automatically translated",
     "showOriginal": "Show original",
-    "showTranslation": "Show translation"
+    "showTranslation": "Show translation",
+    "originalPrice": "Listing price: {price}, paid in this currency."
   },
   "account": {
     "signInRequired": "Login required",
@@ -657,7 +675,8 @@
       "preferredContact": "Choose a contact method.",
       "accountPurpose": "Choose at least one goal.",
       "missingFields": "Some required fields are missing.",
-      "saveFailed": "Couldn’t save. Please try again in a moment."
+      "saveFailed": "Couldn’t save. Please try again in a moment.",
+      "phoneInvalid": "Invalid number: 8 to 15 digits, “+” country code allowed."
     }
   },
   "payment": {

@@ -6,6 +6,7 @@ import Avatar from "@/components/Avatar";
 import ListingDescription from "./ListingDescription";
 import ListingCategory from "./ListingCategory";
 import { Category } from "@/types";
+import { formatMoney } from "@/lib/currency";
 
 interface ListingInfoProps {
   user: {
@@ -71,8 +72,8 @@ const ListingInfo: React.FC<ListingInfoProps> = ({
     [t("type"), tDomain.has(`assetTypes.${assetType}`) ? tDomain(`assetTypes.${assetType}`) : assetType],
     [t("transaction"), tDomain.has(`transactionKinds.${transactionType}`) ? tDomain(`transactionKinds.${transactionType}`) : transactionType],
     [t("area"), areaSqm ? `${areaSqm} m²` : null],
-    [t("salePrice"), salePrice ? `${currency} ${salePrice.toLocaleString("en-US")}` : null],
-    [t("monthlyRent"), monthlyRent ? `${currency} ${monthlyRent.toLocaleString("en-US")}` : null],
+    [t("salePrice"), salePrice ? formatMoney(salePrice, currency) : null],
+    [t("monthlyRent"), monthlyRent ? formatMoney(monthlyRent, currency) : null],
     [t("documents"), landTitleStatus],
     [t("condition"), propertyCondition],
     [t("availableFrom"), availableFrom],

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useTheme } from "@/components/ThemeProvider";
 import { cn } from "@/utils/helper";
+import CurrencySwitcher from "./CurrencySwitcher";
 import LocaleSwitcher from "./LocaleSwitcher";
 
 interface NavbarShellProps {
@@ -59,6 +60,7 @@ const NavbarShell: React.FC<NavbarShellProps> = ({
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
             <div className="hidden md:block">{search}</div>
+            <CurrencySwitcher />
             <LocaleSwitcher />
             <button
               type="button"

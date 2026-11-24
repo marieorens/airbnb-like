@@ -8,6 +8,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "./user";
 import type { CompleteProfileState, ProfileField } from "@/types/profileForm";
+import { isValidPhone } from "@/utils/phone";
 
 const text = (formData: FormData, key: string) =>
   String(formData.get(key) ?? "").trim();
@@ -67,6 +68,10 @@ export async function completeProfile(
       errors[field] = t(field);
     }
   });
+
+  if (values.phone && !isValidPhone(values.phone)) {
+    errors.phone = t("phoneInvalid");
+  }
 
   if (values.accountPurpose.length === 0) {
     errors.accountPurpose = t("accountPurpose");

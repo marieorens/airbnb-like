@@ -1,3 +1,4 @@
+import { intlLocale as toIntlLocale } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/browser";
 import type { Tables } from "@/types/supabase";
 import {
@@ -364,7 +365,7 @@ export async function fetchConversationRole(
 export const formatMessageTime = (iso: string, locale = "fr"): string => {
   const date = new Date(iso);
   const now = new Date();
-  const intlLocale = locale === "en" ? "en-GB" : "fr-FR";
+  const intlLocale = toIntlLocale(locale);
 
   if (date.toDateString() === now.toDateString()) {
     return new Intl.DateTimeFormat(intlLocale, {

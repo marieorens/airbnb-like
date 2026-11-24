@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import FormSubmitButton from "@/components/FormSubmitButton";
 import { completeProfile } from "@/services/profile-actions";
 import type { CurrentUser } from "@/types/listing";
+import { isValidPhone } from "@/utils/phone";
 import { EMPTY_PROFILE_STATE, type ProfileField } from "@/types/profileForm";
 
 // Libellés : `auth.purposes.<valeur>` ; messages d'erreur : `profile.errors.<champ>`.
@@ -31,12 +32,19 @@ const REQUIRED_TEXT_FIELDS = [
 
 type FieldErrors = Partial<Record<ProfileField, string>>;
 
-function validate(formData: FormData, message: (field: ProfileField) => string): FieldErrors {
+function validate(
+  formData: FormData,
+  message: (field: ProfileField) => string,
+  phoneInvalid: string
+): FieldErrors {
   const errors: FieldErrors = {};
 
   REQUIRED_TEXT_FIELDS.forEach((name) => {
     if (!String(formData.get(name) ?? "").trim()) errors[name] = message(name);
   });
+
+  const phone = String(formData.get("phone") ?? "").trim();
+  if (phone && !isValidPhone(phone)) errors.phone = phoneInvalid;
 
   if (formData.getAll("accountPurpose").length === 0) {
     errors.accountPurpose = message("accountPurpose");
@@ -87,7 +95,11 @@ export default function CompleteProfileForm({ user, next }: CompleteProfileFormP
    */
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const form = event.currentTarget;
-    const found = validate(new FormData(form), (field) => t(`errors.${field}`));
+    const found = validate(
+      new FormData(form),
+      (field) => t(`errors.${field}`),
+      t("errors.phoneInvalid")
+    );
     setClientErrors(found);
 
     const firstInvalid = Object.keys(found)[0];
