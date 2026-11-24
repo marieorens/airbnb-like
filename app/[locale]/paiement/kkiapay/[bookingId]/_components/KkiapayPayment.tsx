@@ -174,8 +174,9 @@ export function KkiapayPayment({
       return;
     }
 
-    const phone = customer.phone?.replace(/\D/g, "");
-
+    // Pas de téléphone pré-rempli : le widget refusait de s'ouvrir avec un numéro
+    // international (indicatif compris), et le numéro Mobile Money n'est pas
+    // forcément celui du profil. L'utilisateur le saisit dans le widget.
     window.openKkiapayWidget({
       amount,
       key: publicKey,
@@ -184,7 +185,6 @@ export function KkiapayPayment({
       data: bookingId,
       name: customer.name ?? undefined,
       email: customer.email ?? undefined,
-      phone: phone || undefined,
       position: "center",
       theme: "#E11D48",
     });
