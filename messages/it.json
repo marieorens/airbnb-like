@@ -1,0 +1,812 @@
+{
+  "metadata": {
+    "title": "VacationHub",
+    "description": "Soggiorni, affitti, vendite e terreni riuniti in un'unica piattaforma immobiliare affidabile."
+  },
+  "nav": {
+    "publish": "Pubblica un immobile",
+    "completeProfile": "Completa il mio profilo",
+    "signUp": "Registrati",
+    "signIn": "Accedi",
+    "createAccount": "Crea un account",
+    "signOut": "Esci",
+    "toggleTheme": "Cambia tema",
+    "switchLanguage": "Lingua",
+    "messagesUnread": "Messaggi, {count} non letti",
+    "menu": {
+      "messages": "I miei messaggi",
+      "trips": "I miei viaggi",
+      "favorites": "I miei preferiti",
+      "reservations": "Le mie prenotazioni",
+      "properties": "I miei immobili",
+      "verification": "Verifica dell'account"
+    },
+    "search": {
+      "explore": "Sfoglia gli annunci",
+      "where": "Dove?",
+      "when": "Quando?",
+      "days": "{count, plural, one {# giorno} other {# giorni}}",
+      "guests": "Ospiti",
+      "guestCount": "{count, plural, one {# ospite} other {# ospiti}}"
+    },
+    "verifyAccount": "Verifica il mio account",
+    "currency": "Valuta dei prezzi",
+    "currencyListing": "Valuta ¤"
+  },
+  "common": {
+    "close": "Chiudi",
+    "cancel": "Annulla",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "saving": "Salvataggio…",
+    "irreversible": "Questa azione non può essere annullata. Controlla prima di confermare.",
+    "loading": "Caricamento…",
+    "error": "Si è verificato un errore. Riprova più tardi."
+  },
+  "domain": {
+    "assetTypes": {
+      "short_stay": "Alloggio per brevi soggiorni",
+      "house_rent": "Casa / appartamento in affitto",
+      "house_sale": "Casa / appartamento in vendita",
+      "land_sale": "Terreno in vendita",
+      "commercial_rent": "Locale / ufficio in affitto",
+      "commercial_sale": "Locale / ufficio in vendita",
+      "other": "Altro immobile"
+    },
+    "transactionBadges": {
+      "booking": "Soggiorno",
+      "rent": "Affitto",
+      "sale": "Vendita",
+      "lead": "Contatto"
+    },
+    "transactionKinds": {
+      "booking": "Prenotazione online",
+      "rent": "Affitto a lungo termine",
+      "sale": "Vendita immobiliare",
+      "lead": "Richiesta di contatto"
+    },
+    "categories": {
+      "Plage": {
+        "label": "Spiaggia",
+        "description": "Questo immobile è vicino alla spiaggia."
+      },
+      "Moulins": {
+        "label": "Mulini",
+        "description": "Questo immobile si trova in un luogo insolito."
+      },
+      "Moderne": {
+        "label": "Moderno",
+        "description": "Questo immobile ha uno stile moderno."
+      },
+      "Campagne": {
+        "label": "Campagna",
+        "description": "Questo immobile si trova in campagna."
+      },
+      "Piscines": {
+        "label": "Piscine",
+        "description": "Questo immobile ha una piscina."
+      },
+      "Iles": {
+        "label": "Isole",
+        "description": "Questo immobile si trova su un'isola."
+      },
+      "Lac": {
+        "label": "Lago",
+        "description": "Questo immobile è vicino a un lago."
+      },
+      "Ski": {
+        "label": "Sci",
+        "description": "Questo immobile è ideale per le vacanze sulla neve."
+      },
+      "Chateaux": {
+        "label": "Castelli",
+        "description": "Questo immobile ha un fascino storico."
+      },
+      "Grottes": {
+        "label": "Grotte",
+        "description": "Questo immobile offre un'esperienza in grotta."
+      },
+      "Camping": {
+        "label": "Campeggio",
+        "description": "Questo immobile offre un'esperienza di campeggio."
+      },
+      "Neige": {
+        "label": "Neve",
+        "description": "Questo immobile è ideale per le gite sulla neve."
+      },
+      "Desert": {
+        "label": "Deserto",
+        "description": "Questo immobile si trova in un ambiente desertico."
+      },
+      "Granges": {
+        "label": "Fienili",
+        "description": "Questo immobile ha uno stile da fienile o rurale."
+      },
+      "Lux": {
+        "label": "Lusso",
+        "description": "Questo immobile è recente e di alta gamma."
+      }
+    }
+  },
+  "listingCard": {
+    "defaultAsset": "Immobile",
+    "perMonth": "mese",
+    "perNight": "notte",
+    "pending": "In attesa",
+    "confirmed": "Confermata",
+    "total": "Totale",
+    "price": "Prezzo",
+    "details": "Dettagli",
+    "distance": "A {distance} km"
+  },
+  "listingMenu": {
+    "deleteProperty": "Elimina l'immobile",
+    "cancelReservation": "Annulla la prenotazione",
+    "cancelGuestReservation": "Annulla la prenotazione dell'ospite",
+    "deleted": "Annuncio eliminato.",
+    "cancelled": "Prenotazione annullata.",
+    "error": "Si è verificato un errore. Riprova più tardi."
+  },
+  "emptyState": {
+    "title": "Nessun risultato esatto",
+    "subtitle": "Prova a modificare o rimuovere alcuni filtri.",
+    "reset": "Rimuovi tutti i filtri"
+  },
+  "favorites": {
+    "toggleError": "Impossibile aggiornare i preferiti.",
+    "add": "Aggiungi ai preferiti",
+    "remove": "Rimuovi dai preferiti"
+  },
+  "imageUpload": {
+    "signInRequired": "Accedi per aggiungere foto.",
+    "title": "Aggiungi foto",
+    "hint": "Almeno {count} foto. Puoi selezionarne diverse insieme.",
+    "added": "{count, plural, =0 {Nessuna foto aggiunta} one {# foto aggiunta} other {# foto aggiunte}}",
+    "remaining": "Ne mancano {count}",
+    "photoAlt": "Foto {index}"
+  },
+  "virtualTourUpload": {
+    "invalidFiles": "Scegli immagini panoramiche.",
+    "signInRequired": "Accedi per aggiungere un tour 360.",
+    "added": "{count, plural, one {# panorama aggiunto.} other {# panorami aggiunti.}}",
+    "title": "Aggiungi panorami 360",
+    "hint": "Aggiungi diverse immagini equirettangolari, poi dai un nome a ogni punto: soggiorno, camera, cucina, terrazza…",
+    "panoramaAlt": "Panorama {index}",
+    "pointName": "Nome del punto",
+    "roomFallback": "Stanza {index}",
+    "remove": "Rimuovi questo panorama",
+    "rooms": {
+      "livingRoom": "Soggiorno",
+      "bedroom": "Camera",
+      "kitchen": "Cucina",
+      "bathroom": "Bagno",
+      "terrace": "Terrazza",
+      "outdoor": "Esterno"
+    }
+  },
+  "countrySelect": {
+    "placeholder": "Scegli un paese",
+    "noOptions": "Nessun paese trovato",
+    "continents": {
+      "Africa": "Africa",
+      "Americas": "Americhe",
+      "Antarctic": "Antartide",
+      "Asia": "Asia",
+      "Europe": "Europa",
+      "Oceania": "Oceania"
+    }
+  },
+  "auth": {
+    "signedIn": "Accesso effettuato.",
+    "signedUp": "Account creato.",
+    "signInTitle": "Accedi",
+    "signUpTitle": "Crea il tuo account",
+    "subtitle": "Accedi a soggiorni, vendite, affitti e terreni",
+    "asideTitle": "Un solo account per affittare, vendere, comprare e investire.",
+    "asideText": "VacationHub è uno spazio immobiliare per la diaspora e i proprietari locali, con moderazione prima di ogni pubblicazione.",
+    "asidePoint1": "Profilo completo obbligatorio prima di pubblicare",
+    "asidePoint2": "Annunci verificati dal nostro team",
+    "asidePoint3": "Accesso con Google o via email",
+    "welcome": "Benvenuto su VacationHub",
+    "welcomeBack": "Bentornato",
+    "signUpIntro": "Raccontaci chi sei per iniziare.",
+    "signInIntro": "Accedi per continuare.",
+    "fullName": "Nome completo",
+    "phone": "Telefono",
+    "countryOfResidence": "Paese di residenza",
+    "accountPurpose": "Obiettivo dell'account",
+    "email": "Email",
+    "password": "Password",
+    "continue": "Continua",
+    "or": "oppure",
+    "google": "Continua con Google",
+    "hasAccount": "Hai già un account?",
+    "firstVisit": "Prima volta su VacationHub?",
+    "switchToSignIn": "Accedi",
+    "switchToSignUp": "Crea un account",
+    "purposes": {
+      "buyer": "Comprare un immobile",
+      "seller": "Vendere un immobile",
+      "renter": "Affittare un immobile",
+      "host": "Offrire un alloggio per brevi soggiorni",
+      "investor": "Investire dalla diaspora",
+      "other": "Altro"
+    },
+    "errors": {
+      "generic": "Si è verificato un errore. Riprova.",
+      "invalid_credentials": "Email o password errati.",
+      "email_not_confirmed": "Conferma il tuo indirizzo email prima di accedere.",
+      "user_already_exists": "Esiste già un account con questa email.",
+      "email_exists": "Esiste già un account con questa email.",
+      "weak_password": "Password troppo debole: almeno 6 caratteri.",
+      "email_address_invalid": "Indirizzo email non valido.",
+      "over_email_send_rate_limit": "Troppi tentativi. Attendi qualche minuto e riprova.",
+      "over_request_rate_limit": "Troppi tentativi. Attendi qualche minuto e riprova.",
+      "signup_disabled": "Le registrazioni sono temporaneamente chiuse.",
+      "otp_expired": "Codice errato o scaduto. Controllalo o richiedine uno nuovo.",
+      "same_password": "Scegli una password diversa da quella precedente.",
+      "phone_invalid": "Numero non valido: da 8 a 15 cifre, prefisso «+» ammesso."
+    },
+    "accountType": "Tipo di account",
+    "accountTypes": {
+      "individual": "Privato",
+      "agency": "Agenzia"
+    },
+    "accountTypeHints": {
+      "individual": "Affitti, vendi o cerchi un immobile per te.",
+      "agency": "Pubblichi per conto di clienti, come professionista."
+    },
+    "companyName": "Nome dell'agenzia",
+    "codeSent": "Codice inviato. Controlla la tua casella email.",
+    "confirmFirst": "Conferma prima la tua email: ti abbiamo appena inviato un nuovo codice.",
+    "verifyTitle": "Conferma la tua email",
+    "verifyHeading": "Inserisci il codice",
+    "verifyIntro": "Abbiamo inviato un codice di 6 cifre a {email}.",
+    "codeLabel": "Codice di conferma",
+    "verify": "Conferma la mia email",
+    "resendCode": "Invia di nuovo il codice",
+    "changeEmail": "Usa un'altra email",
+    "codeHint": "Il codice è valido per un'ora. Controlla anche la cartella spam.",
+    "codeInvalid": "Codice errato o scaduto. Controllalo o richiedine uno nuovo.",
+    "emailVerified": "Email confermata. Benvenuto su VacationHub!",
+    "forgotLink": "Password dimenticata?",
+    "forgotTitle": "Password dimenticata",
+    "forgotHeading": "Reimposta la password",
+    "forgotIntro": "Inserisci l'email del tuo account: ti invieremo un codice di 6 cifre.",
+    "sendCode": "Ricevi un codice",
+    "resetHeading": "Scegli una nuova password",
+    "resetIntro": "Se esiste un account per {email}, gli è appena stato inviato un codice di 6 cifre.",
+    "resetCodeLabel": "Codice ricevuto via email",
+    "newPassword": "Nuova password",
+    "resetSubmit": "Cambia la mia password",
+    "passwordChanged": "Password cambiata. Hai effettuato l'accesso.",
+    "backToSignIn": "Torna all'accesso",
+    "sending": "Invio in corso…",
+    "codeResent": "Codice inviato · nuovo invio tra {seconds} s"
+  },
+  "searchModal": {
+    "steps": {
+      "destination": "Destinazione",
+      "dates": "Date",
+      "capacity": "Capacità"
+    },
+    "datesTitle": "Quando parti?",
+    "datesSubtitle": "Scegli le tue date.",
+    "capacityTitle": "Quante persone?",
+    "capacitySubtitle": "Affina la ricerca in pochi secondi.",
+    "guests": "Ospiti",
+    "guestsHint": "Quante persone viaggiano?",
+    "rooms": "Camere",
+    "roomsHint": "Numero minimo di camere.",
+    "bathrooms": "Bagni",
+    "bathroomsHint": "Numero minimo di bagni.",
+    "whereTitle": "Dove cerchi?",
+    "whereSubtitle": "Trova un soggiorno, un affitto o un'opportunità immobiliare.",
+    "title": "Ricerca avanzata",
+    "subtitle": "Affina destinazione, date e capacità",
+    "asideKicker": "Esplora",
+    "asideTitle": "Cerca più in fretta, scegli meglio.",
+    "asideText": "Vacanze, affitto o ricerca immobiliare: i filtri rendono tutto semplice.",
+    "search": "Cerca",
+    "continue": "Continua",
+    "city": "Città (facoltativa)",
+    "allCities": "Tutte le città",
+    "citiesWithListings": "Città con annunci",
+    "otherCities": "Altre città",
+    "citiesLoading": "Caricamento delle città…",
+    "cityCount": "{count, plural, one {# annuncio} other {# annunci}}"
+  },
+  "rentModal": {
+    "steps": {
+      "type": "Tipo",
+      "category": "Categoria",
+      "address": "Indirizzo",
+      "land": "Terreno",
+      "details": "Dettagli",
+      "photos": "Foto",
+      "description": "Descrizione",
+      "price": "Prezzo"
+    },
+    "geoUnsupported": "Il tuo browser non supporta la geolocalizzazione.",
+    "geoFailed": "Impossibile trovare la tua posizione. Posiziona il segnaposto sulla mappa manualmente.",
+    "submitted": "«{title}» è stato inviato per la verifica.",
+    "submitError": "Impossibile creare l'annuncio.",
+    "assetTitle": "Cosa vuoi pubblicare?",
+    "assetSubtitle": "Soggiorni brevi, affitti, vendite, terreni e locali commerciali sono i benvenuti.",
+    "locationTitle": "Dove si trova l'immobile?",
+    "locationSubtitle": "Un indirizzo preciso ispira fiducia e aiuta a trovare l'immobile nelle vicinanze.",
+    "city": "Città *",
+    "district": "Quartiere / zona",
+    "addressDetails": "Via, numero, punto di riferimento",
+    "addressHint": "Es.: via 10, villa 24, di fronte alla farmacia del mercato. Questi dati compaiono nell'annuncio.",
+    "mapLabel": "Posizione esatta sulla mappa *",
+    "locating": "Localizzazione…",
+    "useMyPosition": "Usa la mia posizione",
+    "pinPlaced": "Segnaposto posizionato. Trascinalo per regolarlo.",
+    "pinHint": "Ingrandisci la mappa e fai clic dove si trova l'immobile.",
+    "infoTitle": "Alcuni dati utili",
+    "infoSubtitleLand": "Per un terreno, la superficie e i documenti contano più delle camere.",
+    "infoSubtitle": "Questi dati aiutano a descrivere l'immobile.",
+    "guests": "Ospiti",
+    "guestsHint": "Quante persone possono soggiornare?",
+    "landArea": "Superficie del terreno in m²",
+    "landTitleStatus": "Stato del titolo di proprietà",
+    "rooms": "Camere",
+    "roomsHint": "Quante camere ha l'immobile?",
+    "bathrooms": "Bagni",
+    "bathroomsHint": "Quanti bagni ci sono?",
+    "photosTitle": "Aggiungi almeno 3 foto",
+    "photosSubtitle": "Mostra la facciata, l'interno o i confini del terreno.",
+    "descriptionTitle": "Descrivi l'immobile",
+    "descriptionSubtitle": "Sii chiaro: posizione, stato, documenti, punti di forza.",
+    "titleField": "Titolo",
+    "descriptionField": "Descrizione",
+    "priceTitle": "Prezzo e dettagli",
+    "priceSubtitleBooking": "Quanto chiedi a notte?",
+    "priceSubtitleRent": "Indica l'affitto mensile previsto.",
+    "priceSubtitleSale": "Indica il prezzo di vendita previsto.",
+    "currency": "Valuta",
+    "pricePerNight": "Prezzo a notte",
+    "monthlyRent": "Affitto mensile",
+    "salePrice": "Prezzo di vendita",
+    "area": "Superficie in m²",
+    "condition": "Stato dell'immobile",
+    "tourExternal": "Link esterno",
+    "tourPanorama": "Immagine 360",
+    "tourUrl": "Link al tour virtuale (facoltativo)",
+    "tourUrlHint": "Matterport, Kuula, CloudPano o qualsiasi altro link a un tour esterno.",
+    "categoryTitle": "Che tipo di immobile?",
+    "categorySubtitle": "Questo passaggio riguarda solo abitazioni e case.",
+    "title": "Pubblica un immobile",
+    "subtitle": "Il tuo annuncio sarà verificato dal nostro team prima della pubblicazione",
+    "asideKicker": "Nuovo annuncio",
+    "asideTitle": "Un percorso chiaro, poi la moderazione.",
+    "selectAsset": "Seleziona un tipo di immobile",
+    "submit": "Invia per la verifica",
+    "continue": "Continua"
+  },
+  "home": {
+    "heroTitle": "Il nuovo punto di riferimento per trovare un immobile affidabile.",
+    "heroText": "Soggiorni, affitti, vendite e terreni riuniti in un'esperienza chiara e moderna, pensata per acquirenti, venditori, host e membri della diaspora.",
+    "exploreListings": "Sfoglia gli annunci",
+    "seePlots": "Vedi i terreni",
+    "trust": {
+      "profiles": {
+        "title": "Profili completi",
+        "text": "Venditori e host inseriscono i loro dati prima di pubblicare."
+      },
+      "listings": {
+        "title": "Annunci più affidabili",
+        "text": "Ogni immobile è strutturato per tipo, prezzo, contatto, posizione e foto."
+      },
+      "search": {
+        "title": "Una sola ricerca per tutto",
+        "text": "Un unico luogo per esplorare soggiorni, affitti, vendite e terreni."
+      }
+    },
+    "presentationKicker": "Una piattaforma, tanti progetti",
+    "presentationTitle": "Molto più degli affitti per le vacanze: un vero spazio immobiliare.",
+    "presentationText": "Il catalogo riunisce annunci e filtri. Questa pagina spiega la promessa, crea fiducia e indica il passo successivo.",
+    "features": {
+      "stays": {
+        "title": "Soggiorni",
+        "text": "Alloggi per qualche notte o diverse settimane, presentati con chiarezza."
+      },
+      "rentals": {
+        "title": "Affitti",
+        "text": "Case, appartamenti e locali commerciali per vivere, lavorare o tornare a casa."
+      },
+      "sales": {
+        "title": "Vendite",
+        "text": "Immobili residenziali e commerciali e opportunità immobiliari da confrontare."
+      },
+      "plots": {
+        "title": "Terreni",
+        "text": "Terreni con superficie, posizione e informazioni utili sul titolo di proprietà."
+      }
+    },
+    "discover": "Scopri",
+    "ctaKicker": "Pronto a cercare?",
+    "ctaTitle": "Tutti gli annunci, tutti i filtri, in un unico posto.",
+    "ctaText": "Apri il catalogo completo per filtrare per destinazione, tipo di immobile, date, capacità e obiettivo.",
+    "ctaButton": "Vai agli annunci"
+  },
+  "catalogue": {
+    "kicker": "Catalogo",
+    "title": "Tutti gli annunci",
+    "subtitle": "Esplora soggiorni, affitti, vendite, terreni e altri immobili pubblicati su VacationHub.",
+    "goal": "Obiettivo",
+    "assetType": "Tipo di immobile",
+    "mood": "Atmosfera dell'immobile",
+    "resultsKicker": "Risultati",
+    "resultsTitle": "Immobili disponibili",
+    "countWithFilters": "{count, plural, one {# risultato per i tuoi filtri} other {# risultati per i tuoi filtri}}",
+    "countTotal": "{count, plural, one {# risultato in totale} other {# risultati in totale}}",
+    "clearFilters": "Rimuovi tutti i filtri",
+    "emptyTitle": "Nessun annuncio trovato",
+    "emptySubtitle": "Prova un altro tipo di immobile o rimuovi alcuni filtri.",
+    "filters": {
+      "all": "Tutti",
+      "rentals": "Affitti",
+      "sales": "Vendite",
+      "plots": "Terreni"
+    },
+    "advanced": {
+      "title": "Affina la ricerca",
+      "currency": "Valuta",
+      "allCurrencies": "Tutte",
+      "minPrice": "Prezzo min.",
+      "maxPrice": "Prezzo max.",
+      "noLimit": "Nessun limite",
+      "rooms": "Camere",
+      "bathrooms": "Bagni",
+      "guests": "Ospiti",
+      "any": "Indifferente",
+      "currencyRequired": "Scegli una valuta per filtrare per prezzo: gli importi in XOF, EUR e USD non si confrontano direttamente.",
+      "currencyHint": "Prezzi indicati in questa valuta; gli immobili in altre valute vengono convertiti.",
+      "apply": "Applica i filtri",
+      "reset": "Reimposta",
+      "city": "Città",
+      "allCities": "Tutte le città",
+      "citiesWithListings": "Città con annunci",
+      "otherCities": "Altre città",
+      "citiesLoading": "Caricamento delle città…",
+      "cityCount": "{count, plural, one {# annuncio} other {# annunci}}"
+    },
+    "alternatives": {
+      "title": "Nessun risultato esatto per la tua ricerca",
+      "text": "Ecco immobili vicini a ciò che cerchi. Abbiamo ampliato la ricerca:",
+      "seeAll": "Vedi tutti gli annunci di questa ricerca ampliata",
+      "relaxed": {
+        "dates": "senza date",
+        "price": "senza prezzo",
+        "capacity": "senza capacità",
+        "category": "senza atmosfera",
+        "region": "in tutto il paese",
+        "country": "in tutti i paesi",
+        "assetType": "su immobili simili",
+        "transactionType": "tutti gli annunci",
+        "city": "in tutto il paese"
+      }
+    },
+    "nearMe": {
+      "button": "Vicino a me",
+      "locating": "Localizzazione…",
+      "unsupported": "Il tuo browser non supporta la geolocalizzazione.",
+      "failed": "Impossibile ottenere la tua posizione. Consenti l'accesso nel browser e riprova.",
+      "leave": "Torna al catalogo",
+      "kicker": "Intorno a te",
+      "title": "Gli immobili più vicini",
+      "subtitle": "{count, plural, =0 {Nessun annuncio} one {# annuncio} other {# annunci}} entro {radius} km, dal più vicino.",
+      "emptyTitle": "Nessun annuncio vicino a te",
+      "emptySubtitle": "In questo raggio non c'è ancora nessun immobile localizzato con precisione."
+    },
+    "countrySuggestion": {
+      "kicker": "Vicino a te",
+      "title": "Annunci in {country}",
+      "seeAll": "Vedi tutti gli annunci"
+    }
+  },
+  "listing": {
+    "signInToMessage": "Accedi per inviare un messaggio.",
+    "conversationError": "Impossibile aprire la conversazione.",
+    "sendMessage": "Invia un messaggio",
+    "signInToBook": "Accedi per prenotare.",
+    "paymentError": "Impossibile avviare il pagamento.",
+    "ownListing": "Non puoi prenotare il tuo immobile.",
+    "ownListingHint": "Gestisci questo annuncio dal tuo spazio host.",
+    "salePrice": "Prezzo di vendita",
+    "estimatedRent": "Affitto stimato",
+    "contactHint": "Parla direttamente con l'inserzionista su VacationHub: i tuoi messaggi restano collegati all'annuncio.",
+    "reservation": {
+      "night": "notte",
+      "paymentMethod": "Metodo di pagamento",
+      "kkiapayHint": "Mobile Money e carta – Africa occidentale",
+      "kkiapayOnlyXof": "Disponibile solo per gli annunci in XOF.",
+      "stripeHint": "Carta bancaria internazionale",
+      "payAndBook": "Paga e prenota",
+      "total": "Totale",
+      "approxTotal": "Circa {amount}"
+    },
+    "gallery": {
+      "photoAlt": "{title} – foto {index}",
+      "previous": "Foto precedente",
+      "next": "Foto successiva",
+      "show": "Mostra la foto {index}",
+      "thumbnailAlt": "{title} – miniatura {index}"
+    },
+    "info": {
+      "type": "Tipo",
+      "transaction": "Transazione",
+      "area": "Superficie",
+      "salePrice": "Prezzo di vendita",
+      "monthlyRent": "Affitto mensile",
+      "documents": "Documenti",
+      "condition": "Stato",
+      "availableFrom": "Disponibile dal",
+      "address": "Indirizzo",
+      "postedBy": "Pubblicato da",
+      "guests": "{count, plural, one {# ospite} other {# ospiti}}",
+      "rooms": "{count, plural, one {# camera} other {# camere}}",
+      "bathrooms": "{count, plural, one {# bagno} other {# bagni}}",
+      "approximateLocation": "Posizione approssimativa: riceverai l'indirizzo esatto quando la prenotazione sarà confermata.",
+      "hostLocationNote": "Vedi la posizione esatta. I visitatori vedono solo una zona di circa 500 m fino alla prenotazione."
+    },
+    "tour": {
+      "viewer": "Visualizzatore di panorami 360",
+      "drag": "Trascina",
+      "recenter": "Ricentra il panorama",
+      "iframeTitle": "Tour virtuale dell'immobile",
+      "kicker": "Tour virtuale",
+      "title": "Esplora l'immobile a distanza",
+      "source": "Fonte: {provider}",
+      "fullscreen": "Schermo intero",
+      "roomFallback": "Stanza {index}",
+      "fullscreenLabel": "Tour virtuale a schermo intero",
+      "openProvider": "Apri sul sito del fornitore",
+      "closeFullscreen": "Esci dallo schermo intero",
+      "providers": {
+        "other": "Tour virtuale"
+      }
+    },
+    "autoTranslated": "Tradotto automaticamente",
+    "showOriginal": "Mostra l'originale",
+    "showTranslation": "Mostra la traduzione",
+    "originalPrice": "Prezzo dell'annuncio: {price}, pagato in questa valuta."
+  },
+  "account": {
+    "signInRequired": "Accesso richiesto",
+    "signInPrompt": "Accedi.",
+    "favorites": {
+      "title": "Preferiti",
+      "subtitle": "Gli immobili che hai salvato.",
+      "emptyTitle": "Nessun preferito",
+      "emptySubtitle": "Non hai ancora aggiunto annunci ai preferiti."
+    },
+    "trips": {
+      "title": "I miei viaggi",
+      "subtitle": "Le tue prenotazioni passate e future.",
+      "emptyTitle": "Nessun viaggio",
+      "emptySubtitle": "Non hai ancora prenotato nessun soggiorno."
+    },
+    "reservations": {
+      "title": "Prenotazioni",
+      "subtitle": "Le prenotazioni dei tuoi immobili.",
+      "emptyTitle": "Nessuna prenotazione",
+      "emptySubtitle": "Non hai ancora prenotazioni sui tuoi immobili."
+    },
+    "properties": {
+      "title": "I miei immobili",
+      "subtitle": "I tuoi annunci.",
+      "emptyTitle": "Nessun immobile",
+      "emptySubtitle": "Non hai ancora pubblicato nessun immobile."
+    }
+  },
+  "messages": {
+    "signInRequired": "Accesso richiesto",
+    "signInPrompt": "Accedi per vedere i tuoi messaggi.",
+    "title": "Messaggi",
+    "subtitle": "Le tue conversazioni con inserzionisti e ospiti.",
+    "fromMe": "Tu: {text}",
+    "noMessageYet": "Ancora nessun messaggio.",
+    "defaultMember": "Membro VacationHub",
+    "member": "Membro",
+    "emptyTitle": "Nessuna conversazione",
+    "emptyText": "Da un annuncio, fai clic su «Invia un messaggio» per contattare l'inserzionista.",
+    "browse": "Sfoglia gli annunci",
+    "threadEmpty": "Presentati e fai le tue domande sull'immobile. Le conversazioni restano su VacationHub.",
+    "placeholder": "Il tuo messaggio",
+    "send": "Invia",
+    "sendFailed": "Messaggio non inviato. Riprova.",
+    "deleted": "Messaggio eliminato",
+    "quoteUnavailable": "Messaggio non disponibile",
+    "you": "Tu",
+    "reply": "Rispondi",
+    "replyingTo": "Risposta a {name}",
+    "cancelReply": "Annulla la risposta",
+    "delete": "Elimina",
+    "deleteConfirm": "Eliminare questo messaggio? Sarà sostituito da «Messaggio eliminato» per entrambi.",
+    "deleteFailed": "Impossibile eliminare. Riprova.",
+    "sending": "Invio in corso…"
+  },
+  "profile": {
+    "signInRequired": "Accesso richiesto",
+    "signInPrompt": "Accedi prima di completare il tuo profilo.",
+    "kicker": "Profilo VacationHub",
+    "title": "Completa il tuo profilo per pubblicare e contattare con fiducia.",
+    "intro": "La piattaforma copre affitti, vendite, terreni e progetti immobiliari. Questi dati aiutano il nostro team a moderare gli annunci e permettono ad acquirenti e venditori di sapere con chi hanno a che fare.",
+    "point1": "Google o email: stessa procedura, profilo completo obbligatorio.",
+    "point2": "Ogni nuovo annuncio è verificato dal nostro team.",
+    "point3": "Con un solo account puoi essere sia acquirente sia venditore.",
+    "formTitle": "Informazioni personali",
+    "allRequired": "Tutti i campi sono obbligatori.",
+    "emailLocked": "Non modificabile: è il tuo identificativo.",
+    "saving": "Salvataggio…",
+    "save": "Salva il mio profilo",
+    "fields": {
+      "fullName": "Nome completo *",
+      "phone": "Telefono *",
+      "countryOfResidence": "Paese di residenza *",
+      "cityOfResidence": "Città di residenza *",
+      "countryOfOrigin": "Paese di origine o di interesse *",
+      "email": "Email",
+      "preferredContact": "Contatto preferito *",
+      "accountPurpose": "Sono su VacationHub per *",
+      "bio": "Breve presentazione *"
+    },
+    "placeholders": {
+      "countryOfResidence": "Francia, Benin…",
+      "cityOfResidence": "Parigi, Cotonou…",
+      "countryOfOrigin": "Benin, Togo…",
+      "bio": "Es.: beninese che vive in Francia e vuole investire nel suo paese…"
+    },
+    "contact": {
+      "email": "Email",
+      "phone": "Telefono"
+    },
+    "errors": {
+      "signInRequired": "Accesso richiesto.",
+      "fullName": "Il nome completo è obbligatorio.",
+      "phone": "Il telefono è obbligatorio.",
+      "countryOfResidence": "Il paese di residenza è obbligatorio.",
+      "cityOfResidence": "La città di residenza è obbligatoria.",
+      "countryOfOrigin": "Il paese di origine è obbligatorio.",
+      "bio": "La presentazione è obbligatoria.",
+      "preferredContact": "Scegli un mezzo di contatto.",
+      "accountPurpose": "Scegli almeno un obiettivo.",
+      "missingFields": "Mancano alcuni campi obbligatori.",
+      "saveFailed": "Impossibile salvare. Riprova tra un momento.",
+      "phoneInvalid": "Numero non valido: da 8 a 15 cifre, prefisso «+» ammesso."
+    }
+  },
+  "payment": {
+    "metaTitle": "Pagamento Kkiapay – VacationHub",
+    "bookingKicker": "Prenotazione",
+    "alreadyConfirmed": "Questa prenotazione è già confermata",
+    "cancelled": "Questa prenotazione è stata annullata",
+    "noLongerPending": "Questa prenotazione non è più in attesa di pagamento",
+    "alreadyConfirmedText": "Non serve nessun altro pagamento. Trovi questo soggiorno nei tuoi viaggi.",
+    "releasedText": "Le date sono state liberate. Puoi tornare all'annuncio per sceglierne altre.",
+    "seeTrips": "Vedi i miei viaggi",
+    "backToListing": "Torna all'annuncio",
+    "unavailableTitle": "Kkiapay non è disponibile per questo annuncio",
+    "unavailableText": "Kkiapay accetta solo pagamenti in XOF. Torna all'annuncio e scegli Stripe per pagare con carta.",
+    "notConfiguredTitle": "Il pagamento Kkiapay non è configurato",
+    "notConfiguredText": "La configurazione di Kkiapay sul server è incompleta. Per ora non è possibile avviare alcun pagamento.",
+    "secured": "Pagamento protetto da Kkiapay. VacationHub non memorizza mai i dati della carta.",
+    "noTransactionId": "Kkiapay non ha restituito alcun riferimento di transazione. Nessun importo è stato confermato.",
+    "verifyFailed": "Impossibile verificare il pagamento.",
+    "notLoaded": "Il pagamento Kkiapay non è ancora caricato. Riprova tra un momento.",
+    "loadFailed": "Impossibile caricare il pagamento Kkiapay. Controlla la connessione e riprova.",
+    "kicker": "Pagamento Kkiapay",
+    "nights": "{count, plural, one {# notte} other {# notti}}",
+    "totalDue": "Totale da pagare",
+    "retry": "Riprova",
+    "verifying": "Verifica del pagamento…",
+    "pay": "Paga {amount} XOF con Kkiapay",
+    "loading": "Caricamento del pagamento…",
+    "cancel": "Annulla"
+  },
+  "checkoutErrors": {
+    "generic": "Impossibile avviare il pagamento.",
+    "sign_in": "Accedi per prenotare.",
+    "incomplete": "I dati della prenotazione sono incompleti.",
+    "profile_incomplete": "Completa il tuo profilo prima di prenotare.",
+    "listing_not_found": "Annuncio non trovato.",
+    "listing_unavailable": "Questo annuncio non è disponibile.",
+    "not_bookable": "Questo annuncio non si può prenotare online.",
+    "own_listing": "Non puoi prenotare il tuo immobile.",
+    "invalid_dates": "Date di prenotazione non valide.",
+    "dates_taken": "Queste date sono appena state prenotate. Scegline altre.",
+    "missing_origin": "Il pagamento Kkiapay è temporaneamente non disponibile.",
+    "kkiapay_failed": "Il pagamento Kkiapay non è andato a buon fine.",
+    "amount_mismatch": "L'importo del pagamento non corrisponde alla prenotazione.",
+    "unlinked_payment": "Impossibile collegare questo pagamento alla prenotazione.",
+    "incomplete_payment": "Pagamento incompleto.",
+    "sandbox_confirmed": "Pagamento di prova confermato.",
+    "recorded_not_pending": "Pagamento registrato, ma la prenotazione non era più in attesa.",
+    "verification_unconfigured": "Il pagamento è stato inviato a Kkiapay, ma la verifica sicura non è ancora configurata sul server. La prenotazione resta in attesa.",
+    "confirmed": "Pagamento confermato."
+  },
+  "verification": {
+    "kicker": "Fiducia",
+    "title": "Verifica il mio account",
+    "intro": "Per pubblicare un immobile su VacationHub serve un account verificato. Invia i tuoi documenti: il nostro team li esamina e convalida il tuo account, di solito entro 48 ore.",
+    "signInRequired": "Accesso richiesto",
+    "signInPrompt": "Accedi per verificare il tuo account.",
+    "accountType": "Tipo di account",
+    "accountTypes": {
+      "individual": "Privato",
+      "agency": "Agenzia"
+    },
+    "documentsFor": {
+      "individual": "Un documento d'identità: carta d'identità o passaporto.",
+      "agency": "RCCM, IFU e il documento d'identità del responsabile."
+    },
+    "companyName": "Nome dell'agenzia *",
+    "documents": "Documenti",
+    "kinds": {
+      "id_front": "Documento d'identità – fronte",
+      "id_back": "Documento d'identità – retro",
+      "rccm": "Registro delle imprese (RCCM)",
+      "ifu": "Codice fiscale (IFU)",
+      "manager_id_front": "Documento del responsabile – fronte",
+      "manager_id_back": "Documento del responsabile – retro"
+    },
+    "hints": {
+      "id_front": "Carta d'identità o pagina con foto del passaporto.",
+      "id_back": "Per una carta d'identità. Non serve per un passaporto.",
+      "rccm": "Visura o certificato di iscrizione.",
+      "ifu": "Certificato o tessera IFU dell'agenzia.",
+      "manager_id_front": "Carta d'identità o pagina con foto del passaporto.",
+      "manager_id_back": "Per una carta d'identità. Non serve per un passaporto."
+    },
+    "optional": "facoltativo",
+    "sent": "Documento inviato.",
+    "upload": "Aggiungi",
+    "replace": "Sostituisci",
+    "uploading": "Caricamento…",
+    "uploaded": "Documento aggiunto.",
+    "view": "Vedi",
+    "privacy": "Foto nitida o PDF, massimo 10 MB. I tuoi documenti sono visibili solo a te e al nostro team di moderazione, e vengono eliminati 90 giorni dopo la decisione.",
+    "submit": "Invia i miei documenti",
+    "resubmit": "Invia di nuovo i miei documenti",
+    "submitting": "Invio in corso…",
+    "submitted": "Documenti inviati. Ti risponderemo a breve.",
+    "status": {
+      "pending": {
+        "title": "In verifica",
+        "text": "Il nostro team sta controllando i tuoi documenti. Potrai pubblicare immobili quando il tuo account sarà convalidato."
+      },
+      "approved": {
+        "title": "Account verificato",
+        "text": "La tua identità è confermata: puoi pubblicare i tuoi immobili."
+      },
+      "rejected": {
+        "title": "Documenti rifiutati",
+        "text": "Correggi i tuoi documenti e inviali di nuovo.",
+        "note": "Osservazioni del nostro team: {note}"
+      }
+    },
+    "errors": {
+      "fileType": "Formato non accettato: usa una foto (JPEG, PNG, WebP, HEIC) o un PDF.",
+      "fileSize": "File troppo grande: massimo 10 MB.",
+      "upload": "Caricamento non riuscito. Controlla la connessione e riprova.",
+      "view": "Impossibile aprire questo documento.",
+      "documents_missing": "Mancano alcuni documenti obbligatori (contrassegnati da *).",
+      "company_name_missing": "Inserisci il nome della tua agenzia.",
+      "profile_incomplete": "Completa prima il tuo profilo.",
+      "already_submitted": "I tuoi documenti sono già stati inviati.",
+      "sign_in": "Accedi per inviare i tuoi documenti.",
+      "generic": "Si è verificato un errore. Riprova."
+    },
+    "reasons": {
+      "unreadable": "Un documento è illeggibile o sfocato.",
+      "expired": "Un documento è scaduto.",
+      "name_mismatch": "Il nome sul documento non corrisponde al tuo profilo.",
+      "incomplete": "Un documento manca o è incompleto.",
+      "wrong_document": "Un documento non è quello richiesto.",
+      "company_mismatch": "I documenti non corrispondono all'agenzia dichiarata."
+    }
+  }
+}

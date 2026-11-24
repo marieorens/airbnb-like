@@ -1,0 +1,812 @@
+{
+  "metadata": {
+    "title": "VacationHub",
+    "description": "Aufenthalte, Vermietung, Verkauf und Grundstücke vereint auf einer vertrauenswürdigen Immobilienplattform."
+  },
+  "nav": {
+    "publish": "Immobilie inserieren",
+    "completeProfile": "Mein Profil vervollständigen",
+    "signUp": "Registrieren",
+    "signIn": "Anmelden",
+    "createAccount": "Konto erstellen",
+    "signOut": "Abmelden",
+    "toggleTheme": "Design wechseln",
+    "switchLanguage": "Sprache",
+    "messagesUnread": "Nachrichten, {count} ungelesen",
+    "menu": {
+      "messages": "Meine Nachrichten",
+      "trips": "Meine Reisen",
+      "favorites": "Meine Favoriten",
+      "reservations": "Meine Buchungen",
+      "properties": "Meine Immobilien",
+      "verification": "Kontoverifizierung"
+    },
+    "search": {
+      "explore": "Inserate durchsuchen",
+      "where": "Wo?",
+      "when": "Wann?",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "guests": "Gäste",
+      "guestCount": "{count, plural, one {# Gast} other {# Gäste}}"
+    },
+    "verifyAccount": "Mein Konto verifizieren",
+    "currency": "Währung der Preise",
+    "currencyListing": "Währung ¤"
+  },
+  "common": {
+    "close": "Schließen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "saving": "Wird gespeichert…",
+    "irreversible": "Diese Aktion kann nicht rückgängig gemacht werden. Bitte vor dem Bestätigen prüfen.",
+    "loading": "Wird geladen…",
+    "error": "Ein Fehler ist aufgetreten. Bitte später erneut versuchen."
+  },
+  "domain": {
+    "assetTypes": {
+      "short_stay": "Ferienunterkunft",
+      "house_rent": "Haus / Wohnung zur Miete",
+      "house_sale": "Haus / Wohnung zum Kauf",
+      "land_sale": "Grundstück zum Kauf",
+      "commercial_rent": "Gewerbefläche / Büro zur Miete",
+      "commercial_sale": "Gewerbefläche / Büro zum Kauf",
+      "other": "Sonstige Immobilie"
+    },
+    "transactionBadges": {
+      "booking": "Aufenthalt",
+      "rent": "Miete",
+      "sale": "Kauf",
+      "lead": "Kontakt"
+    },
+    "transactionKinds": {
+      "booking": "Online-Buchung",
+      "rent": "Langzeitmiete",
+      "sale": "Immobilienverkauf",
+      "lead": "Kontaktanfrage"
+    },
+    "categories": {
+      "Plage": {
+        "label": "Strand",
+        "description": "Diese Immobilie liegt in Strandnähe."
+      },
+      "Moulins": {
+        "label": "Windmühlen",
+        "description": "Diese Immobilie liegt in einer außergewöhnlichen Umgebung."
+      },
+      "Moderne": {
+        "label": "Modern",
+        "description": "Diese Immobilie hat einen modernen Stil."
+      },
+      "Campagne": {
+        "label": "Land",
+        "description": "Diese Immobilie liegt auf dem Land."
+      },
+      "Piscines": {
+        "label": "Pools",
+        "description": "Diese Immobilie hat einen Pool."
+      },
+      "Iles": {
+        "label": "Inseln",
+        "description": "Diese Immobilie liegt auf einer Insel."
+      },
+      "Lac": {
+        "label": "See",
+        "description": "Diese Immobilie liegt in der Nähe eines Sees."
+      },
+      "Ski": {
+        "label": "Ski",
+        "description": "Diese Immobilie eignet sich für Skiurlaube."
+      },
+      "Chateaux": {
+        "label": "Schlösser",
+        "description": "Diese Immobilie hat historischen Charme."
+      },
+      "Grottes": {
+        "label": "Höhlen",
+        "description": "Diese Immobilie bietet ein Höhlenerlebnis."
+      },
+      "Camping": {
+        "label": "Camping",
+        "description": "Diese Immobilie bietet ein Campingerlebnis."
+      },
+      "Neige": {
+        "label": "Schnee",
+        "description": "Diese Immobilie eignet sich für Ausflüge in den Schnee."
+      },
+      "Desert": {
+        "label": "Wüste",
+        "description": "Diese Immobilie liegt in einer Wüstenlandschaft."
+      },
+      "Granges": {
+        "label": "Scheunen",
+        "description": "Diese Immobilie hat einen Scheunen- oder Landhausstil."
+      },
+      "Lux": {
+        "label": "Luxus",
+        "description": "Diese Immobilie ist neu und hochwertig."
+      }
+    }
+  },
+  "listingCard": {
+    "defaultAsset": "Immobilie",
+    "perMonth": "Monat",
+    "perNight": "Nacht",
+    "pending": "Ausstehend",
+    "confirmed": "Bestätigt",
+    "total": "Gesamt",
+    "price": "Preis",
+    "details": "Details",
+    "distance": "{distance} km entfernt"
+  },
+  "listingMenu": {
+    "deleteProperty": "Immobilie löschen",
+    "cancelReservation": "Buchung stornieren",
+    "cancelGuestReservation": "Buchung des Gastes stornieren",
+    "deleted": "Inserat gelöscht.",
+    "cancelled": "Buchung storniert.",
+    "error": "Ein Fehler ist aufgetreten. Bitte später erneut versuchen."
+  },
+  "emptyState": {
+    "title": "Keine exakten Ergebnisse",
+    "subtitle": "Ändern oder entfernen Sie einige Filter.",
+    "reset": "Alle Filter entfernen"
+  },
+  "favorites": {
+    "toggleError": "Ihre Favoriten konnten nicht aktualisiert werden.",
+    "add": "Zu den Favoriten hinzufügen",
+    "remove": "Aus den Favoriten entfernen"
+  },
+  "imageUpload": {
+    "signInRequired": "Melden Sie sich an, um Fotos hinzuzufügen.",
+    "title": "Fotos hinzufügen",
+    "hint": "Mindestens {count} Fotos. Sie können mehrere gleichzeitig auswählen.",
+    "added": "{count, plural, =0 {Kein Foto hinzugefügt} one {# Foto hinzugefügt} other {# Fotos hinzugefügt}}",
+    "remaining": "Noch {count} erforderlich",
+    "photoAlt": "Foto {index}"
+  },
+  "virtualTourUpload": {
+    "invalidFiles": "Bitte wählen Sie Panoramabilder.",
+    "signInRequired": "Melden Sie sich an, um einen 360-Rundgang hinzuzufügen.",
+    "added": "{count, plural, one {# Panorama hinzugefügt.} other {# Panoramen hinzugefügt.}}",
+    "title": "360-Panoramen hinzufügen",
+    "hint": "Fügen Sie mehrere equirektangulare Bilder hinzu und benennen Sie jeden Punkt: Wohnzimmer, Schlafzimmer, Küche, Terrasse…",
+    "panoramaAlt": "Panorama {index}",
+    "pointName": "Name des Punkts",
+    "roomFallback": "Raum {index}",
+    "remove": "Dieses Panorama entfernen",
+    "rooms": {
+      "livingRoom": "Wohnzimmer",
+      "bedroom": "Schlafzimmer",
+      "kitchen": "Küche",
+      "bathroom": "Badezimmer",
+      "terrace": "Terrasse",
+      "outdoor": "Außenbereich"
+    }
+  },
+  "countrySelect": {
+    "placeholder": "Land auswählen",
+    "noOptions": "Kein Land gefunden",
+    "continents": {
+      "Africa": "Afrika",
+      "Americas": "Amerika",
+      "Antarctic": "Antarktis",
+      "Asia": "Asien",
+      "Europe": "Europa",
+      "Oceania": "Ozeanien"
+    }
+  },
+  "auth": {
+    "signedIn": "Angemeldet.",
+    "signedUp": "Konto erstellt.",
+    "signInTitle": "Anmelden",
+    "signUpTitle": "Konto erstellen",
+    "subtitle": "Zugang zu Aufenthalten, Verkäufen, Mietobjekten und Grundstücken",
+    "asideTitle": "Ein Konto zum Mieten, Verkaufen, Kaufen und Investieren.",
+    "asideText": "VacationHub ist eine Immobilienplattform für die Diaspora und lokale Eigentümer – mit Prüfung vor jeder Veröffentlichung.",
+    "asidePoint1": "Vollständiges Profil vor dem Inserieren erforderlich",
+    "asidePoint2": "Inserate von unserem Team geprüft",
+    "asidePoint3": "Anmeldung mit Google oder per E-Mail",
+    "welcome": "Willkommen bei VacationHub",
+    "welcomeBack": "Willkommen zurück",
+    "signUpIntro": "Erzählen Sie uns, wer Sie sind.",
+    "signInIntro": "Melden Sie sich an, um fortzufahren.",
+    "fullName": "Vollständiger Name",
+    "phone": "Telefon",
+    "countryOfResidence": "Wohnsitzland",
+    "accountPurpose": "Ziel des Kontos",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "continue": "Weiter",
+    "or": "oder",
+    "google": "Weiter mit Google",
+    "hasAccount": "Sie haben bereits ein Konto?",
+    "firstVisit": "Zum ersten Mal bei VacationHub?",
+    "switchToSignIn": "Anmelden",
+    "switchToSignUp": "Konto erstellen",
+    "purposes": {
+      "buyer": "Eine Immobilie kaufen",
+      "seller": "Eine Immobilie verkaufen",
+      "renter": "Eine Immobilie mieten",
+      "host": "Eine Ferienunterkunft anbieten",
+      "investor": "Aus der Diaspora investieren",
+      "other": "Sonstiges"
+    },
+    "errors": {
+      "generic": "Ein Fehler ist aufgetreten. Bitte erneut versuchen.",
+      "invalid_credentials": "E-Mail oder Passwort falsch.",
+      "email_not_confirmed": "Bitte bestätigen Sie Ihre E-Mail-Adresse, bevor Sie sich anmelden.",
+      "user_already_exists": "Mit dieser E-Mail-Adresse existiert bereits ein Konto.",
+      "email_exists": "Mit dieser E-Mail-Adresse existiert bereits ein Konto.",
+      "weak_password": "Passwort zu schwach: mindestens 6 Zeichen.",
+      "email_address_invalid": "Ungültige E-Mail-Adresse.",
+      "over_email_send_rate_limit": "Zu viele Versuche. Bitte warten Sie einige Minuten.",
+      "over_request_rate_limit": "Zu viele Versuche. Bitte warten Sie einige Minuten.",
+      "signup_disabled": "Registrierungen sind vorübergehend geschlossen.",
+      "otp_expired": "Falscher oder abgelaufener Code. Prüfen Sie ihn oder fordern Sie einen neuen an.",
+      "same_password": "Wählen Sie ein anderes Passwort als das bisherige.",
+      "phone_invalid": "Ungültige Nummer: 8 bis 15 Ziffern, Vorwahl mit „+“ erlaubt."
+    },
+    "accountType": "Kontotyp",
+    "accountTypes": {
+      "individual": "Privatperson",
+      "agency": "Agentur"
+    },
+    "accountTypeHints": {
+      "individual": "Sie mieten, verkaufen oder suchen eine Immobilie für sich selbst.",
+      "agency": "Sie inserieren als Profi im Auftrag von Kunden."
+    },
+    "companyName": "Name der Agentur",
+    "codeSent": "Code gesendet. Prüfen Sie Ihr Postfach.",
+    "confirmFirst": "Bestätigen Sie zuerst Ihre E-Mail: Wir haben Ihnen gerade einen neuen Code gesendet.",
+    "verifyTitle": "E-Mail bestätigen",
+    "verifyHeading": "Code eingeben",
+    "verifyIntro": "Wir haben einen 6-stelligen Code an {email} gesendet.",
+    "codeLabel": "Bestätigungscode",
+    "verify": "E-Mail bestätigen",
+    "resendCode": "Code erneut senden",
+    "changeEmail": "Andere E-Mail verwenden",
+    "codeHint": "Der Code ist eine Stunde gültig. Prüfen Sie auch Ihren Spam-Ordner.",
+    "codeInvalid": "Falscher oder abgelaufener Code. Prüfen Sie ihn oder fordern Sie einen neuen an.",
+    "emailVerified": "E-Mail bestätigt. Willkommen bei VacationHub!",
+    "forgotLink": "Passwort vergessen?",
+    "forgotTitle": "Passwort vergessen",
+    "forgotHeading": "Passwort zurücksetzen",
+    "forgotIntro": "Geben Sie die E-Mail Ihres Kontos ein: Wir senden Ihnen einen 6-stelligen Code.",
+    "sendCode": "Code anfordern",
+    "resetHeading": "Neues Passwort wählen",
+    "resetIntro": "Falls ein Konto für {email} existiert, wurde gerade ein 6-stelliger Code dorthin gesendet.",
+    "resetCodeLabel": "Code aus der E-Mail",
+    "newPassword": "Neues Passwort",
+    "resetSubmit": "Passwort ändern",
+    "passwordChanged": "Passwort geändert. Sie sind angemeldet.",
+    "backToSignIn": "Zurück zur Anmeldung",
+    "sending": "Wird gesendet…",
+    "codeResent": "Code gesendet · erneut senden in {seconds} s"
+  },
+  "searchModal": {
+    "steps": {
+      "destination": "Reiseziel",
+      "dates": "Daten",
+      "capacity": "Kapazität"
+    },
+    "datesTitle": "Wann reisen Sie?",
+    "datesSubtitle": "Wählen Sie Ihre Daten.",
+    "capacityTitle": "Wie viele Personen?",
+    "capacitySubtitle": "Verfeinern Sie Ihre Suche in Sekunden.",
+    "guests": "Gäste",
+    "guestsHint": "Wie viele Personen reisen?",
+    "rooms": "Zimmer",
+    "roomsHint": "Mindestanzahl an Zimmern.",
+    "bathrooms": "Badezimmer",
+    "bathroomsHint": "Mindestanzahl an Badezimmern.",
+    "whereTitle": "Wo suchen Sie?",
+    "whereSubtitle": "Finden Sie einen Aufenthalt, eine Mietwohnung oder eine Immobilienchance.",
+    "title": "Erweiterte Suche",
+    "subtitle": "Reiseziel, Daten und Kapazität verfeinern",
+    "asideKicker": "Entdecken",
+    "asideTitle": "Schneller suchen, besser wählen.",
+    "asideText": "Urlaub, Miete oder Immobiliensuche: Die Filter machen es einfach.",
+    "search": "Suchen",
+    "continue": "Weiter",
+    "city": "Stadt (optional)",
+    "allCities": "Alle Städte",
+    "citiesWithListings": "Städte mit Inseraten",
+    "otherCities": "Weitere Städte",
+    "citiesLoading": "Städte werden geladen…",
+    "cityCount": "{count, plural, one {# Inserat} other {# Inserate}}"
+  },
+  "rentModal": {
+    "steps": {
+      "type": "Typ",
+      "category": "Kategorie",
+      "address": "Adresse",
+      "land": "Grundstück",
+      "details": "Details",
+      "photos": "Fotos",
+      "description": "Beschreibung",
+      "price": "Preis"
+    },
+    "geoUnsupported": "Ihr Browser unterstützt keine Standortbestimmung.",
+    "geoFailed": "Ihr Standort konnte nicht ermittelt werden. Setzen Sie die Markierung manuell auf die Karte.",
+    "submitted": "„{title}“ wurde zur Prüfung gesendet.",
+    "submitError": "Das Inserat konnte nicht erstellt werden.",
+    "assetTitle": "Was möchten Sie inserieren?",
+    "assetSubtitle": "Kurzaufenthalte, Mietobjekte, Verkäufe, Grundstücke und Gewerbeflächen sind willkommen.",
+    "locationTitle": "Wo befindet sich die Immobilie?",
+    "locationSubtitle": "Eine genaue Adresse schafft Vertrauen und hilft, die Immobilie in der Nähe zu finden.",
+    "city": "Stadt *",
+    "district": "Viertel / Bezirk",
+    "addressDetails": "Straße, Hausnummer, Orientierungspunkt",
+    "addressHint": "Z. B. Straße 10, Villa 24, gegenüber der Apotheke am Markt. Diese Angaben stehen im Inserat.",
+    "mapLabel": "Genauer Standort auf der Karte *",
+    "locating": "Standort wird ermittelt…",
+    "useMyPosition": "Meinen Standort verwenden",
+    "pinPlaced": "Markierung gesetzt. Ziehen Sie sie zum Anpassen.",
+    "pinHint": "Zoomen Sie hinein und klicken Sie auf den Standort der Immobilie.",
+    "infoTitle": "Einige nützliche Angaben",
+    "infoSubtitleLand": "Bei einem Grundstück zählen Fläche und Unterlagen mehr als Zimmer.",
+    "infoSubtitle": "Diese Angaben helfen, die Immobilie zu beschreiben.",
+    "guests": "Gäste",
+    "guestsHint": "Wie viele Personen können übernachten?",
+    "landArea": "Grundstücksfläche in m²",
+    "landTitleStatus": "Stand des Eigentumstitels",
+    "rooms": "Zimmer",
+    "roomsHint": "Wie viele Zimmer hat die Immobilie?",
+    "bathrooms": "Badezimmer",
+    "bathroomsHint": "Wie viele Badezimmer gibt es?",
+    "photosTitle": "Fügen Sie mindestens 3 Fotos hinzu",
+    "photosSubtitle": "Zeigen Sie die Fassade, das Innere oder die Grundstücksgrenzen.",
+    "descriptionTitle": "Beschreiben Sie die Immobilie",
+    "descriptionSubtitle": "Seien Sie klar: Lage, Zustand, Unterlagen, Stärken.",
+    "titleField": "Titel",
+    "descriptionField": "Beschreibung",
+    "priceTitle": "Preis und Details",
+    "priceSubtitleBooking": "Wie viel verlangen Sie pro Nacht?",
+    "priceSubtitleRent": "Geben Sie die erwartete Monatsmiete an.",
+    "priceSubtitleSale": "Geben Sie den erwarteten Verkaufspreis an.",
+    "currency": "Währung",
+    "pricePerNight": "Preis pro Nacht",
+    "monthlyRent": "Monatsmiete",
+    "salePrice": "Verkaufspreis",
+    "area": "Fläche in m²",
+    "condition": "Zustand der Immobilie",
+    "tourExternal": "Externer Link",
+    "tourPanorama": "360-Bild",
+    "tourUrl": "Link zum virtuellen Rundgang (optional)",
+    "tourUrlHint": "Matterport, Kuula, CloudPano oder ein anderer externer Rundgang-Link.",
+    "categoryTitle": "Welche Art von Immobilie?",
+    "categorySubtitle": "Dieser Schritt gilt nur für Wohnungen und Häuser.",
+    "title": "Immobilie inserieren",
+    "subtitle": "Ihr Inserat wird vor der Veröffentlichung von unserem Team geprüft",
+    "asideKicker": "Neues Inserat",
+    "asideTitle": "Ein klarer Ablauf, dann die Prüfung.",
+    "selectAsset": "Immobilientyp auswählen",
+    "submit": "Zur Prüfung senden",
+    "continue": "Weiter"
+  },
+  "home": {
+    "heroTitle": "Die neue Adresse für vertrauenswürdige Immobilien.",
+    "heroText": "Aufenthalte, Mietobjekte, Verkäufe und Grundstücke in einem klaren, modernen Erlebnis – für Käufer, Verkäufer, Gastgeber und Mitglieder der Diaspora.",
+    "exploreListings": "Inserate durchsuchen",
+    "seePlots": "Grundstücke ansehen",
+    "trust": {
+      "profiles": {
+        "title": "Vollständige Profile",
+        "text": "Verkäufer und Gastgeber geben ihre Daten an, bevor sie etwas veröffentlichen."
+      },
+      "listings": {
+        "title": "Verlässlichere Inserate",
+        "text": "Jede Immobilie ist nach Typ, Preis, Kontakt, Lage und Fotos strukturiert."
+      },
+      "search": {
+        "title": "Eine Suche für alles",
+        "text": "Ein einziger Ort für Aufenthalte, Mietobjekte, Verkäufe und Grundstücke."
+      }
+    },
+    "presentationKicker": "Eine Plattform, viele Projekte",
+    "presentationTitle": "Mehr als Ferienvermietung: eine echte Immobilienplattform.",
+    "presentationText": "Der Katalog bündelt Inserate und Filter. Diese Seite erklärt das Versprechen, schafft Vertrauen und führt zum nächsten Schritt.",
+    "features": {
+      "stays": {
+        "title": "Aufenthalte",
+        "text": "Unterkünfte für einige Nächte oder mehrere Wochen, klar präsentiert."
+      },
+      "rentals": {
+        "title": "Mietobjekte",
+        "text": "Häuser, Wohnungen und Gewerbeflächen zum Wohnen, Arbeiten oder Heimkehren."
+      },
+      "sales": {
+        "title": "Verkäufe",
+        "text": "Wohn- und Gewerbeimmobilien sowie Immobilienchancen zum Vergleichen."
+      },
+      "plots": {
+        "title": "Grundstücke",
+        "text": "Grundstücke mit Fläche, Lage und nützlichen Angaben zum Eigentumstitel."
+      }
+    },
+    "discover": "Entdecken",
+    "ctaKicker": "Bereit zu suchen?",
+    "ctaTitle": "Alle Inserate, alle Filter, an einem Ort.",
+    "ctaText": "Öffnen Sie den gesamten Katalog und filtern Sie nach Reiseziel, Immobilientyp, Daten, Kapazität und Ziel.",
+    "ctaButton": "Zu den Inseraten"
+  },
+  "catalogue": {
+    "kicker": "Katalog",
+    "title": "Alle Inserate",
+    "subtitle": "Entdecken Sie Aufenthalte, Mietobjekte, Verkäufe, Grundstücke und weitere Immobilien auf VacationHub.",
+    "goal": "Ziel",
+    "assetType": "Immobilientyp",
+    "mood": "Stil der Immobilie",
+    "resultsKicker": "Ergebnisse",
+    "resultsTitle": "Verfügbare Immobilien",
+    "countWithFilters": "{count, plural, one {# Ergebnis für Ihre Filter} other {# Ergebnisse für Ihre Filter}}",
+    "countTotal": "{count, plural, one {# Ergebnis insgesamt} other {# Ergebnisse insgesamt}}",
+    "clearFilters": "Alle Filter entfernen",
+    "emptyTitle": "Keine Inserate gefunden",
+    "emptySubtitle": "Versuchen Sie einen anderen Immobilientyp oder entfernen Sie einige Filter.",
+    "filters": {
+      "all": "Alle",
+      "rentals": "Mietobjekte",
+      "sales": "Verkäufe",
+      "plots": "Grundstücke"
+    },
+    "advanced": {
+      "title": "Suche verfeinern",
+      "currency": "Währung",
+      "allCurrencies": "Alle",
+      "minPrice": "Mindestpreis",
+      "maxPrice": "Höchstpreis",
+      "noLimit": "Keine Grenze",
+      "rooms": "Zimmer",
+      "bathrooms": "Badezimmer",
+      "guests": "Gäste",
+      "any": "Beliebig",
+      "currencyRequired": "Wählen Sie eine Währung, um nach Preis zu filtern: Beträge in XOF, EUR und USD sind nicht direkt vergleichbar.",
+      "currencyHint": "Preise in dieser Währung; Immobilien in anderen Währungen werden umgerechnet.",
+      "apply": "Filter anwenden",
+      "reset": "Zurücksetzen",
+      "city": "Stadt",
+      "allCities": "Alle Städte",
+      "citiesWithListings": "Städte mit Inseraten",
+      "otherCities": "Weitere Städte",
+      "citiesLoading": "Städte werden geladen…",
+      "cityCount": "{count, plural, one {# Inserat} other {# Inserate}}"
+    },
+    "alternatives": {
+      "title": "Keine exakten Ergebnisse für Ihre Suche",
+      "text": "Hier sind Immobilien, die Ihrer Suche nahekommen. Wir haben die Suche erweitert:",
+      "seeAll": "Alle Inserate dieser erweiterten Suche ansehen",
+      "relaxed": {
+        "dates": "ohne Daten",
+        "price": "ohne Preis",
+        "capacity": "ohne Kapazität",
+        "category": "ohne Stil",
+        "region": "im ganzen Land",
+        "country": "in allen Ländern",
+        "assetType": "bei ähnlichen Immobilien",
+        "transactionType": "alle Inserate",
+        "city": "im ganzen Land"
+      }
+    },
+    "nearMe": {
+      "button": "In meiner Nähe",
+      "locating": "Standort wird ermittelt…",
+      "unsupported": "Ihr Browser unterstützt keine Standortbestimmung.",
+      "failed": "Ihr Standort konnte nicht ermittelt werden. Erlauben Sie den Zugriff im Browser und versuchen Sie es erneut.",
+      "leave": "Zurück zum Katalog",
+      "kicker": "In Ihrer Umgebung",
+      "title": "Die nächstgelegenen Immobilien",
+      "subtitle": "{count, plural, =0 {Keine Inserate} one {# Inserat} other {# Inserate}} im Umkreis von {radius} km, die nächsten zuerst.",
+      "emptyTitle": "Keine Inserate in Ihrer Nähe",
+      "emptySubtitle": "In diesem Umkreis ist noch keine genau verortete Immobilie inseriert."
+    },
+    "countrySuggestion": {
+      "kicker": "In Ihrer Nähe",
+      "title": "Inserate in {country}",
+      "seeAll": "Alle Inserate ansehen"
+    }
+  },
+  "listing": {
+    "signInToMessage": "Melden Sie sich an, um eine Nachricht zu senden.",
+    "conversationError": "Die Unterhaltung konnte nicht geöffnet werden.",
+    "sendMessage": "Nachricht senden",
+    "signInToBook": "Melden Sie sich an, um zu buchen.",
+    "paymentError": "Die Zahlung konnte nicht gestartet werden.",
+    "ownListing": "Sie können Ihre eigene Immobilie nicht buchen.",
+    "ownListingHint": "Verwalten Sie dieses Inserat in Ihrem Gastgeberbereich.",
+    "salePrice": "Verkaufspreis",
+    "estimatedRent": "Geschätzte Miete",
+    "contactHint": "Schreiben Sie dem Anbieter direkt auf VacationHub: Ihre Nachrichten bleiben mit dem Inserat verknüpft.",
+    "reservation": {
+      "night": "Nacht",
+      "paymentMethod": "Zahlungsart",
+      "kkiapayHint": "Mobile Money und Karte – Westafrika",
+      "kkiapayOnlyXof": "Nur für Inserate in XOF verfügbar.",
+      "stripeHint": "Internationale Bankkarte",
+      "payAndBook": "Bezahlen und buchen",
+      "total": "Gesamt",
+      "approxTotal": "Etwa {amount}"
+    },
+    "gallery": {
+      "photoAlt": "{title} – Foto {index}",
+      "previous": "Vorheriges Foto",
+      "next": "Nächstes Foto",
+      "show": "Foto {index} anzeigen",
+      "thumbnailAlt": "{title} – Vorschaubild {index}"
+    },
+    "info": {
+      "type": "Typ",
+      "transaction": "Transaktion",
+      "area": "Fläche",
+      "salePrice": "Verkaufspreis",
+      "monthlyRent": "Monatsmiete",
+      "documents": "Unterlagen",
+      "condition": "Zustand",
+      "availableFrom": "Verfügbar ab",
+      "address": "Adresse",
+      "postedBy": "Inseriert von",
+      "guests": "{count, plural, one {# Gast} other {# Gäste}}",
+      "rooms": "{count, plural, one {# Zimmer} other {# Zimmer}}",
+      "bathrooms": "{count, plural, one {# Badezimmer} other {# Badezimmer}}",
+      "approximateLocation": "Ungefähre Lage: Die genaue Adresse erhalten Sie nach Bestätigung Ihrer Buchung.",
+      "hostLocationNote": "Sie sehen den genauen Standort. Besucher sehen bis zur Buchung nur einen Bereich von etwa 500 m."
+    },
+    "tour": {
+      "viewer": "360-Panoramaansicht",
+      "drag": "Ziehen",
+      "recenter": "Panorama zentrieren",
+      "iframeTitle": "Virtueller Rundgang durch die Immobilie",
+      "kicker": "Virtueller Rundgang",
+      "title": "Die Immobilie aus der Ferne erkunden",
+      "source": "Quelle: {provider}",
+      "fullscreen": "Vollbild",
+      "roomFallback": "Raum {index}",
+      "fullscreenLabel": "Virtueller Rundgang im Vollbild",
+      "openProvider": "Auf der Website des Anbieters öffnen",
+      "closeFullscreen": "Vollbild verlassen",
+      "providers": {
+        "other": "Virtueller Rundgang"
+      }
+    },
+    "autoTranslated": "Automatisch übersetzt",
+    "showOriginal": "Original anzeigen",
+    "showTranslation": "Übersetzung anzeigen",
+    "originalPrice": "Preis des Inserats: {price}, in dieser Währung bezahlt."
+  },
+  "account": {
+    "signInRequired": "Anmeldung erforderlich",
+    "signInPrompt": "Bitte melden Sie sich an.",
+    "favorites": {
+      "title": "Favoriten",
+      "subtitle": "Die Immobilien, die Sie gespeichert haben.",
+      "emptyTitle": "Keine Favoriten",
+      "emptySubtitle": "Sie haben noch kein Inserat zu Ihren Favoriten hinzugefügt."
+    },
+    "trips": {
+      "title": "Meine Reisen",
+      "subtitle": "Ihre vergangenen und kommenden Buchungen.",
+      "emptyTitle": "Keine Reisen",
+      "emptySubtitle": "Sie haben noch keinen Aufenthalt gebucht."
+    },
+    "reservations": {
+      "title": "Buchungen",
+      "subtitle": "Buchungen für Ihre Immobilien.",
+      "emptyTitle": "Keine Buchungen",
+      "emptySubtitle": "Für Ihre Immobilien gibt es noch keine Buchungen."
+    },
+    "properties": {
+      "title": "Meine Immobilien",
+      "subtitle": "Ihre Inserate.",
+      "emptyTitle": "Keine Immobilien",
+      "emptySubtitle": "Sie haben noch keine Immobilie inseriert."
+    }
+  },
+  "messages": {
+    "signInRequired": "Anmeldung erforderlich",
+    "signInPrompt": "Melden Sie sich an, um auf Ihre Nachrichten zuzugreifen.",
+    "title": "Nachrichten",
+    "subtitle": "Ihre Unterhaltungen mit Anbietern und Gästen.",
+    "fromMe": "Sie: {text}",
+    "noMessageYet": "Noch keine Nachrichten.",
+    "defaultMember": "VacationHub-Mitglied",
+    "member": "Mitglied",
+    "emptyTitle": "Keine Unterhaltungen",
+    "emptyText": "Klicken Sie in einem Inserat auf „Nachricht senden“, um den Anbieter zu kontaktieren.",
+    "browse": "Inserate durchsuchen",
+    "threadEmpty": "Stellen Sie sich vor und stellen Sie Ihre Fragen zur Immobilie. Die Unterhaltungen bleiben auf VacationHub.",
+    "placeholder": "Ihre Nachricht",
+    "send": "Senden",
+    "sendFailed": "Nachricht nicht gesendet. Bitte erneut versuchen.",
+    "deleted": "Nachricht gelöscht",
+    "quoteUnavailable": "Nachricht nicht verfügbar",
+    "you": "Sie",
+    "reply": "Antworten",
+    "replyingTo": "Antwort an {name}",
+    "cancelReply": "Antwort abbrechen",
+    "delete": "Löschen",
+    "deleteConfirm": "Diese Nachricht löschen? Sie wird für Sie beide durch „Nachricht gelöscht“ ersetzt.",
+    "deleteFailed": "Löschen nicht möglich. Bitte erneut versuchen.",
+    "sending": "Wird gesendet…"
+  },
+  "profile": {
+    "signInRequired": "Anmeldung erforderlich",
+    "signInPrompt": "Melden Sie sich an, bevor Sie Ihr Profil vervollständigen.",
+    "kicker": "VacationHub-Profil",
+    "title": "Vervollständigen Sie Ihr Profil, um sicher zu inserieren und Kontakt aufzunehmen.",
+    "intro": "Die Plattform umfasst Mietobjekte, Verkäufe, Grundstücke und Immobilienprojekte. Diese Angaben helfen unserem Team bei der Prüfung der Inserate und Käufern wie Verkäufern zu wissen, mit wem sie es zu tun haben.",
+    "point1": "Google oder E-Mail: gleicher Ablauf, vollständiges Profil erforderlich.",
+    "point2": "Jedes neue Inserat wird von unserem Team geprüft.",
+    "point3": "Mit einem Konto können Sie zugleich Käufer und Verkäufer sein.",
+    "formTitle": "Persönliche Angaben",
+    "allRequired": "Alle Felder sind Pflichtfelder.",
+    "emailLocked": "Nicht änderbar: Dies ist Ihr Login.",
+    "saving": "Wird gespeichert…",
+    "save": "Mein Profil speichern",
+    "fields": {
+      "fullName": "Vollständiger Name *",
+      "phone": "Telefon *",
+      "countryOfResidence": "Wohnsitzland *",
+      "cityOfResidence": "Wohnort *",
+      "countryOfOrigin": "Herkunfts- oder Interessenland *",
+      "email": "E-Mail",
+      "preferredContact": "Bevorzugter Kontakt *",
+      "accountPurpose": "Ich bin auf VacationHub, um *",
+      "bio": "Kurze Vorstellung *"
+    },
+    "placeholders": {
+      "countryOfResidence": "Frankreich, Benin…",
+      "cityOfResidence": "Paris, Cotonou…",
+      "countryOfOrigin": "Benin, Togo…",
+      "bio": "Z. B. Beniner in Frankreich, der in der Heimat investieren möchte…"
+    },
+    "contact": {
+      "email": "E-Mail",
+      "phone": "Telefon"
+    },
+    "errors": {
+      "signInRequired": "Anmeldung erforderlich.",
+      "fullName": "Der vollständige Name ist erforderlich.",
+      "phone": "Die Telefonnummer ist erforderlich.",
+      "countryOfResidence": "Das Wohnsitzland ist erforderlich.",
+      "cityOfResidence": "Der Wohnort ist erforderlich.",
+      "countryOfOrigin": "Das Herkunftsland ist erforderlich.",
+      "bio": "Die Vorstellung ist erforderlich.",
+      "preferredContact": "Wählen Sie eine Kontaktart.",
+      "accountPurpose": "Wählen Sie mindestens ein Ziel.",
+      "missingFields": "Einige Pflichtfelder fehlen.",
+      "saveFailed": "Speichern nicht möglich. Bitte gleich erneut versuchen.",
+      "phoneInvalid": "Ungültige Nummer: 8 bis 15 Ziffern, Vorwahl mit „+“ erlaubt."
+    }
+  },
+  "payment": {
+    "metaTitle": "Zahlung mit Kkiapay – VacationHub",
+    "bookingKicker": "Buchung",
+    "alreadyConfirmed": "Diese Buchung ist bereits bestätigt",
+    "cancelled": "Diese Buchung wurde storniert",
+    "noLongerPending": "Diese Buchung wartet nicht mehr auf eine Zahlung",
+    "alreadyConfirmedText": "Keine weitere Zahlung nötig. Sie finden diesen Aufenthalt in Ihren Reisen.",
+    "releasedText": "Die Daten wurden freigegeben. Sie können zum Inserat zurückkehren und andere Daten wählen.",
+    "seeTrips": "Meine Reisen ansehen",
+    "backToListing": "Zurück zum Inserat",
+    "unavailableTitle": "Kkiapay ist für dieses Inserat nicht verfügbar",
+    "unavailableText": "Kkiapay akzeptiert nur Zahlungen in XOF. Kehren Sie zum Inserat zurück und wählen Sie Stripe für die Kartenzahlung.",
+    "notConfiguredTitle": "Die Kkiapay-Zahlung ist nicht eingerichtet",
+    "notConfiguredText": "Die Kkiapay-Konfiguration auf dem Server ist unvollständig. Derzeit kann keine Zahlung gestartet werden.",
+    "secured": "Zahlung gesichert durch Kkiapay. VacationHub speichert niemals Kartendaten.",
+    "noTransactionId": "Kkiapay hat keine Transaktionsreferenz zurückgegeben. Es wurde kein Betrag bestätigt.",
+    "verifyFailed": "Die Zahlung konnte nicht überprüft werden.",
+    "notLoaded": "Die Kkiapay-Zahlung ist noch nicht geladen. Bitte gleich erneut versuchen.",
+    "loadFailed": "Die Kkiapay-Zahlung konnte nicht geladen werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "kicker": "Zahlung mit Kkiapay",
+    "nights": "{count, plural, one {# Nacht} other {# Nächte}}",
+    "totalDue": "Zu zahlender Betrag",
+    "retry": "Erneut versuchen",
+    "verifying": "Zahlung wird geprüft…",
+    "pay": "{amount} XOF mit Kkiapay bezahlen",
+    "loading": "Zahlung wird geladen…",
+    "cancel": "Abbrechen"
+  },
+  "checkoutErrors": {
+    "generic": "Die Zahlung konnte nicht gestartet werden.",
+    "sign_in": "Bitte melden Sie sich an, um zu buchen.",
+    "incomplete": "Die Buchungsangaben sind unvollständig.",
+    "profile_incomplete": "Vervollständigen Sie Ihr Profil vor der Buchung.",
+    "listing_not_found": "Inserat nicht gefunden.",
+    "listing_unavailable": "Dieses Inserat ist nicht verfügbar.",
+    "not_bookable": "Dieses Inserat kann nicht online gebucht werden.",
+    "own_listing": "Sie können Ihre eigene Immobilie nicht buchen.",
+    "invalid_dates": "Ungültige Buchungsdaten.",
+    "dates_taken": "Diese Daten wurden gerade gebucht. Bitte wählen Sie andere.",
+    "missing_origin": "Die Kkiapay-Zahlung ist vorübergehend nicht verfügbar.",
+    "kkiapay_failed": "Die Kkiapay-Zahlung ist nicht durchgegangen.",
+    "amount_mismatch": "Der Zahlungsbetrag entspricht nicht der Buchung.",
+    "unlinked_payment": "Diese Zahlung konnte nicht mit der Buchung verknüpft werden.",
+    "incomplete_payment": "Unvollständige Zahlung.",
+    "sandbox_confirmed": "Testzahlung bestätigt.",
+    "recorded_not_pending": "Zahlung erfasst, aber die Buchung war nicht mehr ausstehend.",
+    "verification_unconfigured": "Die Zahlung wurde an Kkiapay gesendet, aber die sichere Überprüfung ist auf dem Server noch nicht eingerichtet. Die Buchung bleibt ausstehend.",
+    "confirmed": "Zahlung bestätigt."
+  },
+  "verification": {
+    "kicker": "Vertrauen",
+    "title": "Mein Konto verifizieren",
+    "intro": "Zum Inserieren auf VacationHub ist ein verifiziertes Konto nötig. Senden Sie Ihre Unterlagen: Unser Team prüft sie und bestätigt Ihr Konto, in der Regel innerhalb von 48 Stunden.",
+    "signInRequired": "Anmeldung erforderlich",
+    "signInPrompt": "Melden Sie sich an, um Ihr Konto zu verifizieren.",
+    "accountType": "Kontotyp",
+    "accountTypes": {
+      "individual": "Privatperson",
+      "agency": "Agentur"
+    },
+    "documentsFor": {
+      "individual": "Ein Ausweisdokument: Personalausweis oder Reisepass.",
+      "agency": "RCCM, IFU und das Ausweisdokument der Geschäftsführung."
+    },
+    "companyName": "Name der Agentur *",
+    "documents": "Unterlagen",
+    "kinds": {
+      "id_front": "Ausweisdokument – Vorderseite",
+      "id_back": "Ausweisdokument – Rückseite",
+      "rccm": "Handelsregister (RCCM)",
+      "ifu": "Steuernummer (IFU)",
+      "manager_id_front": "Ausweis der Geschäftsführung – Vorderseite",
+      "manager_id_back": "Ausweis der Geschäftsführung – Rückseite"
+    },
+    "hints": {
+      "id_front": "Personalausweis oder Fotoseite des Reisepasses.",
+      "id_back": "Für einen Personalausweis. Bei einem Reisepass nicht nötig.",
+      "rccm": "Registerauszug oder Eintragungsbescheinigung.",
+      "ifu": "IFU-Bescheinigung oder -Karte der Agentur.",
+      "manager_id_front": "Personalausweis oder Fotoseite des Reisepasses.",
+      "manager_id_back": "Für einen Personalausweis. Bei einem Reisepass nicht nötig."
+    },
+    "optional": "optional",
+    "sent": "Dokument gesendet.",
+    "upload": "Hinzufügen",
+    "replace": "Ersetzen",
+    "uploading": "Wird hochgeladen…",
+    "uploaded": "Dokument hinzugefügt.",
+    "view": "Ansehen",
+    "privacy": "Scharfes Foto oder PDF, max. 10 MB. Ihre Unterlagen sind nur für Sie und unser Prüfteam sichtbar und werden 90 Tage nach der Entscheidung gelöscht.",
+    "submit": "Meine Unterlagen senden",
+    "resubmit": "Meine Unterlagen erneut senden",
+    "submitting": "Wird gesendet…",
+    "submitted": "Unterlagen gesendet. Wir melden uns in Kürze.",
+    "status": {
+      "pending": {
+        "title": "In Prüfung",
+        "text": "Unser Team prüft Ihre Unterlagen. Sie können inserieren, sobald Ihr Konto bestätigt ist."
+      },
+      "approved": {
+        "title": "Konto verifiziert",
+        "text": "Ihre Identität ist bestätigt: Sie können Ihre Immobilien inserieren."
+      },
+      "rejected": {
+        "title": "Unterlagen abgelehnt",
+        "text": "Korrigieren Sie Ihre Unterlagen und senden Sie sie erneut.",
+        "note": "Hinweise unseres Teams: {note}"
+      }
+    },
+    "errors": {
+      "fileType": "Format nicht akzeptiert: Verwenden Sie ein Foto (JPEG, PNG, WebP, HEIC) oder ein PDF.",
+      "fileSize": "Datei zu groß: max. 10 MB.",
+      "upload": "Hochladen fehlgeschlagen. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "view": "Dieses Dokument konnte nicht geöffnet werden.",
+      "documents_missing": "Einige Pflichtunterlagen fehlen (mit * markiert).",
+      "company_name_missing": "Geben Sie den Namen Ihrer Agentur ein.",
+      "profile_incomplete": "Vervollständigen Sie zuerst Ihr Profil.",
+      "already_submitted": "Ihre Unterlagen wurden bereits gesendet.",
+      "sign_in": "Melden Sie sich an, um Ihre Unterlagen zu senden.",
+      "generic": "Ein Fehler ist aufgetreten. Bitte erneut versuchen."
+    },
+    "reasons": {
+      "unreadable": "Ein Dokument ist unleserlich oder unscharf.",
+      "expired": "Ein Dokument ist abgelaufen.",
+      "name_mismatch": "Der Name auf dem Dokument stimmt nicht mit Ihrem Profil überein.",
+      "incomplete": "Ein Dokument fehlt oder ist unvollständig.",
+      "wrong_document": "Ein Dokument ist nicht das angeforderte.",
+      "company_mismatch": "Die Unterlagen passen nicht zur angegebenen Agentur."
+    }
+  }
+}

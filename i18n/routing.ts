@@ -2,9 +2,9 @@ import { defineRouting } from "next-intl/routing";
 
 // Le français reste à la racine (`/annonces`) : les liens existants, les URL de retour Stripe
 // et le lien de confirmation email du mobile continuent de fonctionner. Les autres langues
-// vivent sous leur préfixe : `/en`, `/es`, `/pt`.
+// vivent sous leur préfixe : `/en`, `/es`, `/pt`, `/de`, `/it`.
 export const routing = defineRouting({
-  locales: ["fr", "en", "es", "pt"],
+  locales: ["fr", "en", "es", "pt", "de", "it"],
   defaultLocale: "fr",
   localePrefix: "as-needed",
 });
@@ -17,11 +17,14 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   en: "English",
   es: "Español",
   pt: "Português",
+  de: "Deutsch",
+  it: "Italiano",
 };
 
 /** Balise BCP 47 pour `Intl` (dates, heures). */
 export const intlLocale = (locale: string): string =>
-  ({ fr: "fr-FR", en: "en-GB", es: "es-ES", pt: "pt-PT" })[locale] ?? "fr-FR";
+  ({ fr: "fr-FR", en: "en-GB", es: "es-ES", pt: "pt-PT", de: "de-DE", it: "it-IT" })[locale] ??
+  "fr-FR";
 
 export const isLocale = (value: unknown): value is Locale =>
   routing.locales.some((locale) => locale === value);
