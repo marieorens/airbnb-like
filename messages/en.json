@@ -572,7 +572,8 @@
     "autoTranslated": "Automatically translated",
     "showOriginal": "Show original",
     "showTranslation": "Show translation",
-    "originalPrice": "Listing price: {price}, paid in this currency."
+    "originalPrice": "Listing price: {price}, paid in this currency.",
+    "datesUnavailable": "This period includes days that are already booked. Please choose other dates."
   },
   "account": {
     "signInRequired": "Login required",
@@ -705,7 +706,9 @@
     "verifying": "Verifying payment…",
     "pay": "Pay {amount} XOF with Kkiapay",
     "loading": "Loading payment…",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "widgetFailed": "The Kkiapay payment failed. No amount was charged.",
+    "widgetFailedReason": "The Kkiapay payment failed: {reason}"
   },
   "checkoutErrors": {
     "generic": "Couldn’t start the payment.",

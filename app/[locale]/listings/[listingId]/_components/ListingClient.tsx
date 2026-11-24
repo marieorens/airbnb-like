@@ -80,6 +80,16 @@ const ListingClient: React.FC<ListingClientProps> = ({
     return dates;
   }, [reservations]);
 
+  // Jours déjà réservés, pour vérifier qu'une période ne les traverse pas.
+  const bookedDays = useMemo(
+    () => new Set(disabledDates.map((date) => date.toDateString())),
+    [disabledDates]
+  );
+  const crossesBookedDay = (range: Range) =>
+    eachDayOfInterval({ start: range.startDate as Date, end: range.endDate as Date }).some(
+      (day) => bookedDays.has(day.toDateString())
+    );
+
   useEffect(() => {
     if (dateRange.startDate && dateRange.endDate) {
       const dayCount = differenceInCalendarDays(
@@ -191,7 +201,16 @@ const ListingClient: React.FC<ListingClientProps> = ({
                   currency={currency}
                   provider={provider}
                   onProviderChange={setProvider}
-                  onChangeDate={(name, value) => setDateRange(value)}
+                  onChangeDate={(name, value) => {
+                    // Une période ne peut pas enjamber des jours déjà réservés :
+                    // on repart alors du seul jour d'arrivée choisi.
+                    if (value.startDate && value.endDate && crossesBookedDay(value)) {
+                      toast.error(t("datesUnavailable"));
+                      setDateRange({ ...value, endDate: value.startDate });
+                      return;
+                    }
+                    setDateRange(value);
+                  }}
                   dateRange={dateRange}
                   onSubmit={onCreateReservation}
                   isLoading={isLoading}

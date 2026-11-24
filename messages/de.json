@@ -572,7 +572,8 @@
     "autoTranslated": "Automatisch übersetzt",
     "showOriginal": "Original anzeigen",
     "showTranslation": "Übersetzung anzeigen",
-    "originalPrice": "Preis des Inserats: {price}, in dieser Währung bezahlt."
+    "originalPrice": "Preis des Inserats: {price}, in dieser Währung bezahlt.",
+    "datesUnavailable": "Dieser Zeitraum enthält bereits gebuchte Tage. Bitte wählen Sie andere Daten."
   },
   "account": {
     "signInRequired": "Anmeldung erforderlich",
@@ -705,7 +706,9 @@
     "verifying": "Zahlung wird geprüft…",
     "pay": "{amount} XOF mit Kkiapay bezahlen",
     "loading": "Zahlung wird geladen…",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "widgetFailed": "Die Kkiapay-Zahlung ist fehlgeschlagen. Es wurde nichts abgebucht.",
+    "widgetFailedReason": "Die Kkiapay-Zahlung ist fehlgeschlagen: {reason}"
   },
   "checkoutErrors": {
     "generic": "Die Zahlung konnte nicht gestartet werden.",

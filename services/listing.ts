@@ -388,7 +388,19 @@ export const getListingById = async (id: string) => {
   if (error || !data) return null;
 
   const [row] = await withHostProfiles([data as unknown as ListingQueryRow]);
-  return mapListing(row);
+  const listing = mapListing(row);
+
+  // Les réservations d'autrui sont illisibles (RLS) : la base ne renvoie que
+  // les périodes occupées, pour griser le calendrier (migration 202611250001).
+  if (row.transaction_type === "booking") {
+    const { data: ranges } = await supabase.rpc("listing_booked_ranges", { p_listing_id: id });
+    listing.reservations = (ranges ?? []).map((range) => ({
+      startDate: toDate(range.check_in),
+      endDate: toDate(range.check_out),
+    }));
+  }
+
+  return listing;
 };
 
 /** Rayon de recherche « Autour de moi », en kilomètres. */

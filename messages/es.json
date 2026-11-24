@@ -572,7 +572,8 @@
     "autoTranslated": "Traducido automáticamente",
     "showOriginal": "Ver el original",
     "showTranslation": "Ver la traducción",
-    "originalPrice": "Precio del anuncio: {price}, pagado en esta moneda."
+    "originalPrice": "Precio del anuncio: {price}, pagado en esta moneda.",
+    "datesUnavailable": "Este periodo incluye días ya reservados. Elige otras fechas."
   },
   "account": {
     "signInRequired": "Es necesario iniciar sesión",
@@ -705,7 +706,9 @@
     "verifying": "Verificando el pago…",
     "pay": "Pagar {amount} XOF con Kkiapay",
     "loading": "Cargando el pago…",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "widgetFailed": "El pago con Kkiapay ha fallado. No se ha cobrado ningún importe.",
+    "widgetFailedReason": "El pago con Kkiapay ha fallado: {reason}"
   },
   "checkoutErrors": {
     "generic": "No se pudo iniciar el pago.",

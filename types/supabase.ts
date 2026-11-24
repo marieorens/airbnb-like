@@ -467,6 +467,10 @@ export type Database = {
       };
     };
     Functions: {
+      listing_booked_ranges: {
+        Args: { p_listing_id: string };
+        Returns: { check_in: string; check_out: string }[];
+      };
       delete_message: {
         Args: { message_id: string };
         Returns: undefined;

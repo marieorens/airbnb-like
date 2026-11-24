@@ -136,11 +136,32 @@ export function KkiapayPayment({
       }
     };
 
+    // Échec dans le widget (numéro refusé, solde, annulation…) : on affiche la
+    // raison donnée par Kkiapay au lieu de laisser l'utilisateur sans explication.
+    const failedHandler = (payload: unknown) => {
+      console.error("[kkiapay] échec du widget", payload);
+      if (!active) return;
+      const reason =
+        typeof payload === "string"
+          ? payload
+          : ((payload as { reason?: unknown; message?: unknown } | null)?.reason ??
+            (payload as { message?: unknown } | null)?.message);
+      setState({
+        kind: "error",
+        message:
+          typeof reason === "string" && reason
+            ? t("widgetFailedReason", { reason })
+            : t("widgetFailed"),
+      });
+    };
+
     window.addKkiapayListener?.("success", handler);
+    window.addKkiapayListener?.("failed", failedHandler);
 
     return () => {
       active = false;
       window.removeKkiapayListener?.("success", handler);
+      window.removeKkiapayListener?.("failed", failedHandler);
     };
   }, [bookingId, scriptReady, successUrl, t]);
 
